@@ -10,7 +10,7 @@ type ContentRow = {
   label: string
   section: string
   hint: string | null
-  is_multiline: boolean
+  multiline: boolean
 }
 
 type SaveState = 'idle' | 'saving' | 'saved' | 'error'
@@ -63,7 +63,7 @@ function Field({ row }: { row: ContentRow }) {
         </button>
       </div>
 
-      {row.is_multiline ? (
+      {row.multiline ? (
         <textarea
           value={value}
           onChange={e => setValue(e.target.value)}
