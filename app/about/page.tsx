@@ -1,0 +1,109 @@
+import Navbar from '@/components/nav/Navbar'
+import Footer from '@/components/nav/Footer'
+import Image from 'next/image'
+import Link from 'next/link'
+import { ArrowRight } from 'lucide-react'
+
+export const metadata = {
+  title: 'About | Landi-Lou Talent Agency',
+}
+
+export default function AboutPage() {
+  return (
+    <>
+      <Navbar />
+
+      {/* Header */}
+      <section className="pt-36 pb-16 px-6 text-center relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full bg-[#c9a84c]/5 blur-[100px]" />
+        </div>
+        <div className="relative z-10">
+          <p className="text-[#c9a84c] text-xs tracking-[0.3em] uppercase mb-4">Our Story</p>
+          <h1 className="font-[family-name:var(--font-playfair)] text-5xl md:text-6xl text-[#f0ead8] mb-6">
+            About Landi-Lou
+          </h1>
+          <div className="w-16 h-px bg-[#c9a84c]/40 mx-auto" />
+        </div>
+      </section>
+
+      {/* Mission */}
+      <section className="py-16 px-6">
+        <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-14 items-center">
+          <div>
+            <p className="text-[#c9a84c] text-xs tracking-[0.3em] uppercase mb-5">Who We Are</p>
+            <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-[#f0ead8] mb-6 leading-snug">
+              The First Fully Integrated Talent Agency in Central Florida
+            </h2>
+            <p className="text-[#7a869a] leading-relaxed mb-5">
+              Landi-Lou Talent Agency was founded by Dr. Calandria U. Smith with one clear vision:
+              to build a premier house of talent, vision, and opportunity — not a volume-driven operation.
+            </p>
+            <p className="text-[#7a869a] leading-relaxed mb-5">
+              We exist to curate excellence, protect artistry, and build enduring legacies. We move
+              intentionally, partner selectively, and operate with vision.
+            </p>
+            <p className="text-[#7a869a] leading-relaxed">
+              From stage to screen, social media to brand partnerships, we guide every performer toward
+              their highest potential — professionally, strategically, and authentically.
+            </p>
+          </div>
+
+          <div className="flex justify-center">
+            <Image
+              src="/logo.png"
+              alt="Landi-Lou Talent Agency"
+              width={300}
+              height={300}
+              className="rounded-full ring-2 ring-[#c9a84c]/20 gold-glow"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Founder */}
+      <section className="py-16 px-6 bg-[#0d1120]">
+        <div className="max-w-3xl mx-auto text-center">
+          <p className="text-[#c9a84c] text-xs tracking-[0.3em] uppercase mb-6">Founder</p>
+          <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-[#f0ead8] mb-4">
+            Dr. Calandria U. Smith
+          </h2>
+          <p className="text-[#c9a84c] text-sm mb-8 tracking-wide">aka Landi Sleek</p>
+          <p className="text-[#7a869a] leading-relaxed text-lg">
+            &ldquo;This Premier Talent Agency exists to curate excellence, protect artistry, and build
+            enduring legacies. We move intentionally, partner selectively, and operate with vision.&rdquo;
+          </p>
+        </div>
+      </section>
+
+      {/* What we cover */}
+      <section className="py-16 px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-[#c9a84c] text-xs tracking-[0.3em] uppercase mb-4">Coverage</p>
+            <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-[#f0ead8]">What We Represent</h2>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {['Acting', 'Modeling', 'Influencer Marketing', 'Voice-Over', 'Singing', 'Dancing'].map((cat) => (
+              <div key={cat} className="glass-card rounded-lg px-6 py-5 text-center">
+                <p className="text-[#f0ead8] text-sm tracking-wide">{cat}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-16 px-6 text-center">
+        <Link
+          href="/submit"
+          className="inline-flex items-center gap-2 px-10 py-4 bg-[#c9a84c] text-[#06080f] font-semibold rounded text-sm tracking-wide hover:bg-[#e8c97a] transition-all"
+        >
+          Submit Your Talent <ArrowRight size={16} />
+        </Link>
+      </section>
+
+      <Footer />
+    </>
+  )
+}
