@@ -26,10 +26,10 @@ export default function Footer() {
           <p className="text-[#c9a84c] text-xs tracking-[0.2em] uppercase mb-5">Navigation</p>
           <div className="flex flex-col gap-3">
             {[
-              { href: '/', label: 'Home' },
               { href: '/about', label: 'About' },
-              { href: '/services', label: 'Services' },
+              { href: '/representation', label: 'Representation' },
               { href: '/submit', label: 'Submit Talent' },
+              { href: '/for-clients', label: 'For Clients' },
               { href: '/contact', label: 'Contact' },
             ].map(({ href, label }) => (
               <Link key={href} href={href} className="text-[#9ba9bb] hover:text-[#f0ead8] text-sm transition-colors">

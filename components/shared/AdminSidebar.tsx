@@ -3,13 +3,14 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, Users, UserCheck, Briefcase, Bell, LogOut } from 'lucide-react'
+import { LayoutDashboard, Users, UserCheck, Briefcase, Bell, Search, LogOut } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 const links = [
   { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/admin/submissions', icon: Users, label: 'Submissions' },
   { href: '/admin/talent', icon: UserCheck, label: 'Talent Roster' },
+  { href: '/admin/search', icon: Search, label: 'Search Talent' },
   { href: '/admin/casting-directors', icon: Briefcase, label: 'Casting Directors' },
   { href: '/admin/bookings', icon: Bell, label: 'Bookings' },
 ]

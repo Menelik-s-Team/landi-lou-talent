@@ -7,10 +7,10 @@ import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
 
 const navLinks = [
-  { href: '/', label: 'Home' },
   { href: '/about', label: 'About' },
-  { href: '/services', label: 'Services' },
-  { href: '/submit', label: 'Submit Talent' },
+  { href: '/representation', label: 'Representation' },
+  { href: '/submit', label: 'Submit' },
+  { href: '/for-clients', label: 'For Clients' },
   { href: '/contact', label: 'Contact' },
 ]
 
@@ -61,7 +61,7 @@ export default function Navbar() {
             href="/login"
             className="text-sm px-5 py-2 rounded border border-[#c9a84c]/40 text-[#c9a84c] hover:bg-[#c9a84c]/10 transition-all tracking-wide"
           >
-            Portal Login
+            Talent Login
           </Link>
         </div>
 

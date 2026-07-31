@@ -1,9 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
-import Image from 'next/image'
-import TalentLogout from './TalentLogout'
+import TalentSidebar from './TalentSidebar'
 
 export default async function TalentLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -12,31 +10,41 @@ export default async function TalentLayout({ children }: { children: React.React
   if (!user) redirect('/login')
 
   const adminClient = createAdminClient()
-  const { data: profile } = await adminClient
+
+  const { data: roleProfile } = await adminClient
     .from('profiles')
     .select('role')
     .eq('id', user.id)
     .single()
 
-  if (profile?.role !== 'talent') redirect('/login')
+  if (roleProfile?.role !== 'talent') redirect('/login')
+
+  const { data: talentProfile } = await adminClient
+    .from('talent_profiles')
+    .select('first_name, last_name, headshot_url, categories')
+    .eq('user_id', user.id)
+    .single()
+
+  const firstName = talentProfile?.first_name ?? ''
+  const lastName = talentProfile?.last_name ?? ''
+  const category = (talentProfile?.categories as string[] | null)?.[0] ?? ''
+  const headshotUrl = talentProfile?.headshot_url ?? null
 
   return (
-    <div className="min-h-screen bg-[#06080f]">
-      <nav className="glass-card border-b border-[rgba(201,168,76,0.15)] px-6 h-16 flex items-center justify-between">
-        <Link href="/talent-portal" className="flex items-center gap-3">
-          <Image src="/logo.png" alt="Landi-Lou" width={36} height={36} className="rounded-full ring-1 ring-[#c9a84c]/30" />
-          <div>
-            <p className="text-[#c9a84c] text-xs font-semibold tracking-widest uppercase leading-none">Talent Portal</p>
-            <p className="text-[10px] text-[#9ba9bb] tracking-widest">Landi-Lou</p>
-          </div>
-        </Link>
-        <div className="flex items-center gap-6">
-          <Link href="/talent-portal" className="text-sm text-[#9ba9bb] hover:text-[#f0ead8] transition-colors">Dashboard</Link>
-          <Link href="/talent-portal/profile" className="text-sm text-[#9ba9bb] hover:text-[#f0ead8] transition-colors">My Profile</Link>
-          <TalentLogout />
+    <div className="min-h-screen bg-[#06080f] flex">
+      <TalentSidebar
+        firstName={firstName}
+        lastName={lastName}
+        category={category}
+        headshotUrl={headshotUrl}
+      />
+
+      {/* Main content — offset by sidebar width on desktop */}
+      <main className="flex-1 lg:ml-[260px] min-h-screen">
+        <div className="max-w-5xl mx-auto px-6 pt-16 pb-12 lg:pt-10">
+          {children}
         </div>
-      </nav>
-      <main className="max-w-5xl mx-auto px-6 py-10">{children}</main>
+      </main>
     </div>
   )
 }

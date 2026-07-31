@@ -3,7 +3,8 @@ import Navbar from '@/components/nav/Navbar'
 import Footer from '@/components/nav/Footer'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowRight, Star, Shield, Zap, Users, Mic, Camera, Music, Film, Globe } from 'lucide-react'
+import { ArrowRight, Star, Users, TrendingUp, Handshake, Sparkles } from 'lucide-react'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export const metadata: Metadata = {
   alternates: { canonical: 'https://landiloutalentagency.com' },
@@ -36,39 +37,33 @@ const jsonLd = {
   ],
 }
 
-const categories = [
-  { icon: Film, label: 'Acting' },
-  { icon: Camera, label: 'Modeling' },
-  { icon: Globe, label: 'Influencer' },
-  { icon: Mic, label: 'Voice-Over' },
-  { icon: Music, label: 'Singing' },
-  { icon: Star, label: 'Dancing' },
+const brandValues = [
+  { icon: Users, label: 'Personalized Representation' },
+  { icon: Handshake, label: 'Strategic Partnerships' },
+  { icon: Star, label: 'LL Standard of Excellence' },
+  { icon: TrendingUp, label: 'Career Development' },
+  { icon: Sparkles, label: 'Lasting Impact' },
 ]
 
-const pillars = [
-  {
-    icon: Star,
-    title: 'Curated Excellence',
-    body: 'We represent select talent — not volume. Every performer we sign is a strategic choice.',
-  },
-  {
-    icon: Shield,
-    title: 'Legacy Protection',
-    body: 'Your brand, your story, your terms. We protect what you build.',
-  },
-  {
-    icon: Zap,
-    title: 'Elite Partnerships',
-    body: 'We connect talent with brands, directors, and opportunities aligned with excellence.',
-  },
-  {
-    icon: Users,
-    title: 'Full Representation',
-    body: 'From stage to screen, social media, and beyond — we guide every step.',
-  },
-]
+async function getFeaturedTalent() {
+  try {
+    const supabase = createAdminClient()
+    const { data, error } = await supabase
+      .from('talent_profiles')
+      .select('id, first_name, last_name, categories, headshot_url')
+      .eq('is_featured', true)
+      .limit(6)
 
-export default function HomePage() {
+    if (error) return []
+    return data ?? []
+  } catch {
+    return []
+  }
+}
+
+export default async function HomePage() {
+  const featuredTalent = await getFeaturedTalent()
+
   return (
     <>
       <script
@@ -86,26 +81,24 @@ export default function HomePage() {
         </div>
 
         <div className="max-w-5xl mx-auto px-6 text-center relative z-10">
-          <Image
-            src="/logo.png"
-            alt="Landi-Lou Talent Agency"
-            width={120}
-            height={120}
-            className="mx-auto mb-8 rounded-full ring-2 ring-[#c9a84c]/30 gold-glow"
-          />
-
-          <p className="text-[#c9a84c] text-xs tracking-[0.35em] uppercase mb-5">
-            Central Florida&apos;s Premier Talent Agency
+          {/* Eyebrow */}
+          <p className="text-[#c9a84c] text-xs tracking-[0.4em] uppercase mb-6 font-semibold" style={{ fontVariant: 'small-caps' }}>
+            Landi-Lou Talent Agency
           </p>
 
           <h1 className="font-[family-name:var(--font-playfair)] text-5xl md:text-7xl font-bold leading-tight mb-6 text-[#f0ead8]">
-            We Curate Talent.<br />
-            <span className="gold-text">We Protect Legacy.</span>
+            Connecting Talent.<br />
+            Building Careers.<br />
+            <span
+              className="bg-gradient-to-r from-[#c9a84c] via-[#e8c97a] to-[#c9a84c] bg-clip-text text-transparent"
+            >
+              Creating Opportunities.
+            </span>
           </h1>
 
           <p className="text-[#9ba9bb] text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-10">
-            The first fully integrated, inspirationally motivated talent agency in Central Florida —
-            guiding performers from stage to screen, social media, and beyond.
+            A boutique talent agency representing exceptional actors, models, and creatives
+            across film, television, theatre, and beyond.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -116,32 +109,64 @@ export default function HomePage() {
               Submit Your Talent <ArrowRight size={16} />
             </Link>
             <Link
-              href="/about"
+              href="/for-clients"
               className="flex items-center justify-center gap-2 px-8 py-4 border border-[#c9a84c]/40 text-[#c9a84c] rounded text-sm tracking-wide hover:bg-[#c9a84c]/10 transition-all"
             >
-              Learn More
+              For Clients
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Categories strip */}
-      <section className="border-y border-[rgba(201,168,76,0.15)] bg-[#0d1120] py-8">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-6">
-            {categories.map(({ icon: Icon, label }) => (
-              <div key={label} className="flex flex-col items-center gap-2 group">
-                <div className="w-12 h-12 rounded-full bg-[#141929] border border-[rgba(201,168,76,0.15)] flex items-center justify-center group-hover:border-[#c9a84c]/50 transition-all">
-                  <Icon size={18} className="text-[#c9a84c]" />
+      {/* Meet a Few of Our Talent */}
+      {featuredTalent.length > 0 && (
+        <section className="py-20 px-6 bg-[#06080f]">
+          <div className="max-w-7xl mx-auto">
+            <p className="text-[#c9a84c] text-xs tracking-[0.4em] uppercase mb-12 text-center font-semibold">
+              Meet a Few of Our Talent
+            </p>
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+              {featuredTalent.map((talent: {
+                id: string
+                first_name: string
+                last_name: string
+                categories: string[] | null
+                headshot_url: string | null
+              }) => (
+                <div
+                  key={talent.id}
+                  className="relative flex-shrink-0 w-56 group cursor-pointer"
+                >
+                  <div className="relative w-full overflow-hidden rounded-lg" style={{ aspectRatio: '3/4' }}>
+                    {talent.headshot_url ? (
+                      <Image
+                        src={talent.headshot_url}
+                        alt={`${talent.first_name} ${talent.last_name}`}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        sizes="224px"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-[#141929] flex items-center justify-center">
+                        <Star size={32} className="text-[#c9a84c]/30" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-[#c9a84c]/0 group-hover:bg-[#c9a84c]/10 transition-all duration-300 rounded-lg" />
+                  </div>
+                  <div className="mt-3 px-1">
+                    <p className="text-[#f0ead8] font-semibold text-sm leading-tight">{talent.first_name} {talent.last_name}</p>
+                    {talent.categories?.[0] && (
+                      <p className="text-[#9ba9bb] text-xs mt-1 tracking-wide uppercase">{talent.categories[0]}</p>
+                    )}
+                  </div>
                 </div>
-                <p className="text-xs tracking-wide text-[#9ba9bb] group-hover:text-[#f0ead8] transition-colors">{label}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* Brand statement */}
+      {/* Philosophy quote */}
       <section className="py-24 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-[#c9a84c] text-xs tracking-[0.3em] uppercase mb-6">Our Philosophy</p>
@@ -153,28 +178,32 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Pillars */}
-      <section className="py-20 px-6 bg-[#0d1120]">
+      {/* Brand values strip */}
+      <section className="bg-black py-10 px-6 border-y border-[rgba(201,168,76,0.12)]">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
-            <p className="text-[#c9a84c] text-xs tracking-[0.3em] uppercase mb-4">What Sets Us Apart</p>
-            <h2 className="font-[family-name:var(--font-playfair)] text-4xl text-[#f0ead8]">Built on Four Pillars</h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {pillars.map(({ icon: Icon, title, body }) => (
-              <div key={title} className="glass-card rounded-lg p-7 flex flex-col gap-4 gold-glow group hover:border-[#c9a84c]/30 transition-all">
-                <div className="w-11 h-11 rounded-full bg-[#c9a84c]/10 flex items-center justify-center">
-                  <Icon size={20} className="text-[#c9a84c]" />
-                </div>
-                <h3 className="font-[family-name:var(--font-playfair)] text-lg text-[#f0ead8]">{title}</h3>
-                <p className="text-[#9ba9bb] text-sm leading-relaxed">{body}</p>
+          <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-8">
+            {brandValues.map(({ icon: Icon, label }, i) => (
+              <div key={label} className="flex flex-col items-center gap-2 group">
+                {i === 2 ? (
+                  /* Center LL star accent */
+                  <div className="w-10 h-10 rounded-full bg-[#c9a84c]/15 border border-[#c9a84c]/30 flex items-center justify-center group-hover:bg-[#c9a84c]/25 transition-all">
+                    <Star size={18} className="text-[#c9a84c]" fill="currentColor" />
+                  </div>
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-[#c9a84c]/10 flex items-center justify-center group-hover:bg-[#c9a84c]/20 transition-all">
+                    <Icon size={18} className="text-[#c9a84c]" />
+                  </div>
+                )}
+                <p className="text-[#9ba9bb] text-xs tracking-wide text-center group-hover:text-[#f0ead8] transition-colors max-w-[110px] leading-snug">
+                  {label}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA */}
+      {/* Final CTA */}
       <section className="py-24 px-6">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-[#c9a84c] text-xs tracking-[0.3em] uppercase mb-6">Ready to Elevate?</p>
