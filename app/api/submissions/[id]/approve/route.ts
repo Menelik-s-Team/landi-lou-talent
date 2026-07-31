@@ -34,11 +34,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: authError.message }, { status: 500 })
   }
 
-  // Update profile role
+  // Upsert profile — handles both trigger-created and manual user creation
   await supabase
     .from('profiles')
-    .update({ role: 'talent', full_name: `${submission.first_name} ${submission.last_name}` })
-    .eq('id', authData.user.id)
+    .upsert({
+      id: authData.user.id,
+      email: submission.email,
+      role: 'talent',
+      full_name: `${submission.first_name} ${submission.last_name}`,
+    }, { onConflict: 'id' })
 
   // Create talent profile
   await supabase.from('talent_profiles').insert({
