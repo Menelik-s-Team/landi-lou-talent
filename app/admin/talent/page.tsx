@@ -1,11 +1,11 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import Image from 'next/image'
 import Link from 'next/link'
 
 export const metadata = { title: 'Talent Roster | Admin' }
 
 export default async function TalentRosterPage() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data: talent } = await supabase
     .from('talent_profiles')
     .select('*')

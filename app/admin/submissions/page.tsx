@@ -1,10 +1,10 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import Link from 'next/link'
 
 export const metadata = { title: 'Submissions | Admin' }
 
 export default async function SubmissionsPage() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data: submissions } = await supabase
     .from('talent_submissions')
     .select('*')

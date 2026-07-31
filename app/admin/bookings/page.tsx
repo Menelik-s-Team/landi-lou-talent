@@ -1,9 +1,9 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export const metadata = { title: 'Bookings | Admin' }
 
 export default async function BookingsPage() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
   const { data: bookings } = await supabase
     .from('booking_requests')
     .select(`

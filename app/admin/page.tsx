@@ -1,11 +1,11 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import Link from 'next/link'
 import { Users, UserCheck, Briefcase, Clock } from 'lucide-react'
 
 export const metadata = { title: 'Admin Dashboard | Landi-Lou' }
 
 export default async function AdminDashboard() {
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const [
     { count: pendingCount },
