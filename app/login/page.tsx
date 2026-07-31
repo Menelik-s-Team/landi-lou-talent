@@ -3,40 +3,25 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { login } from './actions'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
-  const supabase = createClient()
 
-  async function handleLogin(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
     setError('')
 
-    const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password })
+    const formData = new FormData(e.currentTarget)
+    const result = await login(formData)
 
-    if (authError) {
-      setError(authError.message)
+    if (result?.error) {
+      setError(result.error)
       setLoading(false)
-      return
     }
-
-    // Route based on role
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', data.user.id)
-      .single()
-
-    if (profile?.role === 'admin') router.push('/admin')
-    else if (profile?.role === 'casting_director') router.push('/casting')
-    else router.push('/talent-portal')
+    // If no error, server action handles redirect
   }
 
   return (
@@ -46,7 +31,6 @@ export default function LoginPage() {
       </div>
 
       <div className="w-full max-w-md relative z-10">
-        {/* Logo */}
         <div className="text-center mb-10">
           <Link href="/">
             <Image
@@ -68,32 +52,41 @@ export default function LoginPage() {
             Sign in to your talent, casting, or admin portal.
           </p>
 
-          <form onSubmit={handleLogin} className="flex flex-col gap-5">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div>
-              <label className="block text-[#7a869a] text-xs tracking-widest uppercase mb-2">Email</label>
+              <label htmlFor="email" className="block text-[#7a869a] text-xs tracking-widest uppercase mb-2">
+                Email
+              </label>
               <input
+                id="email"
+                name="email"
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
                 required
+                autoComplete="email"
                 className="w-full bg-[#141929] border border-[rgba(201,168,76,0.2)] rounded px-4 py-3 text-[#f0ead8] text-sm placeholder-[#7a869a] focus:outline-none focus:border-[#c9a84c]/60 transition-colors"
                 placeholder="your@email.com"
               />
             </div>
+
             <div>
-              <label className="block text-[#7a869a] text-xs tracking-widest uppercase mb-2">Password</label>
+              <label htmlFor="password" className="block text-[#7a869a] text-xs tracking-widest uppercase mb-2">
+                Password
+              </label>
               <input
+                id="password"
+                name="password"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 required
+                autoComplete="current-password"
                 className="w-full bg-[#141929] border border-[rgba(201,168,76,0.2)] rounded px-4 py-3 text-[#f0ead8] text-sm placeholder-[#7a869a] focus:outline-none focus:border-[#c9a84c]/60 transition-colors"
                 placeholder="••••••••"
               />
             </div>
 
             {error && (
-              <p className="text-red-400 text-sm text-center">{error}</p>
+              <div className="bg-red-500/10 border border-red-500/30 rounded px-4 py-3">
+                <p className="text-red-400 text-sm text-center">{error}</p>
+              </div>
             )}
 
             <button
