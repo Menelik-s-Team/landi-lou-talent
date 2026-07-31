@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, Star, Users, TrendingUp, Handshake, Sparkles } from 'lucide-react'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getContent } from '@/lib/content'
 
 export const metadata: Metadata = {
   alternates: { canonical: 'https://landiloutalentagency.com' },
@@ -62,7 +63,25 @@ async function getFeaturedTalent() {
 }
 
 export default async function HomePage() {
-  const featuredTalent = await getFeaturedTalent()
+  const [featuredTalent, c] = await Promise.all([
+    getFeaturedTalent(),
+    getContent([
+      'home_hero_eyebrow','home_hero_line1','home_hero_line2','home_hero_line3',
+      'home_hero_subtext','home_philosophy_label','home_philosophy_quote',
+      'home_cta_eyebrow','home_cta_heading','home_cta_subtext',
+    ], {
+      home_hero_eyebrow: 'Landi-Lou Talent Agency',
+      home_hero_line1: 'Connecting Talent.',
+      home_hero_line2: 'Building Careers.',
+      home_hero_line3: 'Creating Opportunities.',
+      home_hero_subtext: 'A boutique talent agency representing exceptional actors, models, and creatives across film, television, theatre, and beyond.',
+      home_philosophy_label: 'Our Philosophy',
+      home_philosophy_quote: 'We are not a volume agency. We are a premier house of talent, vision, and opportunity — curating careers, building brands, and protecting legacy.',
+      home_cta_eyebrow: 'Ready to Elevate?',
+      home_cta_heading: 'Your next chapter starts here.',
+      home_cta_subtext: 'Submit your talent profile for review. We move intentionally, partner selectively, and operate with vision.',
+    }),
+  ])
 
   return (
     <>
@@ -83,22 +102,19 @@ export default async function HomePage() {
         <div className="max-w-5xl mx-auto px-6 text-center relative z-10">
           {/* Eyebrow */}
           <p className="text-[#c9a84c] text-xs tracking-[0.4em] uppercase mb-6 font-semibold" style={{ fontVariant: 'small-caps' }}>
-            Landi-Lou Talent Agency
+            {c.home_hero_eyebrow}
           </p>
 
           <h1 className="font-[family-name:var(--font-playfair)] text-5xl md:text-7xl font-bold leading-tight mb-6 text-[#f0ead8]">
-            Connecting Talent.<br />
-            Building Careers.<br />
-            <span
-              className="bg-gradient-to-r from-[#c9a84c] via-[#e8c97a] to-[#c9a84c] bg-clip-text text-transparent"
-            >
-              Creating Opportunities.
+            {c.home_hero_line1}<br />
+            {c.home_hero_line2}<br />
+            <span className="bg-gradient-to-r from-[#c9a84c] via-[#e8c97a] to-[#c9a84c] bg-clip-text text-transparent">
+              {c.home_hero_line3}
             </span>
           </h1>
 
           <p className="text-[#9ba9bb] text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-10">
-            A boutique talent agency representing exceptional actors, models, and creatives
-            across film, television, theatre, and beyond.
+            {c.home_hero_subtext}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -169,10 +185,9 @@ export default async function HomePage() {
       {/* Philosophy quote */}
       <section className="py-24 px-6">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-[#c9a84c] text-xs tracking-[0.3em] uppercase mb-6">Our Philosophy</p>
+          <p className="text-[#c9a84c] text-xs tracking-[0.3em] uppercase mb-6">{c.home_philosophy_label}</p>
           <blockquote className="font-[family-name:var(--font-playfair)] text-3xl md:text-4xl text-[#f0ead8] leading-snug mb-8">
-            &ldquo;We are not a volume agency. We are a premier house of talent, vision, and
-            opportunity — curating careers, building brands, and protecting legacy.&rdquo;
+            &ldquo;{c.home_philosophy_quote}&rdquo;
           </blockquote>
           <div className="w-16 h-px bg-[#c9a84c]/40 mx-auto" />
         </div>
@@ -206,13 +221,12 @@ export default async function HomePage() {
       {/* Final CTA */}
       <section className="py-24 px-6">
         <div className="max-w-3xl mx-auto text-center">
-          <p className="text-[#c9a84c] text-xs tracking-[0.3em] uppercase mb-6">Ready to Elevate?</p>
+          <p className="text-[#c9a84c] text-xs tracking-[0.3em] uppercase mb-6">{c.home_cta_eyebrow}</p>
           <h2 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-[#f0ead8] mb-6">
-            Your next chapter starts here.
+            {c.home_cta_heading}
           </h2>
           <p className="text-[#9ba9bb] mb-10 leading-relaxed">
-            Submit your talent profile for review. We move intentionally, partner selectively,
-            and operate with vision.
+            {c.home_cta_subtext}
           </p>
           <Link
             href="/submit"

@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, Users, UserCheck, Briefcase, Bell, Search, LogOut } from 'lucide-react'
+import { LayoutDashboard, Users, UserCheck, Briefcase, Bell, Search, FileEdit, LogOut } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 const links = [
@@ -13,6 +13,7 @@ const links = [
   { href: '/admin/search', icon: Search, label: 'Search Talent' },
   { href: '/admin/casting-directors', icon: Briefcase, label: 'Casting Directors' },
   { href: '/admin/bookings', icon: Bell, label: 'Bookings' },
+  { href: '/admin/content', icon: FileEdit, label: 'Edit Content' },
 ]
 
 export default function AdminSidebar() {
