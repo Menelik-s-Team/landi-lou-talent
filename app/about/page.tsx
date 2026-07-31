@@ -1,12 +1,21 @@
+import type { Metadata } from 'next'
 import Navbar from '@/components/nav/Navbar'
 import Footer from '@/components/nav/Footer'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 
-export const metadata = {
-  title: 'About | Landi-Lou Talent Agency',
+export const metadata: Metadata = {
+  title: 'About Us',
+  description: 'Learn about Landi-Lou Talent Agency — Central Florida\'s first fully integrated talent agency founded by Dr. Calandria Smith. We curate excellence, protect artistry, and build enduring legacies.',
+  alternates: { canonical: 'https://landiloutalentagency.com/about' },
+  openGraph: {
+    title: 'About Landi-Lou Talent Agency',
+    description: 'Founded by Dr. Calandria Smith — Central Florida\'s premier talent agency representing actors, models, influencers, and more.',
+    url: 'https://landiloutalentagency.com/about',
+  },
 }
+
 
 export default function AboutPage() {
   return (

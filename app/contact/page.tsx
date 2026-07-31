@@ -1,12 +1,43 @@
+'use client'
+
 import Navbar from '@/components/nav/Navbar'
 import Footer from '@/components/nav/Footer'
-import { Mail, MapPin } from 'lucide-react'
-
-export const metadata = {
-  title: 'Contact | Landi-Lou Talent Agency',
-}
+import { Mail, MapPin, CheckCircle } from 'lucide-react'
+import { useState } from 'react'
 
 export default function ContactPage() {
+  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
+  const [loading, setLoading] = useState(false)
+  const [sent, setSent] = useState(false)
+  const [error, setError] = useState('')
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      const data = await res.json()
+      if (res.ok) setSent(true)
+      else setError(data.error || 'Something went wrong. Please try again.')
+    } catch {
+      setError('Something went wrong. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const inputClass = "w-full bg-[#141929] border border-[rgba(201,168,76,0.2)] rounded px-4 py-3 text-[#f0ead8] text-sm placeholder-[#7a869a] focus:outline-none focus:border-[#c9a84c]/60 transition-colors"
+  const labelClass = "block text-[#7a869a] text-xs tracking-widest uppercase mb-2"
+
   return (
     <>
       <Navbar />
@@ -26,7 +57,6 @@ export default function ContactPage() {
 
       <section className="py-16 px-6">
         <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-14">
-          {/* Info */}
           <div>
             <h2 className="font-[family-name:var(--font-playfair)] text-2xl text-[#f0ead8] mb-8">
               Let&apos;s Connect
@@ -53,65 +83,91 @@ export default function ContactPage() {
                 </div>
               </div>
             </div>
-
             <div className="mt-10 pt-8 border-t border-[rgba(201,168,76,0.15)]">
               <p className="text-[#7a869a] text-sm leading-relaxed">
                 For talent submissions, please use our{' '}
-                <a href="/submit" className="text-[#c9a84c] hover:text-[#e8c97a] transition-colors">
-                  submission form
-                </a>
-                . For casting director inquiries, contact us directly via email.
+                <a href="/submit" className="text-[#c9a84c] hover:text-[#e8c97a] transition-colors">submission form</a>.
+                For casting director inquiries, contact us directly.
               </p>
             </div>
           </div>
 
-          {/* Contact form */}
           <div className="glass-card rounded-lg p-8">
-            <h3 className="font-[family-name:var(--font-playfair)] text-xl text-[#f0ead8] mb-6">Send a Message</h3>
-            <form className="flex flex-col gap-5" action="mailto:info@landiloutalentagency.com" method="get" encType="text/plain">
-              <div>
-                <label className="block text-[#7a869a] text-xs tracking-widest uppercase mb-2">Full Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  className="w-full bg-[#141929] border border-[rgba(201,168,76,0.2)] rounded px-4 py-3 text-[#f0ead8] text-sm placeholder-[#7a869a] focus:outline-none focus:border-[#c9a84c]/60 transition-colors"
-                  placeholder="Your name"
-                />
+            {sent ? (
+              <div className="flex flex-col items-center justify-center h-full gap-4 py-8 text-center">
+                <CheckCircle size={48} className="text-[#c9a84c]" />
+                <h3 className="font-[family-name:var(--font-playfair)] text-xl text-[#f0ead8]">Message Sent</h3>
+                <p className="text-[#7a869a] text-sm">We&apos;ll get back to you within 1–2 business days. A confirmation was sent to your email.</p>
               </div>
-              <div>
-                <label className="block text-[#7a869a] text-xs tracking-widest uppercase mb-2">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  className="w-full bg-[#141929] border border-[rgba(201,168,76,0.2)] rounded px-4 py-3 text-[#f0ead8] text-sm placeholder-[#7a869a] focus:outline-none focus:border-[#c9a84c]/60 transition-colors"
-                  placeholder="your@email.com"
-                />
-              </div>
-              <div>
-                <label className="block text-[#7a869a] text-xs tracking-widest uppercase mb-2">Subject</label>
-                <input
-                  type="text"
-                  name="subject"
-                  className="w-full bg-[#141929] border border-[rgba(201,168,76,0.2)] rounded px-4 py-3 text-[#f0ead8] text-sm placeholder-[#7a869a] focus:outline-none focus:border-[#c9a84c]/60 transition-colors"
-                  placeholder="What is this about?"
-                />
-              </div>
-              <div>
-                <label className="block text-[#7a869a] text-xs tracking-widest uppercase mb-2">Message</label>
-                <textarea
-                  name="body"
-                  rows={5}
-                  className="w-full bg-[#141929] border border-[rgba(201,168,76,0.2)] rounded px-4 py-3 text-[#f0ead8] text-sm placeholder-[#7a869a] focus:outline-none focus:border-[#c9a84c]/60 transition-colors resize-none"
-                  placeholder="Your message..."
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full py-3 bg-[#c9a84c] text-[#06080f] font-semibold rounded text-sm tracking-wide hover:bg-[#e8c97a] transition-all"
-              >
-                Send Message
-              </button>
-            </form>
+            ) : (
+              <>
+                <h3 className="font-[family-name:var(--font-playfair)] text-xl text-[#f0ead8] mb-6">Send a Message</h3>
+                <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
+                  <div>
+                    <label htmlFor="contact-name" className={labelClass}>Full Name *</label>
+                    <input
+                      id="contact-name"
+                      type="text"
+                      name="name"
+                      value={form.name}
+                      onChange={handleChange}
+                      required
+                      autoComplete="name"
+                      className={inputClass}
+                      placeholder="Your name"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="contact-email" className={labelClass}>Email *</label>
+                    <input
+                      id="contact-email"
+                      type="email"
+                      name="email"
+                      value={form.email}
+                      onChange={handleChange}
+                      required
+                      autoComplete="email"
+                      className={inputClass}
+                      placeholder="your@email.com"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="contact-subject" className={labelClass}>Subject *</label>
+                    <input
+                      id="contact-subject"
+                      type="text"
+                      name="subject"
+                      value={form.subject}
+                      onChange={handleChange}
+                      required
+                      className={inputClass}
+                      placeholder="What is this about?"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="contact-message" className={labelClass}>Message *</label>
+                    <textarea
+                      id="contact-message"
+                      name="message"
+                      value={form.message}
+                      onChange={handleChange}
+                      required
+                      rows={5}
+                      className={`${inputClass} resize-none`}
+                      placeholder="Your message..."
+                    />
+                  </div>
+                  {error && <p className="text-red-400 text-sm">{error}</p>}
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3 bg-[#c9a84c] text-[#06080f] font-semibold rounded text-sm tracking-wide hover:bg-[#e8c97a] transition-all disabled:opacity-50"
+                  >
+                    {loading ? 'Sending...' : 'Send Message'}
+                  </button>
+                </form>
+              </>
+            )}
           </div>
         </div>
       </section>

@@ -1,8 +1,40 @@
+import type { Metadata } from 'next'
 import Navbar from '@/components/nav/Navbar'
 import Footer from '@/components/nav/Footer'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, Star, Shield, Zap, Users, Mic, Camera, Music, Film, Globe } from 'lucide-react'
+
+export const metadata: Metadata = {
+  alternates: { canonical: 'https://landiloutalentagency.com' },
+}
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': 'https://landiloutalentagency.com/#organization',
+      name: 'Landi-Lou Talent Agency',
+      url: 'https://landiloutalentagency.com',
+      logo: 'https://landiloutalentagency.com/logo.png',
+      email: 'info@landiloutalentagency.com',
+      description: "Central Florida's premier talent agency representing actors, models, influencers, voice-over artists, singers, and dancers.",
+      areaServed: { '@type': 'State', name: 'Florida' },
+      founder: { '@type': 'Person', name: 'Dr. Calandria Smith' },
+    },
+    {
+      '@type': 'LocalBusiness',
+      '@id': 'https://landiloutalentagency.com/#business',
+      name: 'Landi-Lou Talent Agency',
+      url: 'https://landiloutalentagency.com',
+      image: 'https://landiloutalentagency.com/logo.png',
+      address: { '@type': 'PostalAddress', addressRegion: 'FL', addressCountry: 'US' },
+      email: 'info@landiloutalentagency.com',
+      priceRange: '$$',
+    },
+  ],
+}
 
 const categories = [
   { icon: Film, label: 'Acting' },
@@ -39,6 +71,10 @@ const pillars = [
 export default function HomePage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar />
 
       {/* Hero */}

@@ -1,11 +1,20 @@
+import type { Metadata } from 'next'
 import Navbar from '@/components/nav/Navbar'
 import Footer from '@/components/nav/Footer'
 import Link from 'next/link'
 import { ArrowRight, Briefcase, TrendingUp, BookOpen, Star, Shield, Users } from 'lucide-react'
 
-export const metadata = {
-  title: 'Services | Landi-Lou Talent Agency',
+export const metadata: Metadata = {
+  title: 'Services',
+  description: 'Talent representation, strategic branding, elite partnerships, and career development for actors, models, influencers, voice-over artists, singers, and dancers in Central Florida.',
+  alternates: { canonical: 'https://landiloutalentagency.com/services' },
+  openGraph: {
+    title: 'Services | Landi-Lou Talent Agency',
+    description: 'Full-service talent representation across acting, modeling, influencer marketing, voice-over, singing, and dancing.',
+    url: 'https://landiloutalentagency.com/services',
+  },
 }
+
 
 const services = [
   {
