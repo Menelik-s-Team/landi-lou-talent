@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+function getResend() { return new Resend(process.env.RESEND_API_KEY) }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     .update({ status: 'rejected', admin_notes: notes, reviewed_at: new Date().toISOString() })
     .eq('id', id)
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from: process.env.RESEND_FROM_EMAIL!,
     to: submission.email,
     subject: 'Update on Your Landi-Lou Talent Agency Application',

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+function getResend() { return new Resend(process.env.RESEND_API_KEY) }
 
 export async function POST(req: NextRequest) {
   try {
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Send confirmation email to talent
-    await resend.emails.send({
+    await getResend().emails.send({
       from: process.env.RESEND_FROM_EMAIL!,
       to: fields.email,
       subject: 'Your Landi-Lou Talent Agency Application Was Received',
@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
     })
 
     // Notify admin
-    await resend.emails.send({
+    await getResend().emails.send({
       from: process.env.RESEND_FROM_EMAIL!,
       to: process.env.RESEND_FROM_EMAIL!,
       subject: `New Talent Submission: ${fields.first_name} ${fields.last_name}`,

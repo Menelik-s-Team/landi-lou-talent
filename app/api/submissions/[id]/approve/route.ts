@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+function getResend() { return new Resend(process.env.RESEND_API_KEY) }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     .eq('id', id)
 
   // Send approval email with login credentials
-  await resend.emails.send({
+  await getResend().emails.send({
     from: process.env.RESEND_FROM_EMAIL!,
     to: submission.email,
     subject: 'Congratulations — You Have Been Accepted to Landi-Lou Talent Agency',
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   // Also notify guardian if minor
   if (submission.is_minor && submission.guardian_email) {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: process.env.RESEND_FROM_EMAIL!,
       to: submission.guardian_email,
       subject: `${submission.first_name} Has Been Accepted to Landi-Lou Talent Agency`,
