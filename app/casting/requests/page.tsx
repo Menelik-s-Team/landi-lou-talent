@@ -19,7 +19,7 @@ export default async function CastingRequestsPage() {
     under_review: 'bg-blue-500/10 text-blue-400',
     confirmed: 'bg-green-500/10 text-green-400',
     declined: 'bg-red-500/10 text-red-400',
-    completed: 'bg-[#7a869a]/10 text-[#7a869a]',
+    completed: 'bg-[#9ba9bb]/10 text-[#9ba9bb]',
   }
 
   return (
@@ -36,23 +36,23 @@ export default async function CastingRequestsPage() {
               <div key={r.id} className="px-6 py-5 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
                 <div>
                   <p className="text-[#f0ead8] text-sm font-medium">{r.project_name}</p>
-                  <p className="text-[#7a869a] text-xs mt-1">
+                  <p className="text-[#9ba9bb] text-xs mt-1">
                     Talent: {r.talent_profiles?.first_name} {r.talent_profiles?.last_name}
                     {r.talent_profiles?.categories?.length > 0 && ` · ${r.talent_profiles.categories[0]}`}
                   </p>
                   {r.date_needed && (
-                    <p className="text-[#7a869a] text-xs">Date: {new Date(r.date_needed).toLocaleDateString()}</p>
+                    <p className="text-[#9ba9bb] text-xs">Date: {new Date(r.date_needed).toLocaleDateString()}</p>
                   )}
-                  {r.location && <p className="text-[#7a869a] text-xs">Location: {r.location}</p>}
+                  {r.location && <p className="text-[#9ba9bb] text-xs">Location: {r.location}</p>}
                 </div>
-                <span className={`text-xs px-3 py-1 rounded-full flex-shrink-0 ${statusColors[r.status] || 'bg-[#141929] text-[#7a869a]'}`}>
+                <span className={`text-xs px-3 py-1 rounded-full flex-shrink-0 ${statusColors[r.status] || 'bg-[#141929] text-[#9ba9bb]'}`}>
                   {r.status.replace('_', ' ')}
                 </span>
               </div>
             ))}
           </div>
         ) : (
-          <div className="py-16 text-center text-[#7a869a] text-sm">
+          <div className="py-16 text-center text-[#9ba9bb] text-sm">
             No requests yet. <a href="/casting" className="text-[#c9a84c]">Browse talent →</a>
           </div>
         )}

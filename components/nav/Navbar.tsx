@@ -34,7 +34,7 @@ export default function Navbar() {
             <p className="font-[var(--font-playfair)] text-[#c9a84c] text-sm font-semibold tracking-widest uppercase leading-none">
               Landi-Lou
             </p>
-            <p className="text-[10px] tracking-[0.2em] text-[#7a869a] uppercase">Talent Agency</p>
+            <p className="text-[10px] tracking-[0.2em] text-[#9ba9bb] uppercase">Talent Agency</p>
           </div>
         </Link>
 
@@ -47,7 +47,7 @@ export default function Navbar() {
               className={`text-sm tracking-wide transition-colors duration-200 ${
                 pathname === href
                   ? 'text-[#c9a84c]'
-                  : 'text-[#7a869a] hover:text-[#f0ead8]'
+                  : 'text-[#9ba9bb] hover:text-[#f0ead8]'
               }`}
             >
               {label}
@@ -83,7 +83,7 @@ export default function Navbar() {
               key={href}
               href={href}
               onClick={() => setOpen(false)}
-              className={`text-sm tracking-wide ${pathname === href ? 'text-[#c9a84c]' : 'text-[#7a869a]'}`}
+              className={`text-sm tracking-wide ${pathname === href ? 'text-[#c9a84c]' : 'text-[#9ba9bb]'}`}
             >
               {label}
             </Link>

@@ -81,10 +81,10 @@ export default function TalentProfilePage() {
     }
   }
 
-  if (!profile) return <div className="text-[#7a869a] text-sm">Loading...</div>
+  if (!profile) return <div className="text-[#9ba9bb] text-sm">Loading...</div>
 
-  const inputClass = "w-full bg-[#141929] border border-[rgba(201,168,76,0.2)] rounded px-4 py-3 text-[#f0ead8] text-sm placeholder-[#7a869a] focus:outline-none focus:border-[#c9a84c]/60 transition-colors"
-  const labelClass = "block text-[#7a869a] text-xs tracking-widest uppercase mb-2"
+  const inputClass = "w-full bg-[#141929] border border-[rgba(201,168,76,0.2)] rounded px-4 py-3 text-[#f0ead8] text-sm placeholder-[#9ba9bb] focus:outline-none focus:border-[#c9a84c]/60 transition-colors"
+  const labelClass = "block text-[#9ba9bb] text-xs tracking-widest uppercase mb-2"
 
   return (
     <div>
@@ -115,12 +115,12 @@ export default function TalentProfilePage() {
                 className="object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-[#7a869a] text-sm">No headshot</div>
+              <div className="w-full h-full flex items-center justify-center text-[#9ba9bb] text-sm">No headshot</div>
             )}
           </div>
           <label className="flex flex-col items-center gap-2 border border-dashed border-[rgba(201,168,76,0.3)] rounded-lg p-4 cursor-pointer hover:border-[#c9a84c]/60 transition-colors">
             <Upload size={18} className="text-[#c9a84c]" />
-            <span className="text-[#7a869a] text-xs">Update headshot</span>
+            <span className="text-[#9ba9bb] text-xs">Update headshot</span>
             <input type="file" accept="image/*" className="hidden" onChange={handleHeadshotChange} />
           </label>
 
@@ -131,7 +131,7 @@ export default function TalentProfilePage() {
               className={`w-full py-2 rounded text-sm font-medium transition-all ${
                 profile.is_available
                   ? 'bg-green-500/10 text-green-400 border border-green-500/30'
-                  : 'bg-[#141929] text-[#7a869a] border border-[rgba(201,168,76,0.2)]'
+                  : 'bg-[#141929] text-[#9ba9bb] border border-[rgba(201,168,76,0.2)]'
               }`}
             >
               {profile.is_available ? 'Available for Bookings' : 'Not Available'}
@@ -185,7 +185,7 @@ export default function TalentProfilePage() {
                   className={`px-4 py-2.5 rounded border text-sm transition-all ${
                     (profile.categories as string[])?.includes(cat)
                       ? 'border-[#c9a84c] bg-[#c9a84c]/10 text-[#c9a84c]'
-                      : 'border-[rgba(201,168,76,0.2)] text-[#7a869a] hover:border-[#c9a84c]/40'
+                      : 'border-[rgba(201,168,76,0.2)] text-[#9ba9bb] hover:border-[#c9a84c]/40'
                   }`}
                 >
                   {cat}

@@ -38,13 +38,13 @@ export default function ApproveRejectButtons({ submissionId, submissionData }: P
     <div className="glass-card rounded-xl p-6 flex flex-col gap-4 border border-[rgba(201,168,76,0.2)]">
       <p className="text-[#c9a84c] text-xs tracking-widest uppercase">Admin Decision</p>
       <div>
-        <label className="block text-[#7a869a] text-xs tracking-widest uppercase mb-2">Notes (optional)</label>
+        <label className="block text-[#9ba9bb] text-xs tracking-widest uppercase mb-2">Notes (optional)</label>
         <textarea
           value={notes}
           onChange={e => setNotes(e.target.value)}
           rows={3}
           placeholder="Internal notes about this submission..."
-          className="w-full bg-[#141929] border border-[rgba(201,168,76,0.2)] rounded px-4 py-3 text-[#f0ead8] text-sm placeholder-[#7a869a] focus:outline-none focus:border-[#c9a84c]/60 transition-colors resize-none"
+          className="w-full bg-[#141929] border border-[rgba(201,168,76,0.2)] rounded px-4 py-3 text-[#f0ead8] text-sm placeholder-[#9ba9bb] focus:outline-none focus:border-[#c9a84c]/60 transition-colors resize-none"
         />
       </div>
       <div className="flex gap-3">

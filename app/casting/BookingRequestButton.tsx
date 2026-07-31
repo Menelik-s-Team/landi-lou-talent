@@ -32,7 +32,7 @@ export default function BookingRequestButton({ talentId, talentName, castingDire
     }
   }
 
-  const inputClass = "w-full bg-[#0d1120] border border-[rgba(201,168,76,0.2)] rounded px-3 py-2.5 text-[#f0ead8] text-sm placeholder-[#7a869a] focus:outline-none focus:border-[#c9a84c]/60 transition-colors"
+  const inputClass = "w-full bg-[#0d1120] border border-[rgba(201,168,76,0.2)] rounded px-3 py-2.5 text-[#f0ead8] text-sm placeholder-[#9ba9bb] focus:outline-none focus:border-[#c9a84c]/60 transition-colors"
 
   if (sent) return <div className="text-green-400 text-xs text-center py-2">Request sent!</div>
 
@@ -49,7 +49,7 @@ export default function BookingRequestButton({ talentId, talentName, castingDire
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
           <div className="glass-card rounded-xl p-6 w-full max-w-md">
             <h3 className="font-[family-name:var(--font-playfair)] text-lg text-[#f0ead8] mb-1">Request Booking</h3>
-            <p className="text-[#7a869a] text-xs mb-5">For: {talentName}</p>
+            <p className="text-[#9ba9bb] text-xs mb-5">For: {talentName}</p>
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
               <input required value={form.project_name} onChange={e => setForm(p => ({...p, project_name: e.target.value}))} className={inputClass} placeholder="Project name *" />
               <input value={form.project_type} onChange={e => setForm(p => ({...p, project_type: e.target.value}))} className={inputClass} placeholder="Project type (Film, Ad, etc.)" />
@@ -60,7 +60,7 @@ export default function BookingRequestButton({ talentId, talentName, castingDire
               </div>
               <input value={form.rate} onChange={e => setForm(p => ({...p, rate: e.target.value}))} className={inputClass} placeholder="Rate / Budget" />
               <div className="flex gap-3 mt-2">
-                <button type="button" onClick={() => setOpen(false)} className="flex-1 py-2.5 border border-[rgba(201,168,76,0.2)] text-[#7a869a] rounded text-sm hover:text-[#f0ead8] transition-colors">
+                <button type="button" onClick={() => setOpen(false)} className="flex-1 py-2.5 border border-[rgba(201,168,76,0.2)] text-[#9ba9bb] rounded text-sm hover:text-[#f0ead8] transition-colors">
                   Cancel
                 </button>
                 <button type="submit" disabled={loading} className="flex-1 py-2.5 bg-[#c9a84c] text-[#06080f] font-semibold rounded text-sm hover:bg-[#e8c97a] transition-all disabled:opacity-50">

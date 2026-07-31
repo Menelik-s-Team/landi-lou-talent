@@ -31,7 +31,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     html: `
       <div style="background:#06080f;color:#f0ead8;font-family:Georgia,serif;padding:40px;max-width:600px;margin:0 auto;">
         <h1 style="color:#c9a84c;font-size:24px;margin-bottom:8px;">Application Update</h1>
-        <p style="margin-bottom:32px;color:#7a869a;">Thank you for your interest in Landi-Lou Talent Agency.</p>
+        <p style="margin-bottom:32px;color:#9ba9bb;">Thank you for your interest in Landi-Lou Talent Agency.</p>
 
         <p style="margin-bottom:16px;">Hi <strong>${submission.first_name}</strong>,</p>
         <p style="line-height:1.8;margin-bottom:24px;">
@@ -39,13 +39,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           This decision is not a reflection of your talent — it is simply a matter of fit
           with our current roster and strategic direction.
         </p>
-        <p style="line-height:1.8;margin-bottom:32px;color:#7a869a;">
+        <p style="line-height:1.8;margin-bottom:32px;color:#9ba9bb;">
           We encourage you to continue developing your craft and to consider reapplying in the future.
           We wish you nothing but excellence.
         </p>
 
         <hr style="border-color:rgba(201,168,76,0.2);margin-bottom:24px;" />
-        <p style="color:#7a869a;font-size:12px;">
+        <p style="color:#9ba9bb;font-size:12px;">
           Landi-Lou Talent Agency &bull; Central Florida<br/>
           <a href="mailto:info@landiloutalentagency.com" style="color:#c9a84c;">info@landiloutalentagency.com</a>
         </p>

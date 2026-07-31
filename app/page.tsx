@@ -103,7 +103,7 @@ export default function HomePage() {
             <span className="gold-text">We Protect Legacy.</span>
           </h1>
 
-          <p className="text-[#7a869a] text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-10">
+          <p className="text-[#9ba9bb] text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-10">
             The first fully integrated, inspirationally motivated talent agency in Central Florida —
             guiding performers from stage to screen, social media, and beyond.
           </p>
@@ -134,7 +134,7 @@ export default function HomePage() {
                 <div className="w-12 h-12 rounded-full bg-[#141929] border border-[rgba(201,168,76,0.15)] flex items-center justify-center group-hover:border-[#c9a84c]/50 transition-all">
                   <Icon size={18} className="text-[#c9a84c]" />
                 </div>
-                <p className="text-xs tracking-wide text-[#7a869a] group-hover:text-[#f0ead8] transition-colors">{label}</p>
+                <p className="text-xs tracking-wide text-[#9ba9bb] group-hover:text-[#f0ead8] transition-colors">{label}</p>
               </div>
             ))}
           </div>
@@ -167,7 +167,7 @@ export default function HomePage() {
                   <Icon size={20} className="text-[#c9a84c]" />
                 </div>
                 <h3 className="font-[family-name:var(--font-playfair)] text-lg text-[#f0ead8]">{title}</h3>
-                <p className="text-[#7a869a] text-sm leading-relaxed">{body}</p>
+                <p className="text-[#9ba9bb] text-sm leading-relaxed">{body}</p>
               </div>
             ))}
           </div>
@@ -181,7 +181,7 @@ export default function HomePage() {
           <h2 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-[#f0ead8] mb-6">
             Your next chapter starts here.
           </h2>
-          <p className="text-[#7a869a] mb-10 leading-relaxed">
+          <p className="text-[#9ba9bb] mb-10 leading-relaxed">
             Submit your talent profile for review. We move intentionally, partner selectively,
             and operate with vision.
           </p>

@@ -43,7 +43,7 @@ export default async function Image() {
         </div>
 
         {/* Tagline */}
-        <div style={{ fontSize: 24, color: '#7a869a', letterSpacing: 1, textAlign: 'center', maxWidth: 700, lineHeight: 1.5, display: 'flex' }}>
+        <div style={{ fontSize: 24, color: '#9ba9bb', letterSpacing: 1, textAlign: 'center', maxWidth: 700, lineHeight: 1.5, display: 'flex' }}>
           We Curate Talent. We Protect Legacy.
         </div>
 
@@ -51,7 +51,7 @@ export default async function Image() {
         <div style={{ width: 80, height: 2, background: '#c9a84c', marginTop: 40, display: 'flex' }} />
 
         {/* Domain */}
-        <div style={{ position: 'absolute', bottom: 40, fontSize: 16, color: '#7a869a', letterSpacing: 3, display: 'flex' }}>
+        <div style={{ position: 'absolute', bottom: 40, fontSize: 16, color: '#9ba9bb', letterSpacing: 3, display: 'flex' }}>
           landiloutalentagency.com
         </div>
       </div>

@@ -40,7 +40,7 @@ export default async function AdminDashboard() {
         {stats.map(({ label, value, icon: Icon, href, color }) => (
           <Link key={label} href={href} className="glass-card rounded-xl p-6 flex flex-col gap-4 hover:border-[#c9a84c]/30 transition-all group">
             <div className="flex items-center justify-between">
-              <p className="text-[#7a869a] text-xs tracking-wide">{label}</p>
+              <p className="text-[#9ba9bb] text-xs tracking-wide">{label}</p>
               <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: `${color}15` }}>
                 <Icon size={16} style={{ color }} />
               </div>
@@ -63,7 +63,7 @@ export default async function AdminDashboard() {
             <div key={s.id} className="px-6 py-4 flex items-center justify-between">
               <div>
                 <p className="text-[#f0ead8] text-sm">{s.first_name} {s.last_name}</p>
-                <p className="text-[#7a869a] text-xs mt-0.5">{s.categories?.join(', ')} &bull; {s.city}, {s.state}</p>
+                <p className="text-[#9ba9bb] text-xs mt-0.5">{s.categories?.join(', ')} &bull; {s.city}, {s.state}</p>
               </div>
               <div className="flex items-center gap-3">
                 <span className={`text-xs px-3 py-1 rounded-full ${
@@ -73,13 +73,13 @@ export default async function AdminDashboard() {
                 }`}>
                   {s.status}
                 </span>
-                <Link href={`/admin/submissions/${s.id}`} className="text-xs text-[#7a869a] hover:text-[#c9a84c] transition-colors">
+                <Link href={`/admin/submissions/${s.id}`} className="text-xs text-[#9ba9bb] hover:text-[#c9a84c] transition-colors">
                   Review →
                 </Link>
               </div>
             </div>
           )) : (
-            <div className="px-6 py-10 text-center text-[#7a869a] text-sm">No submissions yet.</div>
+            <div className="px-6 py-10 text-center text-[#9ba9bb] text-sm">No submissions yet.</div>
           )}
         </div>
       </div>

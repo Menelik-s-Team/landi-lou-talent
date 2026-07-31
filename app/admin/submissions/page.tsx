@@ -31,7 +31,7 @@ export default async function SubmissionsPage() {
               {pending.map(s => <SubmissionRow key={s.id} s={s} />)}
             </div>
           ) : (
-            <div className="px-6 py-10 text-center text-[#7a869a] text-sm">No pending submissions.</div>
+            <div className="px-6 py-10 text-center text-[#9ba9bb] text-sm">No pending submissions.</div>
           )}
         </div>
       </div>
@@ -39,7 +39,7 @@ export default async function SubmissionsPage() {
       {/* Reviewed */}
       <div>
         <h2 className="text-[#f0ead8] text-sm tracking-widest uppercase mb-4">
-          Reviewed <span className="text-[#7a869a]">({reviewed.length})</span>
+          Reviewed <span className="text-[#9ba9bb]">({reviewed.length})</span>
         </h2>
         <div className="glass-card rounded-xl overflow-hidden">
           {reviewed.length > 0 ? (
@@ -47,7 +47,7 @@ export default async function SubmissionsPage() {
               {reviewed.map(s => <SubmissionRow key={s.id} s={s} />)}
             </div>
           ) : (
-            <div className="px-6 py-10 text-center text-[#7a869a] text-sm">No reviewed submissions yet.</div>
+            <div className="px-6 py-10 text-center text-[#9ba9bb] text-sm">No reviewed submissions yet.</div>
           )}
         </div>
       </div>
@@ -60,11 +60,11 @@ function SubmissionRow({ s }: { s: Record<string, unknown> }) {
     <div className="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div>
         <p className="text-[#f0ead8] text-sm font-medium">{s.first_name as string} {s.last_name as string}</p>
-        <p className="text-[#7a869a] text-xs mt-0.5">
+        <p className="text-[#9ba9bb] text-xs mt-0.5">
           {(s.categories as string[])?.join(', ')} &bull; {s.city as string}, {s.state as string}
           {Boolean(s.is_minor) && <span className="ml-2 text-[#c9a84c]">Minor</span>}
         </p>
-        <p className="text-[#7a869a] text-xs">{s.email as string}</p>
+        <p className="text-[#9ba9bb] text-xs">{s.email as string}</p>
       </div>
       <div className="flex items-center gap-3 flex-shrink-0">
         <span className={`text-xs px-3 py-1 rounded-full ${

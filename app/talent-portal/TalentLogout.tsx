@@ -14,7 +14,7 @@ export default function TalentLogout() {
   }
 
   return (
-    <button onClick={handleLogout} className="flex items-center gap-1.5 text-sm text-[#7a869a] hover:text-red-400 transition-colors">
+    <button onClick={handleLogout} className="flex items-center gap-1.5 text-sm text-[#9ba9bb] hover:text-red-400 transition-colors">
       <LogOut size={14} />
       Sign Out
     </button>

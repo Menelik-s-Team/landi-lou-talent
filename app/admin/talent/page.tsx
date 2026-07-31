@@ -26,18 +26,18 @@ export default async function TalentRosterPage() {
                 {t.headshot_url ? (
                   <Image src={t.headshot_url} alt={`${t.first_name} ${t.last_name}`} fill className="object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-[#7a869a] text-sm">No photo</div>
+                  <div className="w-full h-full flex items-center justify-center text-[#9ba9bb] text-sm">No photo</div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#06080f] via-transparent to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4">
                   <p className="font-[family-name:var(--font-playfair)] text-[#f0ead8] font-semibold">
                     {t.first_name} {t.last_name}
                   </p>
-                  <p className="text-[#7a869a] text-xs mt-0.5">{t.categories?.join(', ')}</p>
+                  <p className="text-[#9ba9bb] text-xs mt-0.5">{t.categories?.join(', ')}</p>
                 </div>
               </div>
               <div className="px-4 py-3 flex items-center justify-between">
-                <span className={`text-xs px-2 py-1 rounded-full ${t.is_available ? 'bg-green-500/10 text-green-400' : 'bg-[#7a869a]/10 text-[#7a869a]'}`}>
+                <span className={`text-xs px-2 py-1 rounded-full ${t.is_available ? 'bg-green-500/10 text-green-400' : 'bg-[#9ba9bb]/10 text-[#9ba9bb]'}`}>
                   {t.is_available ? 'Available' : 'Unavailable'}
                 </span>
                 <Link href={`/admin/talent/${t.id}`} className="text-xs text-[#c9a84c] hover:text-[#e8c97a] transition-colors">
@@ -48,7 +48,7 @@ export default async function TalentRosterPage() {
           ))}
         </div>
       ) : (
-        <div className="glass-card rounded-xl p-16 text-center text-[#7a869a]">
+        <div className="glass-card rounded-xl p-16 text-center text-[#9ba9bb]">
           No approved talent yet. <Link href="/admin/submissions" className="text-[#c9a84c]">Review submissions →</Link>
         </div>
       )}

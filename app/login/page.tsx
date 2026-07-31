@@ -48,13 +48,13 @@ export default function LoginPage() {
           <h1 className="font-[family-name:var(--font-playfair)] text-2xl text-[#f0ead8] mb-2 text-center">
             Welcome Back
           </h1>
-          <p className="text-[#7a869a] text-sm text-center mb-8">
+          <p className="text-[#9ba9bb] text-sm text-center mb-8">
             Sign in to your talent, casting, or admin portal.
           </p>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <div>
-              <label htmlFor="email" className="block text-[#7a869a] text-xs tracking-widest uppercase mb-2">
+              <label htmlFor="email" className="block text-[#9ba9bb] text-xs tracking-widest uppercase mb-2">
                 Email
               </label>
               <input
@@ -63,13 +63,13 @@ export default function LoginPage() {
                 type="email"
                 required
                 autoComplete="email"
-                className="w-full bg-[#141929] border border-[rgba(201,168,76,0.2)] rounded px-4 py-3 text-[#f0ead8] text-sm placeholder-[#7a869a] focus:outline-none focus:border-[#c9a84c]/60 transition-colors"
+                className="w-full bg-[#141929] border border-[rgba(201,168,76,0.2)] rounded px-4 py-3 text-[#f0ead8] text-sm placeholder-[#9ba9bb] focus:outline-none focus:border-[#c9a84c]/60 transition-colors"
                 placeholder="your@email.com"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-[#7a869a] text-xs tracking-widest uppercase mb-2">
+              <label htmlFor="password" className="block text-[#9ba9bb] text-xs tracking-widest uppercase mb-2">
                 Password
               </label>
               <input
@@ -78,7 +78,7 @@ export default function LoginPage() {
                 type="password"
                 required
                 autoComplete="current-password"
-                className="w-full bg-[#141929] border border-[rgba(201,168,76,0.2)] rounded px-4 py-3 text-[#f0ead8] text-sm placeholder-[#7a869a] focus:outline-none focus:border-[#c9a84c]/60 transition-colors"
+                className="w-full bg-[#141929] border border-[rgba(201,168,76,0.2)] rounded px-4 py-3 text-[#f0ead8] text-sm placeholder-[#9ba9bb] focus:outline-none focus:border-[#c9a84c]/60 transition-colors"
                 placeholder="••••••••"
               />
             </div>
@@ -98,7 +98,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="text-[#7a869a] text-xs text-center mt-6">
+          <p className="text-[#9ba9bb] text-xs text-center mt-6">
             Don&apos;t have an account?{' '}
             <Link href="/submit" className="text-[#c9a84c] hover:text-[#e8c97a] transition-colors">
               Submit your talent profile

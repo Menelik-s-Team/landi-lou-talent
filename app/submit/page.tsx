@@ -56,8 +56,8 @@ export default function SubmitPage() {
     }
   }
 
-  const inputClass = "w-full bg-[#141929] border border-[rgba(201,168,76,0.2)] rounded px-4 py-3 text-[#f0ead8] text-sm placeholder-[#7a869a] focus:outline-none focus:border-[#c9a84c]/60 transition-colors"
-  const labelClass = "block text-[#7a869a] text-xs tracking-widest uppercase mb-2"
+  const inputClass = "w-full bg-[#141929] border border-[rgba(201,168,76,0.2)] rounded px-4 py-3 text-[#f0ead8] text-sm placeholder-[#9ba9bb] focus:outline-none focus:border-[#c9a84c]/60 transition-colors"
+  const labelClass = "block text-[#9ba9bb] text-xs tracking-widest uppercase mb-2"
 
   if (submitted) {
     return (
@@ -69,7 +69,7 @@ export default function SubmitPage() {
             <h1 className="font-[family-name:var(--font-playfair)] text-4xl text-[#f0ead8] mb-4">
               Application Received
             </h1>
-            <p className="text-[#7a869a] leading-relaxed mb-8">
+            <p className="text-[#9ba9bb] leading-relaxed mb-8">
               Thank you for submitting your talent profile to Landi-Lou Talent Agency.
               We&apos;ve sent a confirmation to your email. Our team will review your submission
               and be in touch if there is a fit.
@@ -93,7 +93,7 @@ export default function SubmitPage() {
         <h1 className="font-[family-name:var(--font-playfair)] text-5xl text-[#f0ead8] mb-4">
           Submit Your Talent
         </h1>
-        <p className="text-[#7a869a] max-w-xl mx-auto text-sm leading-relaxed">
+        <p className="text-[#9ba9bb] max-w-xl mx-auto text-sm leading-relaxed">
           We review every submission personally. Complete the form below — we&apos;ll be in touch if there&apos;s a fit.
         </p>
 
@@ -102,7 +102,7 @@ export default function SubmitPage() {
           {[1, 2, 3].map(s => (
             <div key={s} className="flex items-center gap-3">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
-                step >= s ? 'bg-[#c9a84c] text-[#06080f]' : 'bg-[#141929] text-[#7a869a] border border-[rgba(201,168,76,0.2)]'
+                step >= s ? 'bg-[#c9a84c] text-[#06080f]' : 'bg-[#141929] text-[#9ba9bb] border border-[rgba(201,168,76,0.2)]'
               }`}>
                 {s}
               </div>
@@ -112,7 +112,7 @@ export default function SubmitPage() {
         </div>
         <div className="flex justify-center gap-16 mt-2">
           {['Basic Info', 'Categories', 'Media'].map((label, i) => (
-            <p key={label} className={`text-xs ${step === i + 1 ? 'text-[#c9a84c]' : 'text-[#7a869a]'}`}>{label}</p>
+            <p key={label} className={`text-xs ${step === i + 1 ? 'text-[#c9a84c]' : 'text-[#9ba9bb]'}`}>{label}</p>
           ))}
         </div>
       </section>
@@ -215,7 +215,7 @@ export default function SubmitPage() {
               <div className="glass-card rounded-xl p-8 flex flex-col gap-6">
                 <div>
                   <h2 className="font-[family-name:var(--font-playfair)] text-xl text-[#f0ead8] mb-2">Select Your Categories</h2>
-                  <p className="text-[#7a869a] text-sm">Choose all that apply.</p>
+                  <p className="text-[#9ba9bb] text-sm">Choose all that apply.</p>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   {CATEGORIES.map(cat => (
@@ -226,7 +226,7 @@ export default function SubmitPage() {
                       className={`px-4 py-3 rounded border text-sm tracking-wide transition-all ${
                         selectedCategories.includes(cat)
                           ? 'border-[#c9a84c] bg-[#c9a84c]/10 text-[#c9a84c]'
-                          : 'border-[rgba(201,168,76,0.2)] text-[#7a869a] hover:border-[#c9a84c]/40'
+                          : 'border-[rgba(201,168,76,0.2)] text-[#9ba9bb] hover:border-[#c9a84c]/40'
                       }`}
                     >
                       {cat}
@@ -234,7 +234,7 @@ export default function SubmitPage() {
                   ))}
                 </div>
                 <div className="flex gap-3">
-                  <button type="button" onClick={() => setStep(1)} className="flex-1 py-3 border border-[rgba(201,168,76,0.2)] text-[#7a869a] rounded text-sm hover:text-[#f0ead8] transition-colors">
+                  <button type="button" onClick={() => setStep(1)} className="flex-1 py-3 border border-[rgba(201,168,76,0.2)] text-[#9ba9bb] rounded text-sm hover:text-[#f0ead8] transition-colors">
                     Back
                   </button>
                   <button
@@ -254,7 +254,7 @@ export default function SubmitPage() {
               <div className="glass-card rounded-xl p-8 flex flex-col gap-6">
                 <div>
                   <h2 className="font-[family-name:var(--font-playfair)] text-xl text-[#f0ead8] mb-2">Upload Your Media</h2>
-                  <p className="text-[#7a869a] text-sm">Add a headshot and portfolio pieces. Accepted: JPG, PNG, PDF, MP4.</p>
+                  <p className="text-[#9ba9bb] text-sm">Add a headshot and portfolio pieces. Accepted: JPG, PNG, PDF, MP4.</p>
                 </div>
 
                 {/* Headshot */}
@@ -262,7 +262,7 @@ export default function SubmitPage() {
                   <label className={labelClass}>Headshot *</label>
                   <label className="flex flex-col items-center justify-center gap-2 border border-dashed border-[rgba(201,168,76,0.3)] rounded-lg p-8 cursor-pointer hover:border-[#c9a84c]/60 transition-colors">
                     <Upload size={24} className="text-[#c9a84c]" />
-                    <span className="text-[#7a869a] text-sm">
+                    <span className="text-[#9ba9bb] text-sm">
                       {headshot ? headshot.name : 'Click to upload headshot'}
                     </span>
                     <input type="file" accept="image/*" className="hidden" onChange={e => setHeadshot(e.target.files?.[0] || null)} />
@@ -274,7 +274,7 @@ export default function SubmitPage() {
                   <label className={labelClass}>Portfolio (up to 5 files)</label>
                   <label className="flex flex-col items-center justify-center gap-2 border border-dashed border-[rgba(201,168,76,0.3)] rounded-lg p-8 cursor-pointer hover:border-[#c9a84c]/60 transition-colors">
                     <Upload size={24} className="text-[#c9a84c]" />
-                    <span className="text-[#7a869a] text-sm">
+                    <span className="text-[#9ba9bb] text-sm">
                       {portfolio.length > 0 ? `${portfolio.length} file(s) selected` : 'Click to upload portfolio'}
                     </span>
                     <input type="file" multiple accept="image/*,video/*,.pdf" className="hidden" onChange={e => setPortfolio(Array.from(e.target.files || []).slice(0, 5))} />
@@ -282,7 +282,7 @@ export default function SubmitPage() {
                 </div>
 
                 <div className="flex gap-3">
-                  <button type="button" onClick={() => setStep(2)} className="flex-1 py-3 border border-[rgba(201,168,76,0.2)] text-[#7a869a] rounded text-sm hover:text-[#f0ead8] transition-colors">
+                  <button type="button" onClick={() => setStep(2)} className="flex-1 py-3 border border-[rgba(201,168,76,0.2)] text-[#9ba9bb] rounded text-sm hover:text-[#f0ead8] transition-colors">
                     Back
                   </button>
                   <button

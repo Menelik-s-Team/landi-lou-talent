@@ -44,15 +44,15 @@ export default function AboutPage() {
             <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-[#f0ead8] mb-6 leading-snug">
               The First Fully Integrated Talent Agency in Central Florida
             </h2>
-            <p className="text-[#7a869a] leading-relaxed mb-5">
+            <p className="text-[#9ba9bb] leading-relaxed mb-5">
               Landi-Lou Talent Agency was founded by Dr. Calandria U. Smith with one clear vision:
               to build a premier house of talent, vision, and opportunity — not a volume-driven operation.
             </p>
-            <p className="text-[#7a869a] leading-relaxed mb-5">
+            <p className="text-[#9ba9bb] leading-relaxed mb-5">
               We exist to curate excellence, protect artistry, and build enduring legacies. We move
               intentionally, partner selectively, and operate with vision.
             </p>
-            <p className="text-[#7a869a] leading-relaxed">
+            <p className="text-[#9ba9bb] leading-relaxed">
               From stage to screen, social media to brand partnerships, we guide every performer toward
               their highest potential — professionally, strategically, and authentically.
             </p>
@@ -78,7 +78,7 @@ export default function AboutPage() {
             Dr. Calandria U. Smith
           </h2>
           <p className="text-[#c9a84c] text-sm mb-8 tracking-wide">aka Landi Sleek</p>
-          <p className="text-[#7a869a] leading-relaxed text-lg">
+          <p className="text-[#9ba9bb] leading-relaxed text-lg">
             &ldquo;This Premier Talent Agency exists to curate excellence, protect artistry, and build
             enduring legacies. We move intentionally, partner selectively, and operate with vision.&rdquo;
           </p>

@@ -35,8 +35,8 @@ export default function ContactPage() {
     }
   }
 
-  const inputClass = "w-full bg-[#141929] border border-[rgba(201,168,76,0.2)] rounded px-4 py-3 text-[#f0ead8] text-sm placeholder-[#7a869a] focus:outline-none focus:border-[#c9a84c]/60 transition-colors"
-  const labelClass = "block text-[#7a869a] text-xs tracking-widest uppercase mb-2"
+  const inputClass = "w-full bg-[#141929] border border-[rgba(201,168,76,0.2)] rounded px-4 py-3 text-[#f0ead8] text-sm placeholder-[#9ba9bb] focus:outline-none focus:border-[#c9a84c]/60 transition-colors"
+  const labelClass = "block text-[#9ba9bb] text-xs tracking-widest uppercase mb-2"
 
   return (
     <>
@@ -67,7 +67,7 @@ export default function ContactPage() {
                   <Mail size={16} className="text-[#c9a84c]" />
                 </div>
                 <div>
-                  <p className="text-[#7a869a] text-xs tracking-widest uppercase mb-1">Email</p>
+                  <p className="text-[#9ba9bb] text-xs tracking-widest uppercase mb-1">Email</p>
                   <a href="mailto:info@landiloutalentagency.com" className="text-[#f0ead8] hover:text-[#c9a84c] transition-colors">
                     info@landiloutalentagency.com
                   </a>
@@ -78,13 +78,13 @@ export default function ContactPage() {
                   <MapPin size={16} className="text-[#c9a84c]" />
                 </div>
                 <div>
-                  <p className="text-[#7a869a] text-xs tracking-widest uppercase mb-1">Location</p>
+                  <p className="text-[#9ba9bb] text-xs tracking-widest uppercase mb-1">Location</p>
                   <p className="text-[#f0ead8]">Central Florida</p>
                 </div>
               </div>
             </div>
             <div className="mt-10 pt-8 border-t border-[rgba(201,168,76,0.15)]">
-              <p className="text-[#7a869a] text-sm leading-relaxed">
+              <p className="text-[#9ba9bb] text-sm leading-relaxed">
                 For talent submissions, please use our{' '}
                 <a href="/submit" className="text-[#c9a84c] hover:text-[#e8c97a] transition-colors">submission form</a>.
                 For casting director inquiries, contact us directly.
@@ -97,7 +97,7 @@ export default function ContactPage() {
               <div className="flex flex-col items-center justify-center h-full gap-4 py-8 text-center">
                 <CheckCircle size={48} className="text-[#c9a84c]" />
                 <h3 className="font-[family-name:var(--font-playfair)] text-xl text-[#f0ead8]">Message Sent</h3>
-                <p className="text-[#7a869a] text-sm">We&apos;ll get back to you within 1–2 business days. A confirmation was sent to your email.</p>
+                <p className="text-[#9ba9bb] text-sm">We&apos;ll get back to you within 1–2 business days. A confirmation was sent to your email.</p>
               </div>
             ) : (
               <>

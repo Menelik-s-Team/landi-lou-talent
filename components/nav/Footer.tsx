@@ -13,10 +13,10 @@ export default function Footer() {
               <p className="font-[var(--font-playfair)] text-[#c9a84c] text-sm font-semibold tracking-widest uppercase">
                 Landi-Lou
               </p>
-              <p className="text-[10px] tracking-[0.2em] text-[#7a869a] uppercase">Talent Agency</p>
+              <p className="text-[10px] tracking-[0.2em] text-[#9ba9bb] uppercase">Talent Agency</p>
             </div>
           </div>
-          <p className="text-[#7a869a] text-sm leading-relaxed max-w-xs">
+          <p className="text-[#9ba9bb] text-sm leading-relaxed max-w-xs">
             We are not a volume agency. We are a premier house of talent, vision, and opportunity.
           </p>
         </div>
@@ -32,7 +32,7 @@ export default function Footer() {
               { href: '/submit', label: 'Submit Talent' },
               { href: '/contact', label: 'Contact' },
             ].map(({ href, label }) => (
-              <Link key={href} href={href} className="text-[#7a869a] hover:text-[#f0ead8] text-sm transition-colors">
+              <Link key={href} href={href} className="text-[#9ba9bb] hover:text-[#f0ead8] text-sm transition-colors">
                 {label}
               </Link>
             ))}
@@ -42,7 +42,7 @@ export default function Footer() {
         {/* Contact */}
         <div>
           <p className="text-[#c9a84c] text-xs tracking-[0.2em] uppercase mb-5">Contact</p>
-          <div className="flex flex-col gap-3 text-sm text-[#7a869a]">
+          <div className="flex flex-col gap-3 text-sm text-[#9ba9bb]">
             <a href="mailto:info@landiloutalentagency.com" className="hover:text-[#f0ead8] transition-colors">
               info@landiloutalentagency.com
             </a>
@@ -55,10 +55,10 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-[rgba(201,168,76,0.1)] px-6 py-5 max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-        <p className="text-[#7a869a] text-xs">
+        <p className="text-[#9ba9bb] text-xs">
           © {new Date().getFullYear()} Landi-Lou Talent Agency. All rights reserved.
         </p>
-        <p className="text-[#7a869a] text-xs">Curating excellence. Protecting legacy.</p>
+        <p className="text-[#9ba9bb] text-xs">Curating excellence. Protecting legacy.</p>
       </div>
     </footer>
   )

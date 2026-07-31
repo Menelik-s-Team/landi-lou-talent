@@ -31,7 +31,7 @@ export default function AdminSidebar() {
           <Image src="/logo.png" alt="Landi-Lou" width={40} height={40} className="rounded-full ring-1 ring-[#c9a84c]/30" />
           <div>
             <p className="text-[#c9a84c] text-xs font-semibold tracking-widest uppercase">Landi-Lou</p>
-            <p className="text-[10px] text-[#7a869a] tracking-widest uppercase">Admin Panel</p>
+            <p className="text-[10px] text-[#9ba9bb] tracking-widest uppercase">Admin Panel</p>
           </div>
         </Link>
       </div>
@@ -46,7 +46,7 @@ export default function AdminSidebar() {
               className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-all ${
                 active
                   ? 'bg-[#c9a84c]/10 text-[#c9a84c] border border-[#c9a84c]/20'
-                  : 'text-[#7a869a] hover:text-[#f0ead8] hover:bg-[#141929]'
+                  : 'text-[#9ba9bb] hover:text-[#f0ead8] hover:bg-[#141929]'
               }`}
             >
               <Icon size={16} />
@@ -59,7 +59,7 @@ export default function AdminSidebar() {
       <div className="px-4 py-6 border-t border-[rgba(201,168,76,0.15)]">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-[#7a869a] hover:text-red-400 hover:bg-red-400/5 transition-all w-full"
+          className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm text-[#9ba9bb] hover:text-red-400 hover:bg-red-400/5 transition-all w-full"
         >
           <LogOut size={16} />
           Sign Out

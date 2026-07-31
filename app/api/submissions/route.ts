@@ -86,17 +86,17 @@ export async function POST(req: NextRequest) {
         <div style="background:#06080f;color:#f0ead8;font-family:Georgia,serif;padding:40px;max-width:600px;margin:0 auto;">
           <img src="${process.env.NEXT_PUBLIC_SITE_URL}/logo.png" alt="Landi-Lou" style="width:80px;border-radius:50%;margin-bottom:24px;" />
           <h1 style="color:#c9a84c;font-size:28px;margin-bottom:8px;">Application Received</h1>
-          <p style="color:#7a869a;margin-bottom:24px;">Thank you for submitting your talent profile.</p>
+          <p style="color:#9ba9bb;margin-bottom:24px;">Thank you for submitting your talent profile.</p>
           <p style="margin-bottom:16px;">Hi <strong>${fields.first_name}</strong>,</p>
           <p style="line-height:1.7;margin-bottom:24px;">
             We have received your submission to Landi-Lou Talent Agency. Our team reviews every profile
             personally and with intention. We will be in touch if there is a fit.
           </p>
-          <p style="line-height:1.7;color:#7a869a;margin-bottom:32px;">
+          <p style="line-height:1.7;color:#9ba9bb;margin-bottom:32px;">
             In the meantime, we invite you to continue developing your craft. Excellence is a practice.
           </p>
           <hr style="border-color:rgba(201,168,76,0.2);margin-bottom:24px;" />
-          <p style="color:#7a869a;font-size:12px;">
+          <p style="color:#9ba9bb;font-size:12px;">
             Landi-Lou Talent Agency &bull; Central Florida<br/>
             <a href="mailto:info@landiloutalentagency.com" style="color:#c9a84c;">info@landiloutalentagency.com</a>
           </p>
@@ -113,12 +113,12 @@ export async function POST(req: NextRequest) {
         <div style="background:#0d1120;color:#f0ead8;font-family:sans-serif;padding:32px;max-width:600px;">
           <h2 style="color:#c9a84c;">New Submission</h2>
           <table style="width:100%;border-collapse:collapse;">
-            <tr><td style="padding:8px 0;color:#7a869a;">Name</td><td>${fields.first_name} ${fields.last_name}</td></tr>
-            <tr><td style="padding:8px 0;color:#7a869a;">Email</td><td>${fields.email}</td></tr>
-            <tr><td style="padding:8px 0;color:#7a869a;">Phone</td><td>${fields.phone || 'N/A'}</td></tr>
-            <tr><td style="padding:8px 0;color:#7a869a;">Location</td><td>${fields.city}, ${fields.state}</td></tr>
-            <tr><td style="padding:8px 0;color:#7a869a;">Categories</td><td>${fields.categories.join(', ')}</td></tr>
-            <tr><td style="padding:8px 0;color:#7a869a;">Minor</td><td>${fields.is_minor ? 'Yes' : 'No'}</td></tr>
+            <tr><td style="padding:8px 0;color:#9ba9bb;">Name</td><td>${fields.first_name} ${fields.last_name}</td></tr>
+            <tr><td style="padding:8px 0;color:#9ba9bb;">Email</td><td>${fields.email}</td></tr>
+            <tr><td style="padding:8px 0;color:#9ba9bb;">Phone</td><td>${fields.phone || 'N/A'}</td></tr>
+            <tr><td style="padding:8px 0;color:#9ba9bb;">Location</td><td>${fields.city}, ${fields.state}</td></tr>
+            <tr><td style="padding:8px 0;color:#9ba9bb;">Categories</td><td>${fields.categories.join(', ')}</td></tr>
+            <tr><td style="padding:8px 0;color:#9ba9bb;">Minor</td><td>${fields.is_minor ? 'Yes' : 'No'}</td></tr>
           </table>
           <br/>
           <a href="${process.env.NEXT_PUBLIC_SITE_URL}/admin/submissions/${submission.id}" style="background:#c9a84c;color:#06080f;padding:12px 24px;border-radius:4px;text-decoration:none;font-weight:600;">

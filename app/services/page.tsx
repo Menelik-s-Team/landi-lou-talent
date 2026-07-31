@@ -63,7 +63,7 @@ export default function ServicesPage() {
           <h1 className="font-[family-name:var(--font-playfair)] text-5xl md:text-6xl text-[#f0ead8] mb-6">
             Our Services
           </h1>
-          <p className="text-[#7a869a] max-w-xl mx-auto leading-relaxed">
+          <p className="text-[#9ba9bb] max-w-xl mx-auto leading-relaxed">
             Comprehensive representation designed to elevate select talent through strategic branding,
             elite partnerships, and curated opportunities.
           </p>
@@ -78,7 +78,7 @@ export default function ServicesPage() {
                 <Icon size={20} className="text-[#c9a84c]" />
               </div>
               <h3 className="font-[family-name:var(--font-playfair)] text-xl text-[#f0ead8]">{title}</h3>
-              <p className="text-[#7a869a] text-sm leading-relaxed">{desc}</p>
+              <p className="text-[#9ba9bb] text-sm leading-relaxed">{desc}</p>
             </div>
           ))}
         </div>
@@ -88,7 +88,7 @@ export default function ServicesPage() {
         <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-[#f0ead8] mb-6">
           Ready to work with us?
         </h2>
-        <p className="text-[#7a869a] mb-8 max-w-lg mx-auto">
+        <p className="text-[#9ba9bb] mb-8 max-w-lg mx-auto">
           Submit your talent profile for review. We&apos;ll evaluate and reach out if it&apos;s the right fit.
         </p>
         <Link

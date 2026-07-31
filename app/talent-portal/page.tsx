@@ -27,7 +27,7 @@ export default async function TalentDashboard() {
           {profile?.headshot_url ? (
             <Image src={profile.headshot_url} alt="Headshot" width={64} height={64} className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center"><User size={24} className="text-[#7a869a]" /></div>
+            <div className="w-full h-full flex items-center justify-center"><User size={24} className="text-[#9ba9bb]" /></div>
           )}
         </div>
         <div>
@@ -35,7 +35,7 @@ export default async function TalentDashboard() {
           <h1 className="font-[family-name:var(--font-playfair)] text-3xl text-[#f0ead8]">
             {profile?.first_name} {profile?.last_name}
           </h1>
-          <p className="text-[#7a869a] text-sm mt-1">{profile?.categories?.join(', ')}</p>
+          <p className="text-[#9ba9bb] text-sm mt-1">{profile?.categories?.join(', ')}</p>
         </div>
       </div>
 
@@ -46,7 +46,7 @@ export default async function TalentDashboard() {
           </div>
           <div>
             <p className="text-[#f0ead8] text-sm font-medium">My Profile</p>
-            <p className="text-[#7a869a] text-xs">Update your info & media</p>
+            <p className="text-[#9ba9bb] text-xs">Update your info & media</p>
           </div>
         </Link>
 
@@ -56,7 +56,7 @@ export default async function TalentDashboard() {
           </div>
           <div>
             <p className="text-[#f0ead8] text-sm font-medium">{bookings?.length ?? 0} Bookings</p>
-            <p className="text-[#7a869a] text-xs">Total requests</p>
+            <p className="text-[#9ba9bb] text-xs">Total requests</p>
           </div>
         </div>
 
@@ -71,7 +71,7 @@ export default async function TalentDashboard() {
           </div>
           <div>
             <p className="text-[#f0ead8] text-sm font-medium">{unreadCount} Unread</p>
-            <p className="text-[#7a869a] text-xs">Notifications</p>
+            <p className="text-[#9ba9bb] text-xs">Notifications</p>
           </div>
         </div>
       </div>
@@ -87,12 +87,12 @@ export default async function TalentDashboard() {
               <div key={b.id} className="px-6 py-4 flex items-center justify-between">
                 <div>
                   <p className="text-[#f0ead8] text-sm">{b.project_name}</p>
-                  <p className="text-[#7a869a] text-xs mt-0.5">{b.casting_directors?.company} &bull; {b.project_type}</p>
+                  <p className="text-[#9ba9bb] text-xs mt-0.5">{b.casting_directors?.company} &bull; {b.project_type}</p>
                 </div>
                 <span className={`text-xs px-3 py-1 rounded-full ${
                   b.status === 'confirmed' ? 'bg-green-500/10 text-green-400' :
                   b.status === 'requested' ? 'bg-[#c9a84c]/10 text-[#c9a84c]' :
-                  'bg-[#7a869a]/10 text-[#7a869a]'
+                  'bg-[#9ba9bb]/10 text-[#9ba9bb]'
                 }`}>
                   {b.status}
                 </span>
@@ -100,7 +100,7 @@ export default async function TalentDashboard() {
             ))}
           </div>
         ) : (
-          <div className="px-6 py-10 text-center text-[#7a869a] text-sm">No booking requests yet.</div>
+          <div className="px-6 py-10 text-center text-[#9ba9bb] text-sm">No booking requests yet.</div>
         )}
       </div>
 
@@ -116,7 +116,7 @@ export default async function TalentDashboard() {
                 {!n.read && <div className="w-2 h-2 rounded-full bg-[#c9a84c] mt-1.5 flex-shrink-0" />}
                 <div className={!n.read ? '' : 'ml-5'}>
                   <p className="text-[#f0ead8] text-sm">{n.title}</p>
-                  <p className="text-[#7a869a] text-xs mt-0.5">{n.message}</p>
+                  <p className="text-[#9ba9bb] text-xs mt-0.5">{n.message}</p>
                 </div>
               </div>
             ))}

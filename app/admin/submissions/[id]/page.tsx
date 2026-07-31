@@ -49,7 +49,7 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
               />
             </div>
           ) : (
-            <div className="glass-card rounded-xl aspect-[3/4] flex items-center justify-center text-[#7a869a] text-sm">
+            <div className="glass-card rounded-xl aspect-[3/4] flex items-center justify-center text-[#9ba9bb] text-sm">
               No headshot
             </div>
           )}
@@ -57,7 +57,7 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
           {/* Portfolio */}
           {s.portfolio_urls?.length > 0 && (
             <div className="mt-4">
-              <p className="text-[#7a869a] text-xs tracking-widest uppercase mb-3">Portfolio</p>
+              <p className="text-[#9ba9bb] text-xs tracking-widest uppercase mb-3">Portfolio</p>
               <div className="grid grid-cols-2 gap-2">
                 {s.portfolio_urls.map((url: string, i: number) => (
                   <a key={i} href={url} target="_blank" rel="noopener noreferrer">
@@ -84,7 +84,7 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
                 ['Submitted', new Date(s.created_at).toLocaleDateString()],
               ].map(([label, value]) => (
                 <div key={label as string}>
-                  <p className="text-[#7a869a] text-xs mb-1">{label}</p>
+                  <p className="text-[#9ba9bb] text-xs mb-1">{label}</p>
                   <p className="text-[#f0ead8]">{value as string}</p>
                 </div>
               ))}
@@ -128,10 +128,10 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
             <div className="glass-card rounded-xl p-6 border border-[#c9a84c]/20">
               <p className="text-[#c9a84c] text-xs tracking-widest uppercase mb-4">Parent / Guardian</p>
               <div className="grid grid-cols-2 gap-y-3 text-sm">
-                <div><p className="text-[#7a869a] text-xs mb-1">Name</p><p className="text-[#f0ead8]">{s.guardian_name}</p></div>
-                <div><p className="text-[#7a869a] text-xs mb-1">Relationship</p><p className="text-[#f0ead8]">{s.guardian_relationship}</p></div>
-                <div><p className="text-[#7a869a] text-xs mb-1">Email</p><p className="text-[#f0ead8]">{s.guardian_email}</p></div>
-                <div><p className="text-[#7a869a] text-xs mb-1">Phone</p><p className="text-[#f0ead8]">{s.guardian_phone}</p></div>
+                <div><p className="text-[#9ba9bb] text-xs mb-1">Name</p><p className="text-[#f0ead8]">{s.guardian_name}</p></div>
+                <div><p className="text-[#9ba9bb] text-xs mb-1">Relationship</p><p className="text-[#f0ead8]">{s.guardian_relationship}</p></div>
+                <div><p className="text-[#9ba9bb] text-xs mb-1">Email</p><p className="text-[#f0ead8]">{s.guardian_email}</p></div>
+                <div><p className="text-[#9ba9bb] text-xs mb-1">Phone</p><p className="text-[#f0ead8]">{s.guardian_phone}</p></div>
               </div>
             </div>
           )}
