@@ -59,29 +59,44 @@ export default function AboutPage() {
           </div>
 
           <div className="flex justify-center">
-            <Image
-              src="/logo.png"
-              alt="Landi-Lou Talent Agency"
-              width={300}
-              height={300}
-              className="rounded-full ring-2 ring-[#c9a84c]/20 gold-glow"
-            />
+            <div className="relative w-72 h-80 rounded-xl overflow-hidden ring-1 ring-[#c9a84c]/30 gold-glow">
+              <Image
+                src="/calandria.jpg"
+                alt="Dr. Calandria U. Smith — Founder, Landi-Lou Talent Agency"
+                fill
+                className="object-cover object-top"
+              />
+            </div>
           </div>
         </div>
       </section>
 
       {/* Founder */}
       <section className="py-16 px-6 bg-[#0d1120]">
-        <div className="max-w-3xl mx-auto text-center">
-          <p className="text-[#c9a84c] text-xs tracking-[0.3em] uppercase mb-6">Founder</p>
-          <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-[#f0ead8] mb-4">
-            Dr. Calandria U. Smith
-          </h2>
-          <p className="text-[#c9a84c] text-sm mb-8 tracking-wide">aka Landi Sleek</p>
-          <p className="text-[#9ba9bb] leading-relaxed text-lg">
-            &ldquo;This Premier Talent Agency exists to curate excellence, protect artistry, and build
-            enduring legacies. We move intentionally, partner selectively, and operate with vision.&rdquo;
-          </p>
+        <div className="max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div className="flex justify-center">
+              <div className="relative w-64 h-72 rounded-xl overflow-hidden ring-1 ring-[#c9a84c]/30 gold-glow">
+                <Image
+                  src="/calandria.jpg"
+                  alt="Dr. Calandria U. Smith"
+                  fill
+                  className="object-cover object-top"
+                />
+              </div>
+            </div>
+            <div>
+              <p className="text-[#c9a84c] text-xs tracking-[0.3em] uppercase mb-4">Founder</p>
+              <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-[#f0ead8] mb-2">
+                Dr. Calandria U. Smith
+              </h2>
+              <p className="text-[#c9a84c] text-sm mb-6 tracking-wide">aka Landi Sleek — Founder & Director</p>
+              <p className="text-[#9ba9bb] leading-relaxed text-base italic">
+                &ldquo;This Premier Talent Agency exists to curate excellence, protect artistry, and build
+                enduring legacies. We move intentionally, partner selectively, and operate with vision.&rdquo;
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -93,7 +108,7 @@ export default function AboutPage() {
             <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-[#f0ead8]">What We Represent</h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {['Acting', 'Modeling', 'Influencer Marketing', 'Voice-Over', 'Singing', 'Dancing'].map((cat) => (
+            {['Acting', 'Modeling', 'Influencer Marketing', 'Voice-Over', 'Singing', 'Dancing', 'Children & Youth', 'Fitness', 'Specialty Talent'].map((cat) => (
               <div key={cat} className="glass-card rounded-lg px-6 py-5 text-center">
                 <p className="text-[#f0ead8] text-sm tracking-wide">{cat}</p>
               </div>

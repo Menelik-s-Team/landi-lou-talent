@@ -10,6 +10,7 @@ import { Upload, CheckCircle, Check } from 'lucide-react'
 const TALENT_CATEGORIES = [
   'Actor', 'Commercial', 'Theatre', 'Print', 'Fashion', 'Lifestyle',
   'Voice Over', 'Singer', 'Dancer', 'Host', 'Influencer',
+  'Children & Youth', 'Fitness', 'Specialty Talent',
 ]
 
 const UNION_STATUSES = ['SAG-AFTRA', 'SAG-Eligible', 'Equity', 'EMC', 'Non-Union']

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Navbar from '@/components/nav/Navbar'
 import Footer from '@/components/nav/Footer'
 import Link from 'next/link'
-import { ArrowRight, Film, Tv, Megaphone, Camera, Heart, BookOpen, Mic, Globe } from 'lucide-react'
+import { ArrowRight, Film, Tv, Megaphone, Camera, Heart, BookOpen, Mic, Globe, Baby, Dumbbell, Sparkles } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Representation | Landi-Lou Talent Agency',
@@ -55,6 +55,21 @@ const areas = [
     icon: Globe,
     title: 'Influencer & Digital Content',
     desc: 'Authentic creators with engaged audiences. We connect brands with talent who build community and drive results.',
+  },
+  {
+    icon: Baby,
+    title: 'Children & Youth',
+    desc: 'Young talent across acting, modeling, commercial, and performance. We represent minors with the highest standards of care, professionalism, and parental partnership.',
+  },
+  {
+    icon: Dumbbell,
+    title: 'Fitness',
+    desc: 'Athletes, trainers, and wellness personalities for fitness brands, activewear campaigns, health media, and performance content.',
+  },
+  {
+    icon: Sparkles,
+    title: 'Specialty Talent',
+    desc: 'Talent with unique attributes including visible tattoos, disabilities, and distinctive looks. We champion diversity and represent talent that brands are actively seeking.',
   },
 ]
 

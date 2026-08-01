@@ -25,6 +25,9 @@ const CATEGORIES = [
   'Dancer',
   'Host',
   'Influencer',
+  'Children & Youth',
+  'Fitness',
+  'Specialty Talent',
 ]
 
 const ETHNICITIES = [
