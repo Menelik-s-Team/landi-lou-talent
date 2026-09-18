@@ -42,7 +42,8 @@ export default function ContactPage() {
     <>
       <Navbar />
 
-      <section className="pt-36 pb-16 px-6 text-center relative overflow-hidden">
+      <main id="main-content">
+      <section className="pt-40 pb-16 px-6 text-center relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[400px] rounded-full bg-[#0ea5c8]/5 blur-[100px]" />
         </div>
@@ -102,7 +103,7 @@ export default function ContactPage() {
             ) : (
               <>
                 <h3 className="font-[family-name:var(--font-playfair)] text-xl text-[#f0ead8] mb-6">Send a Message</h3>
-                <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
+                <form onSubmit={handleSubmit} method="post" className="flex flex-col gap-5" noValidate>
                   <div>
                     <label htmlFor="contact-name" className={labelClass}>Full Name *</label>
                     <input
@@ -171,6 +172,7 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
+      </main>
 
       <Footer />
     </>

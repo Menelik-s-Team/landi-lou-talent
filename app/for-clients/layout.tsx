@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'For Clients | Landi-Lou Talent Agency',
+  title: 'For Clients',
   description: 'Submit a talent request. Tell us your project needs and we\'ll search our private database to present only the best-matched talent — curated, not browsed.',
   alternates: { canonical: 'https://landiloutalentagency.com/for-clients' },
   openGraph: {

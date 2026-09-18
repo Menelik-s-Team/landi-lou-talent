@@ -28,7 +28,7 @@ export default function Footer() {
             {[
               { href: '/about', label: 'About' },
               { href: '/representation', label: 'Representation' },
-              { href: '/submit', label: 'Submit Talent' },
+              { href: '/submit', label: 'Submission' },
               { href: '/for-clients', label: 'For Clients' },
               { href: '/contact', label: 'Contact' },
             ].map(({ href, label }) => (
@@ -54,11 +54,19 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-[rgba(201,168,76,0.1)] px-6 py-5 max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div className="border-t border-[rgba(201,168,76,0.1)] px-6 py-5 max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
         <p className="text-[#9ba9bb] text-xs">
-          © {new Date().getFullYear()} Landi-Lou Talent Agency. All rights reserved.
+          © {new Date().getFullYear()} Landi-Lou Talent Agency. All rights reserved. &nbsp;·&nbsp; Licensed Talent Agency &middot; State of Florida
         </p>
-        <p className="text-[#9ba9bb] text-xs">Curating excellence. Protecting legacy.</p>
+        <div className="flex items-center gap-4 text-xs">
+          <Link href="/privacy" className="text-[#9ba9bb] hover:text-[#f0ead8] transition-colors">Privacy Policy</Link>
+          <Link href="/terms" className="text-[#9ba9bb] hover:text-[#f0ead8] transition-colors">Terms of Use</Link>
+          <span className="text-[#9ba9bb]/40">·</span>
+          <a href="https://apexdigi.org" target="_blank" rel="noopener noreferrer"
+            className="text-[#9ba9bb]/60 hover:text-[#c9a84c] transition-colors tracking-wide">
+            Built by Apex Digital
+          </a>
+        </div>
       </div>
     </footer>
   )

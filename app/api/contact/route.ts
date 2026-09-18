@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit'
+import { escapeHtml } from '@/lib/auth-guard'
 
 function getResend() {
   const { Resend } = require('resend')
@@ -7,7 +9,18 @@ function getResend() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, subject, message } = await req.json()
+    const rl = checkRateLimit(getRateLimitKey(req, 'contact'), { limit: 5, windowMs: 60_000 })
+    if (!rl.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please wait a moment.' }, { status: 429 })
+    }
+
+    const body = await req.json()
+    const { name, email, subject, message } = body
+
+    // Honeypot: bots fill hidden fields, humans don't
+    if (body._gotcha) {
+      return NextResponse.json({ success: true })
+    }
 
     if (!name || !email || !subject || !message) {
       return NextResponse.json({ error: 'All fields are required.' }, { status: 400 })
@@ -18,22 +31,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 })
     }
 
+    const safeName = escapeHtml(String(name).slice(0, 100))
+    const safeEmail = escapeHtml(String(email).slice(0, 200))
+    const safeSubject = escapeHtml(String(subject).slice(0, 200))
+    const safeMessage = escapeHtml(String(message).slice(0, 5000)).replace(/\n/g, '<br/>')
+
     await getResend().emails.send({
       from: process.env.RESEND_FROM_EMAIL!,
       to: process.env.RESEND_FROM_EMAIL!,
-      replyTo: email,
-      subject: `Contact Form: ${subject}`,
+      replyTo: safeEmail,
+      subject: `Contact Form: ${safeSubject}`,
       html: `
         <div style="background:#0d1120;color:#f0ead8;font-family:sans-serif;padding:32px;max-width:600px;">
           <h2 style="color:#c9a84c;margin-bottom:4px;">New Contact Message</h2>
           <p style="color:#9ba9bb;font-size:13px;margin-bottom:24px;">Via landiloutalentagency.com</p>
           <table style="width:100%;border-collapse:collapse;">
-            <tr><td style="padding:8px 0;color:#9ba9bb;width:100px;">From</td><td>${name}</td></tr>
-            <tr><td style="padding:8px 0;color:#9ba9bb;">Email</td><td><a href="mailto:${email}" style="color:#0ea5c8;">${email}</a></td></tr>
-            <tr><td style="padding:8px 0;color:#9ba9bb;">Subject</td><td>${subject}</td></tr>
+            <tr><td style="padding:8px 0;color:#9ba9bb;width:100px;">From</td><td>${safeName}</td></tr>
+            <tr><td style="padding:8px 0;color:#9ba9bb;">Email</td><td><a href="mailto:${safeEmail}" style="color:#0ea5c8;">${safeEmail}</a></td></tr>
+            <tr><td style="padding:8px 0;color:#9ba9bb;">Subject</td><td>${safeSubject}</td></tr>
           </table>
           <div style="margin-top:20px;padding:16px;background:#141929;border-radius:6px;border-left:3px solid #c9a84c;">
-            <p style="margin:0;line-height:1.7;">${message.replace(/\n/g, '<br/>')}</p>
+            <p style="margin:0;line-height:1.7;">${safeMessage}</p>
           </div>
         </div>
       `,
@@ -42,12 +60,13 @@ export async function POST(req: NextRequest) {
     // Auto-reply to sender
     await getResend().emails.send({
       from: process.env.RESEND_FROM_EMAIL!,
-      to: email,
+      replyTo: 'info@landiloutalentagency.com',
+      to: safeEmail,
       subject: 'We received your message — Landi-Lou Talent Agency',
       html: `
         <div style="background:#06080f;color:#f0ead8;font-family:Georgia,serif;padding:40px;max-width:600px;margin:0 auto;">
           <h1 style="color:#c9a84c;font-size:24px;margin-bottom:8px;">Message Received</h1>
-          <p style="margin-bottom:16px;">Hi ${name},</p>
+          <p style="margin-bottom:16px;">Hi ${safeName},</p>
           <p style="line-height:1.8;color:#9ba9bb;margin-bottom:32px;">
             Thank you for reaching out to Landi-Lou Talent Agency. We have received your message
             and will respond within 1–2 business days.

@@ -1,19 +1,20 @@
 'use client'
 
+import React, { useState } from 'react'
 import Navbar from '@/components/nav/Navbar'
 import Footer from '@/components/nav/Footer'
-import { useState } from 'react'
+import TalentFAQSection from '@/components/home/TalentFAQSection'
 import { Upload, CheckCircle, Check } from 'lucide-react'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const TALENT_CATEGORIES = [
-  'Actor', 'Commercial', 'Theatre', 'Print', 'Fashion', 'Lifestyle',
+  'Actor', 'Commercial', 'Television', 'Theatre', 'Print', 'Fashion', 'Modeling', 'Lifestyle',
   'Voice Over', 'Singer', 'Dancer', 'Host', 'Influencer',
   'Children & Youth', 'Fitness', 'Specialty Talent',
 ]
 
-const UNION_STATUSES = ['SAG-AFTRA', 'SAG-Eligible', 'Equity', 'EMC', 'Non-Union']
+const UNION_STATUSES = ['SAG-AFTRA', 'SAG-Eligible', 'Equity', 'EMC', 'Non-Union', 'Other']
 
 const ETHNICITIES = [
   'Black/African American', 'White/Caucasian', 'Hispanic/Latino',
@@ -39,11 +40,19 @@ const STEP_LABELS = [
 const SKILLS_GROUPS = [
   {
     group: 'Performance',
-    skills: ['Dancing', 'Singing', 'Comedy', 'Improvisation', 'Public Speaking', 'Teleprompter'],
+    skills: ['Dancing', 'Singing', 'Comedy', 'Improvisation', 'Public Speaking', 'Teleprompter', 'Musical Theater'],
   },
   {
     group: 'Physical',
     skills: ['Firearms', 'Horseback Riding', 'Swimming', 'Scuba', 'Martial Arts', 'Stunts', 'Motorcycle', 'Driving'],
+  },
+  {
+    group: 'Sports',
+    skills: [
+      'Basketball', 'Football', 'Soccer', 'Baseball', 'Softball', 'Tennis', 'Golf',
+      'Track & Field', 'Gymnastics', 'Volleyball', 'Wrestling', 'Hockey', 'Swim Competitively',
+      'Boxing', 'Cheerleading', 'Lacrosse', 'Rugby',
+    ],
   },
   {
     group: 'Background',
@@ -75,15 +84,28 @@ type FormData = {
   hair_color: string
   eye_color: string
   ethnicity: string[]
-  top_size: string
-  bottom_size: string
+  // Male sizes
+  neck_size: string
+  sleeve_size: string
+  jacket_size: string
+  pant_waist: string
+  inseam: string
+  hat_size: string
+  // Female sizes
+  shirt_size: string
+  pant_size: string
+  bust: string
+  waist: string
+  hip: string
   dress_size: string
+  // Shared
   shoe_size: string
   skills: string[]
   languages: string
   dialects: string
   instruments: string
-  sports: string
+  skin_tone: string
+  notable_credits: string
   // Step 4
   demo_reel_url: string
   voice_reel_url: string
@@ -93,15 +115,23 @@ type FormData = {
   // Step 5
   experience_categories: string[]
   experience_level: string
-  notable_credits: string
   // Step 6
   availability_type: string[]
   has_passport: boolean
   has_drivers_license: boolean
   has_transportation: boolean
+  will_travel: boolean
   local_hire_markets: string
-  // Step 7
+  // Step 7 — Consent
   confirmed_accurate: boolean
+  accepted_privacy: boolean
+  accepted_terms: boolean
+  // Guardian (minors only)
+  guardian_name: string
+  guardian_email: string
+  guardian_phone: string
+  guardian_relationship: string
+  guardian_consent: boolean
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -124,16 +154,31 @@ export default function SubmitPage() {
     dob: '', city: '', state: 'FL', bio: '',
     representation_type: '', union_status: '', talent_categories: [],
     gender: '', height: '', weight: '', hair_color: '', eye_color: '',
-    ethnicity: [], top_size: '', bottom_size: '', dress_size: '', shoe_size: '',
-    skills: [], languages: '', dialects: '', instruments: '', sports: '',
+    ethnicity: [],
+    neck_size: '', sleeve_size: '', jacket_size: '', pant_waist: '', inseam: '', hat_size: '',
+    shirt_size: '', pant_size: '', bust: '', waist: '', hip: '', dress_size: '',
+    shoe_size: '',
+    skills: [], languages: '', dialects: '', instruments: '', skin_tone: '', notable_credits: '',
     demo_reel_url: '', voice_reel_url: '', instagram: '', tiktok: '', youtube: '',
-    experience_categories: [], experience_level: '', notable_credits: '',
+    experience_categories: [], experience_level: '',
     availability_type: [], has_passport: false, has_drivers_license: false,
-    has_transportation: false, local_hire_markets: '',
-    confirmed_accurate: false,
+    has_transportation: false, will_travel: false, local_hire_markets: '',
+    confirmed_accurate: false, accepted_privacy: false, accepted_terms: false,
+    guardian_name: '', guardian_email: '', guardian_phone: '',
+    guardian_relationship: '', guardian_consent: false,
   })
 
   // ── Helpers ────────────────────────────────────────────────────────────────
+
+  function isMinor(dob: string): boolean {
+    if (!dob) return false
+    const birth = new Date(dob)
+    const today = new Date()
+    let age = today.getFullYear() - birth.getFullYear()
+    const m = today.getMonth() - birth.getMonth()
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
+    return age < 18
+  }
 
   const inputClass =
     'w-full bg-[#141929] border border-[rgba(201,168,76,0.2)] rounded px-4 py-3 text-[#f0ead8] text-sm placeholder-[#9ba9bb] focus:outline-none focus:border-[#c9a84c]/60 transition-colors'
@@ -167,6 +212,10 @@ export default function SubmitPage() {
       if (!formData.dob) errs.push('Date of Birth is required.')
       if (!formData.city.trim()) errs.push('City is required.')
       if (!formData.state.trim()) errs.push('State is required.')
+      if (formData.dob && isMinor(formData.dob)) {
+        if (!formData.guardian_name.trim()) errs.push('Guardian/Parent Name is required for applicants under 18.')
+        if (!formData.guardian_email.trim()) errs.push('Guardian/Parent Email is required for applicants under 18.')
+      }
     }
     if (s === 2) {
       if (!formData.representation_type) errs.push('Representation Type is required.')
@@ -184,6 +233,11 @@ export default function SubmitPage() {
     }
     if (s === 7) {
       if (!formData.confirmed_accurate) errs.push('Please confirm all information is accurate.')
+      if (!formData.accepted_privacy) errs.push('You must accept the Privacy Policy.')
+      if (!formData.accepted_terms) errs.push('You must accept the Terms of Use.')
+      if (formData.dob && isMinor(formData.dob) && !formData.guardian_consent) {
+        errs.push('Guardian/Parent must provide consent for applicants under 18.')
+      }
     }
     return errs
   }
@@ -215,8 +269,7 @@ export default function SubmitPage() {
       const textFields: (keyof typeof formData)[] = [
         'first_name', 'last_name', 'stage_name', 'email', 'phone', 'dob', 'city', 'state', 'bio',
         'representation_type', 'union_status', 'gender', 'height', 'weight', 'hair_color', 'eye_color',
-        'top_size', 'bottom_size', 'dress_size', 'shoe_size',
-        'languages', 'dialects', 'instruments', 'sports',
+        'skin_tone', 'languages', 'dialects', 'instruments',
         'demo_reel_url', 'voice_reel_url', 'instagram', 'tiktok', 'youtube',
         'experience_level', 'notable_credits', 'local_hire_markets',
       ]
@@ -226,6 +279,13 @@ export default function SubmitPage() {
       body.append('has_passport', String(formData.has_passport))
       body.append('has_drivers_license', String(formData.has_drivers_license))
       body.append('has_transportation', String(formData.has_transportation))
+      body.append('will_travel', String(formData.will_travel))
+
+      // Guardian fields (sent for all submissions; API stores null when empty)
+      body.append('guardian_name', formData.guardian_name)
+      body.append('guardian_email', formData.guardian_email)
+      body.append('guardian_phone', formData.guardian_phone)
+      body.append('guardian_relationship', formData.guardian_relationship)
 
       // JSON arrays
       body.append('talent_categories', JSON.stringify(formData.talent_categories))
@@ -234,10 +294,19 @@ export default function SubmitPage() {
       body.append('experience_categories', JSON.stringify(formData.experience_categories))
       body.append('availability_type', JSON.stringify(formData.availability_type))
 
-      // Wardrobe sizes as JSON
+      // Wardrobe sizes as JSON (gender-specific)
       body.append('wardrobe_sizes', JSON.stringify({
-        top: formData.top_size,
-        bottom: formData.bottom_size,
+        neck: formData.neck_size,
+        sleeve: formData.sleeve_size,
+        jacket: formData.jacket_size,
+        pant_waist: formData.pant_waist,
+        inseam: formData.inseam,
+        hat: formData.hat_size,
+        shirt: formData.shirt_size,
+        pant: formData.pant_size,
+        bust: formData.bust,
+        waist: formData.waist,
+        hip: formData.hip,
         dress: formData.dress_size,
         shoe: formData.shoe_size,
       }))
@@ -278,24 +347,52 @@ export default function SubmitPage() {
     file: File | null
     onFile: (f: File | null) => void
   }) {
+    const [previewUrl, setPreviewUrl] = React.useState<string | null>(null)
+    const [previewError, setPreviewError] = React.useState(false)
+
+    function handleFile(f: File | null) {
+      if (previewUrl) URL.revokeObjectURL(previewUrl)
+      setPreviewError(false)
+      if (f && f.type.startsWith('image/')) {
+        setPreviewUrl(URL.createObjectURL(f))
+      } else {
+        setPreviewUrl(null)
+      }
+      onFile(f)
+    }
+
     return (
       <div>
         <label className={labelClass}>
           {label} {required && <span className="text-[#c9a84c]">*</span>}
         </label>
-        <label className="flex flex-col items-center justify-center gap-2 border border-dashed border-[rgba(201,168,76,0.35)] rounded-lg p-7 cursor-pointer hover:border-[#c9a84c]/70 transition-colors">
-          <Upload size={22} className="text-[#c9a84c]" />
+        <label className="flex flex-col items-center justify-center gap-2 border border-dashed border-[rgba(201,168,76,0.35)] rounded-lg p-5 cursor-pointer hover:border-[#c9a84c]/70 transition-colors">
+          {previewUrl && !previewError ? (
+            <img
+              src={previewUrl}
+              alt="Preview"
+              className="w-28 h-36 object-cover rounded"
+              onError={() => setPreviewError(true)}
+            />
+          ) : (
+            <Upload size={22} className={previewError ? 'text-red-400' : 'text-[#c9a84c]'} />
+          )}
           <span className="text-[#9ba9bb] text-sm text-center">
             {file ? file.name : 'Click to upload'}
           </span>
-          {file && (
+          {previewError && (
+            <span className="text-red-400 text-xs text-center">
+              This file format can&apos;t be previewed and may not display correctly. Use JPG or PNG.
+            </span>
+          )}
+          {file && !previewError && (
             <span className="text-[#c9a84c] text-xs">{(file.size / 1024).toFixed(0)} KB</span>
           )}
           <input
             type="file"
             accept={accept}
             className="hidden"
-            onChange={e => onFile(e.target.files?.[0] || null)}
+            onChange={e => handleFile(e.target.files?.[0] || null)}
           />
         </label>
       </div>
@@ -306,23 +403,36 @@ export default function SubmitPage() {
     checked,
     onChange,
     label,
+    name,
+    id: providedId,
   }: {
     checked: boolean
     onChange: (v: boolean) => void
-    label: string
+    label: React.ReactNode
+    name?: string
+    id?: string
   }) {
+    const id = providedId ?? `check-${name ?? String(label).replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`
     return (
-      <label className="flex items-center gap-3 cursor-pointer group">
-        <div
-          className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-all ${
+      <label htmlFor={id} className="flex items-center gap-3 cursor-pointer group">
+        <input
+          id={id}
+          name={name}
+          type="checkbox"
+          checked={checked}
+          onChange={e => onChange(e.target.checked)}
+          className="sr-only peer"
+        />
+        <span
+          aria-hidden="true"
+          className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-all peer-focus-visible:ring-2 peer-focus-visible:ring-[#c9a84c] ${
             checked
               ? 'bg-[#c9a84c] border-[#c9a84c]'
               : 'border-[rgba(201,168,76,0.3)] bg-[#141929] group-hover:border-[#c9a84c]/60'
           }`}
-          onClick={() => onChange(!checked)}
         >
           {checked && <Check size={10} className="text-[#06080f]" strokeWidth={3} />}
-        </div>
+        </span>
         <span className="text-[#f0ead8] text-sm">{label}</span>
       </label>
     )
@@ -332,23 +442,34 @@ export default function SubmitPage() {
     checked,
     onChange,
     label,
+    name,
   }: {
     checked: boolean
     onChange: () => void
     label: string
+    name?: string
   }) {
+    const id = `radio-${name ?? 'choice'}-${label.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`
     return (
-      <label className="flex items-center gap-3 cursor-pointer group">
-        <div
-          className={`w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-all ${
+      <label htmlFor={id} className="flex items-center gap-3 cursor-pointer group">
+        <input
+          id={id}
+          name={name}
+          type="radio"
+          checked={checked}
+          onChange={() => onChange()}
+          className="sr-only peer"
+        />
+        <span
+          aria-hidden="true"
+          className={`w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-all peer-focus-visible:ring-2 peer-focus-visible:ring-[#c9a84c] ${
             checked
               ? 'border-[#c9a84c]'
               : 'border-[rgba(201,168,76,0.3)] bg-[#141929] group-hover:border-[#c9a84c]/60'
           }`}
-          onClick={onChange}
         >
           {checked && <div className="w-2 h-2 rounded-full bg-[#c9a84c]" />}
-        </div>
+        </span>
         <span className="text-[#f0ead8] text-sm">{label}</span>
       </label>
     )
@@ -381,7 +502,7 @@ export default function SubmitPage() {
   function ErrorBanner() {
     if (errors.length === 0) return null
     return (
-      <div className="bg-red-900/20 border border-red-500/30 rounded-lg px-4 py-3">
+      <div role="alert" aria-live="polite" className="bg-red-900/20 border border-red-500/30 rounded-lg px-4 py-3">
         {errors.map((e, i) => (
           <p key={i} className="text-red-400 text-sm">{e}</p>
         ))}
@@ -395,7 +516,7 @@ export default function SubmitPage() {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen flex items-center justify-center px-6">
+        <main className="min-h-screen flex items-center justify-center px-6">
           <div className="text-center max-w-lg">
             <CheckCircle size={56} className="text-[#c9a84c] mx-auto mb-6" />
             <h1 className="font-[family-name:var(--font-playfair)] text-4xl text-[#f0ead8] mb-4">
@@ -408,7 +529,7 @@ export default function SubmitPage() {
               Return to Home
             </a>
           </div>
-        </div>
+        </main>
         <Footer />
       </>
     )
@@ -420,11 +541,12 @@ export default function SubmitPage() {
     <>
       <Navbar />
 
+      <main id="main-content">
       {/* Header */}
-      <section className="pt-36 pb-8 px-6 text-center">
+      <section className="pt-40 pb-8 px-6 text-center">
         <p className="text-[#c9a84c] text-xs tracking-[0.3em] uppercase mb-4">Join the Roster</p>
         <h1 className="font-[family-name:var(--font-playfair)] text-5xl text-[#f0ead8] mb-4">
-          Submit Your Talent
+          Submission
         </h1>
         <p className="text-[#9ba9bb] max-w-xl mx-auto text-sm leading-relaxed">
           We review every submission personally. Complete the form below — we&apos;ll be in touch if there&apos;s a fit.
@@ -488,44 +610,80 @@ export default function SubmitPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className={labelClass}>First Name <span className="text-[#c9a84c]">*</span></label>
-                  <input name="first_name" value={formData.first_name} onChange={handleText} className={inputClass} placeholder="First" />
+                  <label htmlFor="first_name" className={labelClass}>First Name <span className="text-[#c9a84c]">*</span></label>
+                  <input id="first_name" name="first_name" required autoComplete="given-name" value={formData.first_name} onChange={handleText} className={inputClass} placeholder="First" />
                 </div>
                 <div>
-                  <label className={labelClass}>Last Name <span className="text-[#c9a84c]">*</span></label>
-                  <input name="last_name" value={formData.last_name} onChange={handleText} className={inputClass} placeholder="Last" />
+                  <label htmlFor="last_name" className={labelClass}>Last Name <span className="text-[#c9a84c]">*</span></label>
+                  <input id="last_name" name="last_name" required autoComplete="family-name" value={formData.last_name} onChange={handleText} className={inputClass} placeholder="Last" />
                 </div>
               </div>
               <div>
-                <label className={labelClass}>Stage Name (if any)</label>
-                <input name="stage_name" value={formData.stage_name} onChange={handleText} className={inputClass} placeholder="Professional or stage name" />
+                <label htmlFor="stage_name" className={labelClass}>Stage Name (if any)</label>
+                <input id="stage_name" name="stage_name" autoComplete="nickname" value={formData.stage_name} onChange={handleText} className={inputClass} placeholder="Professional or stage name" />
               </div>
               <div>
-                <label className={labelClass}>Email <span className="text-[#c9a84c]">*</span></label>
-                <input type="email" name="email" value={formData.email} onChange={handleText} className={inputClass} placeholder="your@email.com" />
+                <label htmlFor="email" className={labelClass}>Email <span className="text-[#c9a84c]">*</span></label>
+                <input id="email" type="email" name="email" required autoComplete="email" value={formData.email} onChange={handleText} className={inputClass} placeholder="your@email.com" />
               </div>
               <div>
-                <label className={labelClass}>Phone</label>
-                <input type="tel" name="phone" value={formData.phone} onChange={handleText} className={inputClass} placeholder="(555) 000-0000" />
+                <label htmlFor="phone" className={labelClass}>Phone</label>
+                <input id="phone" type="tel" name="phone" autoComplete="tel" value={formData.phone} onChange={handleText} className={inputClass} placeholder="(555) 000-0000" />
               </div>
               <div>
-                <label className={labelClass}>Date of Birth <span className="text-[#c9a84c]">*</span></label>
-                <input type="date" name="dob" value={formData.dob} onChange={handleText} className={inputClass} />
+                <label htmlFor="dob" className={labelClass}>Date of Birth <span className="text-[#c9a84c]">*</span></label>
+                <input id="dob" type="date" name="dob" required autoComplete="bday" value={formData.dob} onChange={handleText} className={inputClass} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className={labelClass}>City <span className="text-[#c9a84c]">*</span></label>
-                  <input name="city" value={formData.city} onChange={handleText} className={inputClass} placeholder="City" />
+                  <label htmlFor="city" className={labelClass}>City <span className="text-[#c9a84c]">*</span></label>
+                  <input id="city" name="city" required autoComplete="address-level2" value={formData.city} onChange={handleText} className={inputClass} placeholder="City" />
                 </div>
                 <div>
-                  <label className={labelClass}>State <span className="text-[#c9a84c]">*</span></label>
-                  <input name="state" value={formData.state} onChange={handleText} className={inputClass} placeholder="FL" />
+                  <label htmlFor="state" className={labelClass}>State <span className="text-[#c9a84c]">*</span></label>
+                  <input id="state" name="state" required autoComplete="address-level1" value={formData.state} onChange={handleText} className={inputClass} placeholder="FL" />
                 </div>
               </div>
               <div>
-                <label className={labelClass}>Bio / Tell Us About Yourself</label>
-                <textarea name="bio" value={formData.bio} onChange={handleText} rows={4} className={inputClass} placeholder="Brief background, experience, goals..." />
+                <label htmlFor="bio" className={labelClass}>Bio / Tell Us About Yourself</label>
+                <textarea id="bio" name="bio" value={formData.bio} onChange={handleText} rows={4} className={inputClass} placeholder="Brief background, experience, goals..." />
               </div>
+
+              {/* Guardian section — only shows when applicant is under 18 */}
+              {formData.dob && isMinor(formData.dob) && (
+                <div className="border border-[#c9a84c]/40 rounded-lg p-5 flex flex-col gap-4 bg-[#c9a84c]/5">
+                  <div>
+                    <p className="text-[#c9a84c] text-xs tracking-widest uppercase font-semibold mb-1">Parent / Guardian Information</p>
+                    <p className="text-[#9ba9bb] text-xs leading-relaxed">
+                      Applicants under 18 require a parent or legal guardian to provide their information and authorize this submission.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="guardian_name" className={labelClass}>Guardian Full Name <span className="text-[#c9a84c]">*</span></label>
+                      <input id="guardian_name" name="guardian_name" autoComplete="name" value={formData.guardian_name} onChange={handleText} className={inputClass} placeholder="Full legal name" />
+                    </div>
+                    <div>
+                      <label htmlFor="guardian_relationship" className={labelClass}>Relationship</label>
+                      <select id="guardian_relationship" name="guardian_relationship" value={formData.guardian_relationship} onChange={handleText} className={inputClass}>
+                        <option value="">Select</option>
+                        {['Parent', 'Legal Guardian', 'Other'].map(r => (
+                          <option key={r} value={r}>{r}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor="guardian_email" className={labelClass}>Guardian Email <span className="text-[#c9a84c]">*</span></label>
+                    <input id="guardian_email" type="email" name="guardian_email" autoComplete="email" value={formData.guardian_email} onChange={handleText} className={inputClass} placeholder="guardian@email.com" />
+                  </div>
+                  <div>
+                    <label htmlFor="guardian_phone" className={labelClass}>Guardian Phone</label>
+                    <input id="guardian_phone" type="tel" name="guardian_phone" autoComplete="tel" value={formData.guardian_phone} onChange={handleText} className={inputClass} placeholder="(555) 000-0000" />
+                  </div>
+                </div>
+              )}
+
               <ErrorBanner />
               <NavButtons />
             </div>
@@ -548,6 +706,7 @@ export default function SubmitPage() {
                       checked={formData.representation_type === opt}
                       onChange={() => set('representation_type', opt)}
                       label={opt}
+                      name="representation_type"
                     />
                   ))}
                 </div>
@@ -562,6 +721,7 @@ export default function SubmitPage() {
                       checked={formData.union_status === opt}
                       onChange={() => set('union_status', opt)}
                       label={opt}
+                      name="union_status"
                     />
                   ))}
                 </div>
@@ -653,25 +813,103 @@ export default function SubmitPage() {
               </div>
 
               <div>
-                <label className={labelClass}>Wardrobe Sizes</label>
-                <div className="grid grid-cols-2 gap-3">
-                  {[
-                    { field: 'top_size', placeholder: 'Top Size (e.g. M, L, 42R)' },
-                    { field: 'bottom_size', placeholder: 'Bottom Size (e.g. 32x30)' },
-                    { field: 'dress_size', placeholder: 'Dress Size (e.g. 6, 8)' },
-                    { field: 'shoe_size', placeholder: 'Shoe Size (e.g. 10.5)' },
-                  ].map(({ field, placeholder }) => (
-                    <div key={field}>
-                      <input
-                        name={field}
-                        value={formData[field as keyof FormData] as string}
-                        onChange={handleText}
-                        className={inputClass}
-                        placeholder={placeholder}
-                      />
-                    </div>
+                <label className={labelClass}>Skin Tone</label>
+                <select name="skin_tone" value={formData.skin_tone} onChange={handleText} className={inputClass}>
+                  <option value="">Select</option>
+                  {['Very Fair', 'Fair', 'Light', 'Light Medium', 'Medium', 'Medium Tan', 'Tan', 'Deep Tan', 'Brown', 'Dark Brown', 'Deep'].map(s => (
+                    <option key={s} value={s}>{s}</option>
                   ))}
-                </div>
+                </select>
+              </div>
+
+              <div>
+                <label className={labelClass}>Wardrobe Sizes</label>
+                {!formData.gender && (
+                  <p className="text-[#9ba9bb] text-xs mb-3">Select your gender above to see the appropriate size fields.</p>
+                )}
+
+                {/* Male sizes */}
+                {formData.gender === 'Male' && (
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { name: 'neck_size', label: 'Neck', placeholder: 'e.g. 16"' },
+                      { name: 'sleeve_size', label: 'Sleeve', placeholder: 'e.g. 34"' },
+                      { name: 'jacket_size', label: 'Jacket Size', placeholder: 'e.g. 42R' },
+                      { name: 'pant_waist', label: 'Pant Waist', placeholder: 'e.g. 32' },
+                      { name: 'inseam', label: 'Inseam', placeholder: 'e.g. 30"' },
+                      { name: 'hat_size', label: 'Hat Size', placeholder: 'e.g. 7 1/4' },
+                      { name: 'shoe_size', label: 'Shoe Size', placeholder: 'e.g. 10.5' },
+                    ].map(({ name, label, placeholder }) => (
+                      <div key={name}>
+                        <label className={labelClass}>{label}</label>
+                        <input name={name} value={formData[name as keyof FormData] as string} onChange={handleText} className={inputClass} placeholder={placeholder} />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Female sizes */}
+                {formData.gender === 'Female' && (
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { name: 'dress_size', label: 'Dress Size', placeholder: 'e.g. 6, 8, 10' },
+                      { name: 'shirt_size', label: 'Shirt/Blouse Size', placeholder: 'e.g. S, M, L' },
+                      { name: 'pant_size', label: 'Pant Size', placeholder: 'e.g. 4, 6, 28' },
+                      { name: 'bust', label: 'Bust', placeholder: 'e.g. 36"' },
+                      { name: 'waist', label: 'Waist', placeholder: 'e.g. 28"' },
+                      { name: 'hip', label: 'Hip', placeholder: 'e.g. 38"' },
+                      { name: 'shoe_size', label: 'Shoe Size', placeholder: 'e.g. 8' },
+                    ].map(({ name, label, placeholder }) => (
+                      <div key={name}>
+                        <label className={labelClass}>{label}</label>
+                        <input name={name} value={formData[name as keyof FormData] as string} onChange={handleText} className={inputClass} placeholder={placeholder} />
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Non-Binary / Prefer not to say — show both */}
+                {(formData.gender === 'Non-Binary' || formData.gender === 'Prefer not to say') && (
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-[#c9a84c] text-xs tracking-widest uppercase mb-2">Men&apos;s Sizes (if applicable)</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          { name: 'neck_size', label: 'Neck', placeholder: 'e.g. 16"' },
+                          { name: 'sleeve_size', label: 'Sleeve', placeholder: 'e.g. 34"' },
+                          { name: 'jacket_size', label: 'Jacket Size', placeholder: 'e.g. 42R' },
+                          { name: 'pant_waist', label: 'Pant Waist', placeholder: 'e.g. 32' },
+                          { name: 'inseam', label: 'Inseam', placeholder: 'e.g. 30"' },
+                          { name: 'hat_size', label: 'Hat Size', placeholder: 'e.g. 7 1/4' },
+                          { name: 'shoe_size', label: 'Shoe Size', placeholder: 'e.g. 10' },
+                        ].map(({ name, label, placeholder }) => (
+                          <div key={name}>
+                            <label className={labelClass}>{label}</label>
+                            <input name={name} value={formData[name as keyof FormData] as string} onChange={handleText} className={inputClass} placeholder={placeholder} />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-[#c9a84c] text-xs tracking-widest uppercase mb-2">Women&apos;s Sizes (if applicable)</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          { name: 'dress_size', label: 'Dress Size', placeholder: 'e.g. 6, 8, 10' },
+                          { name: 'shirt_size', label: 'Shirt/Blouse Size', placeholder: 'e.g. S, M, L' },
+                          { name: 'pant_size', label: 'Pant Size', placeholder: 'e.g. 4, 6, 28' },
+                          { name: 'bust', label: 'Bust', placeholder: 'e.g. 36"' },
+                          { name: 'waist', label: 'Waist', placeholder: 'e.g. 28"' },
+                          { name: 'hip', label: 'Hip', placeholder: 'e.g. 38"' },
+                        ].map(({ name, label, placeholder }) => (
+                          <div key={name}>
+                            <label className={labelClass}>{label}</label>
+                            <input name={name} value={formData[name as keyof FormData] as string} onChange={handleText} className={inputClass} placeholder={placeholder} />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -693,19 +931,20 @@ export default function SubmitPage() {
                 ))}
 
                 <div className="mb-4">
-                  <p className="text-[#c9a84c] text-xs tracking-widest uppercase mb-3">Other</p>
+                  <p className="text-[#c9a84c] text-xs tracking-widest uppercase mb-3">Languages & More</p>
                   <div className="flex flex-col gap-3">
-                    {[
-                      { name: 'languages', placeholder: 'Languages spoken (e.g. Spanish, French)' },
-                      { name: 'dialects', placeholder: 'Dialects / Accents (e.g. British, Southern)' },
-                      { name: 'instruments', placeholder: 'Instruments (e.g. Piano, Guitar)' },
-                      { name: 'sports', placeholder: 'Sports (e.g. Basketball, Soccer)' },
-                    ].map(({ name, placeholder }) => (
-                      <div key={name}>
-                        <label className={labelClass}>{name.charAt(0).toUpperCase() + name.slice(1)}</label>
-                        <input name={name} value={formData[name as keyof FormData] as string} onChange={handleText} className={inputClass} placeholder={placeholder} />
-                      </div>
-                    ))}
+                    <div>
+                      <label className={labelClass}>Languages Spoken</label>
+                      <input name="languages" value={formData.languages} onChange={handleText} className={inputClass} placeholder="e.g. Spanish, French, Mandarin" />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Accents / Dialects</label>
+                      <input name="dialects" value={formData.dialects} onChange={handleText} className={inputClass} placeholder="e.g. British RP, Southern American, German accent" />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Musical Instruments</label>
+                      <input name="instruments" value={formData.instruments} onChange={handleText} className={inputClass} placeholder="e.g. Piano, Guitar, Drums" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -810,20 +1049,22 @@ export default function SubmitPage() {
                       checked={formData.experience_level === lvl}
                       onChange={() => set('experience_level', lvl)}
                       label={lvl}
+                      name="experience_level"
                     />
                   ))}
                 </div>
               </div>
 
               <div>
-                <label className={labelClass}>Notable Credits / Resume Highlights</label>
+                <label className={labelClass}>Notable Credits</label>
+                <p className="text-[#9ba9bb] text-xs mb-2">List any TV shows, films, commercials, or stage productions you&apos;ve appeared in.</p>
                 <textarea
                   name="notable_credits"
                   value={formData.notable_credits}
                   onChange={handleText}
-                  rows={5}
+                  rows={4}
                   className={inputClass}
-                  placeholder="Describe your top credits, projects, brands worked with, productions, etc."
+                  placeholder="e.g. Law & Order SVU (2022), Nike Commercial (2023), Hamilton — touring cast (2021)"
                 />
               </div>
 
@@ -856,19 +1097,28 @@ export default function SubmitPage() {
 
               <div className="flex flex-col gap-3">
                 <GoldCheckbox
+                  checked={formData.will_travel}
+                  onChange={v => set('will_travel', v)}
+                  label="I am willing to travel for work"
+                  name="will_travel"
+                />
+                <GoldCheckbox
                   checked={formData.has_passport}
                   onChange={v => set('has_passport', v)}
                   label="I have a valid passport"
+                  name="has_passport"
                 />
                 <GoldCheckbox
                   checked={formData.has_drivers_license}
                   onChange={v => set('has_drivers_license', v)}
                   label="I have a valid driver's license"
+                  name="has_drivers_license"
                 />
                 <GoldCheckbox
                   checked={formData.has_transportation}
                   onChange={v => set('has_transportation', v)}
                   label="I have reliable transportation"
+                  name="has_transportation"
                 />
               </div>
 
@@ -924,12 +1174,26 @@ export default function SubmitPage() {
                     ['Height / Weight', `${formData.height || '—'} / ${formData.weight || '—'}`],
                     ['Hair / Eyes', `${formData.hair_color || '—'} / ${formData.eye_color || '—'}`],
                     ['Ethnicity', formData.ethnicity.join(', ') || '—'],
-                    ['Wardrobe', `Top: ${formData.top_size || '—'}, Bottom: ${formData.bottom_size || '—'}, Dress: ${formData.dress_size || '—'}, Shoe: ${formData.shoe_size || '—'}`],
+                    ['Wardrobe', [
+                      formData.neck_size && `Neck: ${formData.neck_size}`,
+                      formData.sleeve_size && `Sleeve: ${formData.sleeve_size}`,
+                      formData.jacket_size && `Jacket: ${formData.jacket_size}`,
+                      formData.pant_waist && `Pant Waist: ${formData.pant_waist}`,
+                      formData.inseam && `Inseam: ${formData.inseam}`,
+                      formData.hat_size && `Hat: ${formData.hat_size}`,
+                      formData.dress_size && `Dress: ${formData.dress_size}`,
+                      formData.shirt_size && `Shirt: ${formData.shirt_size}`,
+                      formData.pant_size && `Pant: ${formData.pant_size}`,
+                      formData.bust && `Bust: ${formData.bust}`,
+                      formData.waist && `Waist: ${formData.waist}`,
+                      formData.hip && `Hip: ${formData.hip}`,
+                      formData.shoe_size && `Shoe: ${formData.shoe_size}`,
+                    ].filter(Boolean).join(', ') || '—'],
+                    ['Skin Tone', formData.skin_tone || '—'],
                     ['Skills', formData.skills.join(', ') || '—'],
                     ['Languages', formData.languages || '—'],
-                    ['Dialects', formData.dialects || '—'],
+                    ['Accents / Dialects', formData.dialects || '—'],
                     ['Instruments', formData.instruments || '—'],
-                    ['Sports', formData.sports || '—'],
                   ],
                 },
                 {
@@ -981,12 +1245,58 @@ export default function SubmitPage() {
                 </div>
               ))}
 
-              <div className="border border-[#c9a84c]/30 rounded-lg p-5">
+              <div className="border border-[#c9a84c]/30 rounded-lg p-5 flex flex-col gap-4">
+                <p className="text-[#c9a84c] text-xs tracking-widest uppercase font-semibold">Acknowledgements</p>
+
                 <GoldCheckbox
                   checked={formData.confirmed_accurate}
                   onChange={v => set('confirmed_accurate', v)}
-                  label="I confirm all information is accurate and complete."
+                  label="I confirm all information provided is accurate and complete."
                 />
+
+                <GoldCheckbox
+                  checked={formData.accepted_privacy}
+                  onChange={v => set('accepted_privacy', v)}
+                  label={
+                    <span>
+                      I have read and agree to the{' '}
+                      <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-[#c9a84c] underline hover:text-[#e8c97a]">
+                        Privacy Policy
+                      </a>
+                      .
+                    </span>
+                  }
+                />
+
+                <GoldCheckbox
+                  checked={formData.accepted_terms}
+                  onChange={v => set('accepted_terms', v)}
+                  label={
+                    <span>
+                      I have read and agree to the{' '}
+                      <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[#c9a84c] underline hover:text-[#e8c97a]">
+                        Terms of Use
+                      </a>
+                      .
+                    </span>
+                  }
+                />
+
+                {/* Guardian consent — only shown for minors */}
+                {formData.dob && isMinor(formData.dob) && (
+                  <div className="mt-2 pt-4 border-t border-[rgba(201,168,76,0.2)] flex flex-col gap-3">
+                    <p className="text-[#c9a84c] text-xs tracking-widest uppercase font-semibold">Guardian Consent</p>
+                    <p className="text-[#9ba9bb] text-xs leading-relaxed">
+                      As the parent or legal guardian of {formData.first_name || 'this applicant'}, I authorize the submission of this talent profile to Landi-Lou Talent Agency and consent to the collection and use of the information provided.
+                    </p>
+                    <GoldCheckbox
+                      checked={formData.guardian_consent}
+                      onChange={v => set('guardian_consent', v)}
+                      label={`I, ${formData.guardian_name || 'the guardian'}, authorize and consent to this submission on behalf of the minor applicant.`}
+                      name="guardian_consent"
+                    />
+                  </div>
+                )}
               </div>
 
               <ErrorBanner />
@@ -1013,7 +1323,9 @@ export default function SubmitPage() {
 
         </div>
       </section>
+      </main>
 
+      <TalentFAQSection />
       <Footer />
     </>
   )

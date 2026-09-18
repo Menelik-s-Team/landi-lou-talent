@@ -1,13 +1,14 @@
 import type { Metadata } from 'next'
-import Navbar from '@/components/nav/Navbar'
-import Footer from '@/components/nav/Footer'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowRight, Star, Users, TrendingUp, Handshake, Sparkles } from 'lucide-react'
-import { createAdminClient } from '@/lib/supabase/admin'
-import { getContent } from '@/lib/content'
+import { ArrowRight, Star, Handshake } from 'lucide-react'
+import Navbar from '@/components/nav/Navbar'
+import HeadshotBanner from '@/components/home/HeadshotBanner'
+import Footer from '@/components/nav/Footer'
 
 export const metadata: Metadata = {
+  title: 'Landi-Lou Talent Agency — Central Florida\'s Premier Talent Agency',
+  description: "Central Florida's premier talent agency. Representing actors, models, hosts, voice-over artists, singers, and dancers.",
   alternates: { canonical: 'https://landiloutalentagency.com' },
 }
 
@@ -25,64 +26,10 @@ const jsonLd = {
       areaServed: { '@type': 'State', name: 'Florida' },
       founder: { '@type': 'Person', name: 'Dr. Calandria Smith' },
     },
-    {
-      '@type': 'LocalBusiness',
-      '@id': 'https://landiloutalentagency.com/#business',
-      name: 'Landi-Lou Talent Agency',
-      url: 'https://landiloutalentagency.com',
-      image: 'https://landiloutalentagency.com/logo.png',
-      address: { '@type': 'PostalAddress', addressRegion: 'FL', addressCountry: 'US' },
-      email: 'info@landiloutalentagency.com',
-      priceRange: '$$',
-    },
   ],
 }
 
-const brandValues = [
-  { icon: Users, label: 'Personalized Representation' },
-  { icon: Handshake, label: 'Strategic Partnerships' },
-  { icon: Star, label: 'LL Standard of Excellence' },
-  { icon: TrendingUp, label: 'Career Development' },
-  { icon: Sparkles, label: 'Lasting Impact' },
-]
-
-async function getFeaturedTalent() {
-  try {
-    const supabase = createAdminClient()
-    const { data, error } = await supabase
-      .from('talent_profiles')
-      .select('id, first_name, last_name, categories, headshot_url')
-      .eq('is_featured', true)
-      .limit(6)
-
-    if (error) return []
-    return data ?? []
-  } catch {
-    return []
-  }
-}
-
-export default async function HomePage() {
-  const [featuredTalent, c] = await Promise.all([
-    getFeaturedTalent(),
-    getContent([
-      'home_hero_eyebrow','home_hero_line1','home_hero_line2','home_hero_line3',
-      'home_hero_subtext','home_philosophy_label','home_philosophy_quote',
-      'home_cta_eyebrow','home_cta_heading','home_cta_subtext',
-    ], {
-      home_hero_eyebrow: 'Landi-Lou Talent Agency',
-      home_hero_line1: 'Connecting Talent.',
-      home_hero_line2: 'Building Careers.',
-      home_hero_line3: 'Creating Opportunities.',
-      home_hero_subtext: 'A boutique talent agency representing exceptional actors, models, and creatives across film, television, theatre, and beyond.',
-      home_philosophy_label: 'Our Philosophy',
-      home_philosophy_quote: 'We are not a volume agency. We are a premier house of talent, vision, and opportunity — curating careers, building brands, and protecting legacy.',
-      home_cta_eyebrow: 'Ready to Elevate?',
-      home_cta_heading: 'Your next chapter starts here.',
-      home_cta_subtext: 'Submit your talent profile for review. We move intentionally, partner selectively, and operate with vision.',
-    }),
-  ])
-
+export default function LandingPage() {
   return (
     <>
       <script
@@ -91,151 +38,133 @@ export default async function HomePage() {
       />
       <Navbar />
 
-      {/* Hero */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-[#c9a84c]/5 blur-[120px]" />
-          <div className="absolute top-2/3 left-1/4 w-[400px] h-[400px] rounded-full bg-[#0ea5c8]/5 blur-[100px]" />
-          <div className="absolute top-1/2 right-1/4 w-[350px] h-[350px] rounded-full bg-[#7c3aad]/5 blur-[100px]" />
+      <main id="main-content" className="relative min-h-screen flex flex-col items-center overflow-hidden bg-[#0d0b14]">
+
+        {/* Stage-light backdrop */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-[25%] left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-[#c9a84c]/6 blur-[160px]" />
+          <div className="absolute top-0 left-[8%] w-[320px] h-[90%] bg-[#7c3aad]/10 blur-[90px]" style={{ transform: 'rotate(-20deg)', transformOrigin: 'top center' }} />
+          <div className="absolute top-0 right-[8%] w-[320px] h-[90%] bg-[#7c3aad]/10 blur-[90px]" style={{ transform: 'rotate(20deg)', transformOrigin: 'top center' }} />
+          <div className="absolute bottom-0 left-0 right-0 h-[30%] bg-gradient-to-t from-[#3d0a6a]/10 to-transparent" />
+          <div className="absolute top-[60%] left-1/4 w-[200px] h-[200px] rounded-full bg-[#c9a84c]/4 blur-[80px]" />
+          <div className="absolute top-[60%] right-1/4 w-[200px] h-[200px] rounded-full bg-[#7c3aad]/6 blur-[80px]" />
         </div>
 
-        <div className="max-w-5xl mx-auto px-6 text-center relative z-10">
-          {/* Eyebrow */}
-          <p className="text-[#c9a84c] text-xs tracking-[0.4em] uppercase mb-6 font-semibold" style={{ fontVariant: 'small-caps' }}>
-            {c.home_hero_eyebrow}
-          </p>
+        <div className="relative z-10 flex flex-col items-center w-full pt-32 pb-16 gap-10">
 
-          <h1 className="font-[family-name:var(--font-playfair)] text-5xl md:text-7xl font-bold leading-tight mb-6 text-[#f0ead8]">
-            {c.home_hero_line1}<br />
-            {c.home_hero_line2}<br />
-            <span className="bg-gradient-to-r from-[#c9a84c] via-[#e8c97a] to-[#c9a84c] bg-clip-text text-transparent">
-              {c.home_hero_line3}
-            </span>
-          </h1>
-
-          <p className="text-[#9ba9bb] text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-10">
-            {c.home_hero_subtext}
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/submit"
-              className="flex items-center justify-center gap-2 px-8 py-4 bg-[#c9a84c] text-[#06080f] font-semibold rounded text-sm tracking-wide hover:bg-[#e8c97a] transition-all"
-            >
-              Submit Your Talent <ArrowRight size={16} />
-            </Link>
-            <Link
-              href="/for-clients"
-              className="flex items-center justify-center gap-2 px-8 py-4 border border-[#c9a84c]/40 text-[#c9a84c] rounded text-sm tracking-wide hover:bg-[#c9a84c]/10 transition-all"
-            >
-              For Clients
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Meet a Few of Our Talent */}
-      {featuredTalent.length > 0 && (
-        <section className="py-20 px-6 bg-[#06080f]">
-          <div className="max-w-7xl mx-auto">
-            <p className="text-[#c9a84c] text-xs tracking-[0.4em] uppercase mb-12 text-center font-semibold">
-              Meet a Few of Our Talent
-            </p>
-            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-              {featuredTalent.map((talent: {
-                id: string
-                first_name: string
-                last_name: string
-                categories: string[] | null
-                headshot_url: string | null
-              }) => (
-                <div
-                  key={talent.id}
-                  className="relative flex-shrink-0 w-56 group cursor-pointer"
-                >
-                  <div className="relative w-full overflow-hidden rounded-lg" style={{ aspectRatio: '3/4' }}>
-                    {talent.headshot_url ? (
-                      <Image
-                        src={talent.headshot_url}
-                        alt={`${talent.first_name} ${talent.last_name}`}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        sizes="224px"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-[#141929] flex items-center justify-center">
-                        <Star size={32} className="text-[#c9a84c]/30" />
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-[#c9a84c]/0 group-hover:bg-[#c9a84c]/10 transition-all duration-300 rounded-lg" />
-                  </div>
-                  <div className="mt-3 px-1">
-                    <p className="text-[#f0ead8] font-semibold text-sm leading-tight">{talent.first_name} {talent.last_name}</p>
-                    {talent.categories?.[0] && (
-                      <p className="text-[#9ba9bb] text-xs mt-1 tracking-wide uppercase">{talent.categories[0]}</p>
-                    )}
-                  </div>
-                </div>
-              ))}
+          {/* Logo — large and centered */}
+          <div className="flex flex-col items-center gap-4">
+            <div className="relative w-36 h-36 md:w-44 md:h-44">
+              <Image
+                src="/logo.png"
+                alt="Landi-Lou Talent Agency"
+                fill
+                className="object-contain drop-shadow-[0_0_40px_rgba(201,168,76,0.4)]"
+                priority
+              />
+            </div>
+            <div className="text-center">
+              <p className="font-[family-name:var(--font-playfair)] text-[#c9a84c] text-2xl md:text-3xl font-bold tracking-widest uppercase leading-none">
+                Landi-Lou
+              </p>
+              <p className="text-[#c4bfcc] text-sm tracking-[0.35em] uppercase mt-1">
+                Talent Agency
+              </p>
             </div>
           </div>
-        </section>
-      )}
 
-      {/* Philosophy quote */}
-      <section className="py-24 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-[#c9a84c] text-xs tracking-[0.3em] uppercase mb-6">{c.home_philosophy_label}</p>
-          <blockquote className="font-[family-name:var(--font-playfair)] text-3xl md:text-4xl text-[#f0ead8] leading-snug mb-8">
-            &ldquo;{c.home_philosophy_quote}&rdquo;
-          </blockquote>
-          <div className="w-16 h-px bg-[#c9a84c]/40 mx-auto" />
-        </div>
-      </section>
-
-      {/* Brand values strip */}
-      <section className="bg-black py-10 px-6 border-y border-[rgba(201,168,76,0.12)]">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-8">
-            {brandValues.map(({ icon: Icon, label }, i) => (
-              <div key={label} className="flex flex-col items-center gap-2 group">
-                {i === 2 ? (
-                  /* Center LL star accent */
-                  <div className="w-10 h-10 rounded-full bg-[#c9a84c]/15 border border-[#c9a84c]/30 flex items-center justify-center group-hover:bg-[#c9a84c]/25 transition-all">
-                    <Star size={18} className="text-[#c9a84c]" fill="currentColor" />
-                  </div>
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-[#c9a84c]/10 flex items-center justify-center group-hover:bg-[#c9a84c]/20 transition-all">
-                    <Icon size={18} className="text-[#c9a84c]" />
-                  </div>
-                )}
-                <p className="text-[#9ba9bb] text-xs tracking-wide text-center group-hover:text-[#f0ead8] transition-colors max-w-[110px] leading-snug">
-                  {label}
-                </p>
-              </div>
-            ))}
+          {/* Tagline */}
+          <div className="text-center px-6">
+            <h1 className="font-[family-name:var(--font-playfair)] text-3xl md:text-4xl text-[#f0ead8] font-bold mb-3 leading-tight">
+              Who are you here for?
+            </h1>
+            <p className="text-[#c4bfcc] text-sm md:text-base max-w-md mx-auto leading-relaxed">
+              Central Florida&apos;s premier talent agency. Tell us where to take you.
+            </p>
           </div>
-        </div>
-      </section>
 
-      {/* Final CTA */}
-      <section className="py-24 px-6">
-        <div className="max-w-3xl mx-auto text-center">
-          <p className="text-[#c9a84c] text-xs tracking-[0.3em] uppercase mb-6">{c.home_cta_eyebrow}</p>
-          <h2 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl text-[#f0ead8] mb-6">
-            {c.home_cta_heading}
-          </h2>
-          <p className="text-[#9ba9bb] mb-10 leading-relaxed">
-            {c.home_cta_subtext}
-          </p>
-          <Link
-            href="/submit"
-            className="inline-flex items-center gap-2 px-10 py-4 bg-[#c9a84c] text-[#06080f] font-semibold rounded text-sm tracking-wide hover:bg-[#e8c97a] transition-all"
-          >
-            Apply Now <ArrowRight size={16} />
-          </Link>
+          {/* Choose Your Path */}
+          <div className="w-full max-w-3xl px-6">
+            <p className="text-[#c9a84c]/70 text-xs tracking-[0.35em] uppercase text-center mb-5">Choose your path</p>
+
+            <div className="relative p-[2px] rounded-3xl" style={{ background: 'linear-gradient(135deg, #c9a84c, #e8c97a44, #7c3aad88, #c9a84c)' }}>
+              <div className="rounded-3xl bg-[#0d0b14] p-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                {/* Hiring Talent */}
+                <Link
+                  href="/for-clients"
+                  className="group relative rounded-2xl overflow-hidden min-h-[240px] flex flex-col items-center justify-center gap-4 text-center transition-all duration-300 hover:scale-[1.02]"
+                  style={{ background: 'linear-gradient(145deg, #2a0845 0%, #1a0030 40%, #0d0b14 100%)' }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-b from-[#7c3aad]/15 via-transparent to-[#0d0b14]/80 pointer-events-none" />
+                  <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#7c3aad] to-transparent opacity-70 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative z-10 flex flex-col items-center gap-3 px-6">
+                    <div className="w-14 h-14 rounded-full bg-[#7c3aad]/25 border border-[#c9a84c]/50 flex items-center justify-center group-hover:bg-[#7c3aad]/45 transition-all">
+                      <Handshake size={22} className="text-[#c9a84c]" />
+                    </div>
+                    <h2 className="font-[family-name:var(--font-playfair)] text-2xl text-[#f0ead8] font-bold leading-tight">
+                      Hiring Talent
+                    </h2>
+                    <p className="text-[#c4bfcc] text-sm leading-relaxed max-w-[220px]">
+                      Film, television, commercial, print, events &amp; branded content
+                    </p>
+                    <span className="flex items-center gap-2 text-[#c9a84c] text-xs tracking-widest uppercase font-semibold mt-1 group-hover:gap-3 transition-all">
+                      Book Talent <ArrowRight size={14} />
+                    </span>
+                  </div>
+                </Link>
+
+                {/* Seeking Representation */}
+                <Link
+                  href="/submit"
+                  className="group relative rounded-2xl overflow-hidden min-h-[240px] flex flex-col items-center justify-center gap-4 text-center transition-all duration-300 hover:scale-[1.02]"
+                  style={{ background: 'linear-gradient(145deg, #251a00 0%, #1a1200 40%, #0d0b14 100%)' }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-b from-[#c9a84c]/10 via-transparent to-[#0d0b14]/80 pointer-events-none" />
+                  <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#c9a84c] to-transparent opacity-70 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative z-10 flex flex-col items-center gap-3 px-6">
+                    <div className="w-14 h-14 rounded-full bg-[#c9a84c]/15 border border-[#c9a84c]/50 flex items-center justify-center group-hover:bg-[#c9a84c]/30 transition-all">
+                      <Star size={22} className="text-[#c9a84c]" />
+                    </div>
+                    <h2 className="font-[family-name:var(--font-playfair)] text-2xl text-[#f0ead8] font-bold leading-tight">
+                      Seeking Representation
+                    </h2>
+                    <p className="text-[#c4bfcc] text-sm leading-relaxed max-w-[220px]">
+                      Actors, models, hosts, voice-over artists, singers &amp; dancers
+                    </p>
+                    <span className="flex items-center gap-2 text-[#c9a84c] text-xs tracking-widest uppercase font-semibold mt-1 group-hover:gap-3 transition-all">
+                      Submit Profile <ArrowRight size={14} />
+                    </span>
+                  </div>
+                </Link>
+
+              </div>
+            </div>
+          </div>
+
+          {/* Our Roster — headshot banner */}
+          <div className="w-full">
+            <p className="text-[#c9a84c]/60 text-xs tracking-[0.3em] uppercase text-center mb-6">Our Roster</p>
+            <HeadshotBanner />
+          </div>
+
+          {/* Bottom links */}
+          <div className="flex items-center gap-8 text-xs tracking-widest uppercase pb-4">
+            <Link href="/about" className="text-[#c4bfcc]/50 hover:text-[#c9a84c] transition-colors">
+              About the Agency
+            </Link>
+            <span className="text-[#c9a84c]/20">|</span>
+            <Link href="/login" className="text-[#c4bfcc]/50 hover:text-[#c9a84c] transition-colors">
+              Portal Login
+            </Link>
+            <span className="text-[#c9a84c]/20">|</span>
+            <Link href="/contact" className="text-[#c4bfcc]/50 hover:text-[#c9a84c] transition-colors">
+              Contact
+            </Link>
+          </div>
+
         </div>
-      </section>
+      </main>
 
       <Footer />
     </>

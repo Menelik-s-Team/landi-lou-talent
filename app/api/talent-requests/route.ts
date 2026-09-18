@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { checkRateLimit, getRateLimitKey } from '@/lib/rate-limit'
+import { escapeHtml } from '@/lib/auth-guard'
 
 function getResend() {
   const { Resend } = require('resend')
@@ -16,7 +18,17 @@ function row(label: string, value: string | undefined | null) {
 
 export async function POST(req: NextRequest) {
   try {
+    const rl = checkRateLimit(getRateLimitKey(req, 'talent-request'), { limit: 5, windowMs: 300_000 })
+    if (!rl.allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 })
+    }
+
     const body = await req.json()
+
+    // Honeypot
+    if (body._gotcha) {
+      return NextResponse.json({ success: true })
+    }
 
     const {
       contact_name,
@@ -56,14 +68,14 @@ export async function POST(req: NextRequest) {
         project_name,
         project_type: project_type || null,
         talent_categories: talent_categories || [],
-        gender_preference: gender_preference || 'Any',
-        age_min: age_min ? parseInt(age_min, 10) : null,
-        age_max: age_max ? parseInt(age_max, 10) : null,
-        union_status: union_status || 'Any',
+        gender_preference: gender_preference || null,
+        age_range_min: age_min ? parseInt(age_min, 10) : null,
+        age_range_max: age_max ? parseInt(age_max, 10) : null,
+        union_status_preference: union_status || null,
         dates_needed: dates_needed || null,
         location: location || null,
         budget_range: budget_range || null,
-        notes: notes || null,
+        additional_notes: notes || null,
       })
 
     if (dbError) {
@@ -108,7 +120,7 @@ export async function POST(req: NextRequest) {
           ${notes ? `
           <div style="margin-top:20px;padding:16px;background:#141929;border-radius:6px;border-left:3px solid #c9a84c;">
             <p style="color:#9ba9bb;font-size:12px;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Additional Notes</p>
-            <p style="margin:0;line-height:1.7;font-size:13px;">${notes.replace(/\n/g, '<br/>')}</p>
+            <p style="margin:0;line-height:1.7;font-size:13px;">${escapeHtml(String(notes).slice(0, 2000)).replace(/\n/g, '<br/>')}</p>
           </div>` : ''}
           <p style="color:#9ba9bb;font-size:12px;margin-top:24px;">
             Landi-Lou Talent Agency &bull; <a href="mailto:info@landiloutalentagency.com" style="color:#c9a84c;">info@landiloutalentagency.com</a>

@@ -15,7 +15,7 @@ export default async function AdminDashboard() {
     { data: recentSubmissions },
   ] = await Promise.all([
     supabase.from('talent_submissions').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-    supabase.from('talent_profiles').select('*', { count: 'exact', head: true }),
+    supabase.from('talent_profiles').select('*', { count: 'exact', head: true }).eq('is_available', true),
     supabase.from('casting_directors').select('*', { count: 'exact', head: true }),
     supabase.from('booking_requests').select('*', { count: 'exact', head: true }).eq('status', 'requested'),
     supabase.from('talent_submissions').select('*').order('created_at', { ascending: false }).limit(5),

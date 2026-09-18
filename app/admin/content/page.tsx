@@ -44,7 +44,7 @@ export const CONTENT_FIELDS = [
 
 export default async function ContentPage() {
   // Try to fetch any saved overrides from the DB
-  let dbValues: Record<string, string> = {}
+  const dbValues: Record<string, string> = {}
   try {
     const supabase = createAdminClient()
     const { data } = await supabase

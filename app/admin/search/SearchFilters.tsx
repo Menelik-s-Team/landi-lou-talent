@@ -15,6 +15,7 @@ interface SearchFiltersProps {
 const CATEGORIES = [
   'All Categories',
   'Actor',
+  'Modeling',
   'Commercial',
   'Theatre',
   'Print',

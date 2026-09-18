@@ -54,7 +54,7 @@ export default function ServicesPage() {
     <>
       <Navbar />
 
-      <section className="pt-36 pb-16 px-6 text-center relative overflow-hidden">
+      <section className="pt-40 pb-16 px-6 text-center relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full bg-[#7c3aad]/5 blur-[100px]" />
         </div>

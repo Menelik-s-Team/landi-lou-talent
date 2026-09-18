@@ -256,7 +256,8 @@ export default function TalentProfilePage() {
         has_drivers_license:    getBool('has_drivers_license'),
         has_transportation:     getBool('has_transportation'),
         local_hire_markets:     getStr('local_hire_markets'),
-        is_available:           getBool('is_available'),
+        // Availability is controlled by the agency after onboarding and
+        // countersignature; talent can update preferences but not bookability.
         // Social
         instagram:              getStr('instagram'),
         tiktok:                 getStr('tiktok'),
@@ -332,11 +333,9 @@ export default function TalentProfilePage() {
               <p className="text-[#9ba9bb] text-xs leading-relaxed mb-4">
                 Upload a high-resolution headshot (JPG or PNG). Minimum 1000x1333px recommended. Clean background preferred.
               </p>
-              <ToggleSwitch
-                label="Available for bookings"
-                checked={getBool('is_available')}
-                onChange={v => set('is_available', v)}
-              />
+              <p className="text-[#9ba9bb] text-xs leading-relaxed">
+                Booking availability is managed by Landi-Lou after your onboarding portfolio and agency review are complete.
+              </p>
             </div>
           </div>
         </div>

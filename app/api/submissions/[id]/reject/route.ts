@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { requireAdmin } from '@/lib/auth-guard'
 import { Resend } from 'resend'
 
 function getResend() { return new Resend(process.env.RESEND_API_KEY) }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const auth = await requireAdmin()
+  if (auth.error) return auth.error
+
   const { id } = await params
   const { notes } = await req.json()
   const supabase = createAdminClient()
@@ -26,6 +30,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   await getResend().emails.send({
     from: process.env.RESEND_FROM_EMAIL!,
+    replyTo: 'info@landiloutalentagency.com',
     to: submission.email,
     subject: 'Update on Your Landi-Lou Talent Agency Application',
     html: `

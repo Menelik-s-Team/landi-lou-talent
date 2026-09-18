@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { ArrowRight, Film, Tv, Megaphone, Camera, Heart, BookOpen, Mic, Globe, Baby, Dumbbell, Sparkles } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Representation | Landi-Lou Talent Agency',
+  title: 'Representation',
   description: 'We place exceptional talent across film, television, commercial, print, lifestyle, theatre, voice over, and digital content. Selective roster, deep relationships.',
   alternates: { canonical: 'https://landiloutalentagency.com/representation' },
   openGraph: {
@@ -78,7 +78,8 @@ export default function RepresentationPage() {
     <>
       <Navbar />
 
-      <section className="pt-36 pb-16 px-6 text-center relative overflow-hidden">
+      <main>
+      <section id="main-content" className="pt-40 pb-16 px-6 text-center relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full bg-[#7c3aad]/5 blur-[100px]" />
         </div>
@@ -94,21 +95,23 @@ export default function RepresentationPage() {
         </div>
       </section>
 
-      <section className="py-16 px-6 bg-[#0d1120]">
+      {/* Cards — cream background for contrast */}
+      <section className="py-16 px-6 bg-[#f0ead8]">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {areas.map(({ icon: Icon, title, desc }) => (
-            <div key={title} className="glass-card rounded-lg p-8 flex flex-col gap-4 group hover:border-[#c9a84c]/30 transition-all">
-              <div className="w-11 h-11 rounded-full bg-[#c9a84c]/10 flex items-center justify-center">
+            <div key={title} className="bg-white/70 border border-[#c9a84c]/20 rounded-lg p-8 flex flex-col gap-4 group hover:bg-white/90 hover:border-[#c9a84c]/40 hover:shadow-md transition-all">
+              <div className="w-11 h-11 rounded-full bg-[#c9a84c]/15 flex items-center justify-center">
                 <Icon size={20} className="text-[#c9a84c]" />
               </div>
-              <h3 className="font-[family-name:var(--font-playfair)] text-xl text-[#f0ead8]">{title}</h3>
-              <p className="text-[#9ba9bb] text-sm leading-relaxed">{desc}</p>
+              <h2 className="font-[family-name:var(--font-playfair)] text-xl text-[#06080f]">{title}</h2>
+              <p className="text-[#3a3a3a] text-sm leading-relaxed">{desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="py-20 px-6 text-center">
+      {/* CTA — dark for contrast */}
+      <section className="py-20 px-6 bg-[#06080f] text-center">
         <h2 className="font-[family-name:var(--font-playfair)] text-3xl text-[#f0ead8] mb-6">
           Ready to join the roster?
         </h2>
@@ -122,6 +125,7 @@ export default function RepresentationPage() {
           Submit Your Profile <ArrowRight size={16} />
         </Link>
       </section>
+      </main>
 
       <Footer />
     </>

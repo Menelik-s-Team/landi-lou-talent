@@ -67,10 +67,6 @@ export default async function AgencySearchPage({ searchParams }: SearchPageProps
       'id, first_name, last_name, categories, headshot_url, city, state, union_status, ethnicity, experience_level, gender, skills, is_available'
     )
 
-  if (q) {
-    query = query.or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%`)
-  }
-
   if (category && category !== 'All Categories') {
     query = query.contains('categories', [category])
   }
@@ -88,14 +84,26 @@ export default async function AgencySearchPage({ searchParams }: SearchPageProps
   }
 
   if (ethnicity) {
-    query = query.eq('ethnicity', ethnicity)
+    query = query.contains('ethnicity', [ethnicity])
   }
 
   query = query.order('created_at', { ascending: false })
 
   const { data: talent, error } = await query
 
-  const results: TalentProfile[] = (talent as TalentProfile[]) ?? []
+  // Search the canonical roster taxonomy as well as names. Supabase cannot
+  // reliably ilike text[] columns, so apply the keyword match after fetching
+  // the already-authorized admin result set.
+  const keyword = q.toLowerCase()
+  const results: TalentProfile[] = ((talent as TalentProfile[]) ?? []).filter(person => {
+    if (!keyword) return true
+    return [
+      person.first_name,
+      person.last_name,
+      ...(person.categories ?? []),
+      ...(person.skills ?? []),
+    ].some(value => value?.toLowerCase().includes(keyword))
+  })
 
   return (
     <div className="p-8">

@@ -1,13 +1,14 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
+import Link from 'next/link'
 import ApproveRejectButtons from './ApproveRejectButtons'
 
 export const metadata = { title: 'Review Submission | Admin' }
 
 export default async function SubmissionDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data: s } = await supabase
     .from('talent_submissions')
@@ -16,6 +17,13 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
     .single()
 
   if (!s) notFound()
+
+  // Fetch onboarding portfolio if exists
+  const { data: portfolio } = await supabase
+    .from('talent_onboarding_portfolios')
+    .select('id, status, current_step, completed_at, created_at')
+    .eq('submission_id', id)
+    .maybeSingle()
 
   return (
     <div className="p-8 max-w-4xl">
@@ -133,6 +141,48 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
                 <div><p className="text-[#9ba9bb] text-xs mb-1">Email</p><p className="text-[#f0ead8]">{s.guardian_email}</p></div>
                 <div><p className="text-[#9ba9bb] text-xs mb-1">Phone</p><p className="text-[#f0ead8]">{s.guardian_phone}</p></div>
               </div>
+            </div>
+          )}
+
+          {/* Onboarding Portfolio section (appears after approval) */}
+          {s.status === 'approved' && (
+            <div className="glass-card rounded-xl p-6 border border-[rgba(201,168,76,0.2)]">
+              <p className="text-[#c9a84c] text-xs tracking-widest uppercase mb-4">Onboarding Portfolio</p>
+              {!portfolio ? (
+                <p className="text-[#9ba9bb] text-sm">No portfolio record found. The approval email may not have triggered correctly.</p>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className={`text-xs px-3 py-1 rounded-full ${
+                        portfolio.status === 'completed'
+                          ? 'bg-green-500/10 text-green-400 border border-green-500/30'
+                          : portfolio.status === 'in_progress'
+                          ? 'bg-blue-500/10 text-blue-400 border border-blue-500/30'
+                          : 'bg-[#c9a84c]/10 text-[#c9a84c] border border-[#c9a84c]/30'
+                      }`}>
+                        {portfolio.status === 'completed' ? 'Completed' : portfolio.status === 'in_progress' ? `In Progress (Step ${portfolio.current_step}/13)` : 'Pending'}
+                      </span>
+                    </div>
+                    {portfolio.completed_at && (
+                      <p className="text-[#9ba9bb] text-xs">
+                        Completed: {new Date(portfolio.completed_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </p>
+                    )}
+                    {portfolio.status !== 'completed' && (
+                      <p className="text-[#9ba9bb] text-xs mt-1">Onboarding link sent to talent on approval.</p>
+                    )}
+                  </div>
+                  {portfolio.status === 'completed' && (
+                    <Link
+                      href={`/admin/portfolio/${portfolio.id}`}
+                      className="px-4 py-2 bg-[#c9a84c] text-[#06080f] rounded-lg text-sm font-bold hover:bg-[#e8c97a] transition-all"
+                    >
+                      View Portfolio
+                    </Link>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

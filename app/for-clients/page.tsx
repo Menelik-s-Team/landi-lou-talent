@@ -3,15 +3,17 @@
 import { useState } from 'react'
 import Navbar from '@/components/nav/Navbar'
 import Footer from '@/components/nav/Footer'
+import ProducerHelpBubble from '@/components/ProducerHelpBubble'
+import FAQSection from '@/components/home/FAQSection'
 import { CheckCircle, Search, Users, Send } from 'lucide-react'
 
 const projectTypes = [
-  'Film', 'Television', 'Commercial', 'Print', 'Lifestyle',
+  'Film', 'Television', 'Commercial', 'Corporate', 'Print', 'Lifestyle',
   'Theatre', 'Voice Over', 'Influencer/Digital', 'Event', 'Other',
 ]
 
 const talentCategories = [
-  'Actor', 'Model', 'Voice Over', 'Influencer', 'Dancer', 'Singer', 'Host',
+  'Actors', 'Models', 'Hosts', 'Voice Over', 'Influencers', 'Dancers', 'Singers',
 ]
 
 const steps = [
@@ -113,15 +115,16 @@ export default function ForClientsPage() {
     }
   }
 
-  const inputClass = "w-full bg-[#141929] border border-[rgba(201,168,76,0.2)] rounded px-4 py-3 text-[#f0ead8] text-sm placeholder-[#9ba9bb] focus:outline-none focus:border-[#c9a84c]/60 transition-colors"
-  const labelClass = "block text-[#9ba9bb] text-xs tracking-widest uppercase mb-2"
+  const inputClass = "w-full bg-white border border-[rgba(0,0,0,0.15)] rounded px-4 py-3 text-[#06080f] text-sm placeholder-[#9ba9bb] focus:outline-none focus:border-[#c9a84c] transition-colors"
+  const labelClass = "block text-[#3a3a3a] text-xs tracking-widest uppercase mb-2 font-medium"
   const selectClass = `${inputClass} appearance-none cursor-pointer`
 
   return (
     <>
       <Navbar />
 
-      <section className="pt-36 pb-16 px-6 text-center relative overflow-hidden">
+      <main id="main-content">
+      <section className="pt-40 pb-16 px-6 text-center relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] rounded-full bg-[#0ea5c8]/5 blur-[100px]" />
         </div>
@@ -137,33 +140,33 @@ export default function ForClientsPage() {
         </div>
       </section>
 
-      <section className="py-16 px-6">
+      <section className="py-16 px-6 bg-[#f0ead8]">
         <div className="max-w-6xl mx-auto grid md:grid-cols-5 gap-14">
 
           {/* Left: How it works */}
           <div className="md:col-span-2">
-            <h2 className="font-[family-name:var(--font-playfair)] text-2xl text-[#f0ead8] mb-8">
+            <h2 className="font-[family-name:var(--font-playfair)] text-2xl text-[#06080f] mb-8">
               How It Works
             </h2>
             <div className="flex flex-col gap-8">
               {steps.map(({ icon: Icon, number, title, desc }) => (
                 <div key={number} className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-11 h-11 rounded-full bg-[#c9a84c]/10 flex items-center justify-center">
+                  <div className="flex-shrink-0 w-11 h-11 rounded-full bg-[#c9a84c]/20 flex items-center justify-center">
                     <Icon size={18} className="text-[#c9a84c]" />
                   </div>
                   <div>
                     <p className="text-[#c9a84c] text-xs tracking-widest uppercase mb-1">{number}</p>
-                    <h3 className="font-[family-name:var(--font-playfair)] text-lg text-[#f0ead8] mb-1">{title}</h3>
-                    <p className="text-[#9ba9bb] text-sm leading-relaxed">{desc}</p>
+                    <h3 className="font-[family-name:var(--font-playfair)] text-lg text-[#06080f] mb-1">{title}</h3>
+                    <p className="text-[#3a3a3a] text-sm leading-relaxed">{desc}</p>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="mt-10 pt-8 border-t border-[rgba(201,168,76,0.15)]">
-              <p className="text-[#9ba9bb] text-sm leading-relaxed">
+            <div className="mt-10 pt-8 border-t border-[rgba(0,0,0,0.1)]">
+              <p className="text-[#3a3a3a] text-sm leading-relaxed">
                 For general inquiries, reach us at{' '}
-                <a href="mailto:info@landiloutalentagency.com" className="text-[#c9a84c] hover:text-[#e8c97a] transition-colors">
+                <a href="mailto:info@landiloutalentagency.com" className="text-[#c9a84c] hover:text-[#b8923e] transition-colors font-medium">
                   info@landiloutalentagency.com
                 </a>
               </p>
@@ -171,19 +174,19 @@ export default function ForClientsPage() {
           </div>
 
           {/* Right: Form */}
-          <div className="md:col-span-3 glass-card rounded-lg p-8">
+          <div className="md:col-span-3 bg-white/70 border border-[#c9a84c]/20 rounded-lg p-8 shadow-sm">
             {success ? (
               <div className="flex flex-col items-center justify-center h-full gap-4 py-12 text-center">
                 <CheckCircle size={52} className="text-[#c9a84c]" />
-                <h3 className="font-[family-name:var(--font-playfair)] text-2xl text-[#f0ead8]">Request Received</h3>
-                <p className="text-[#9ba9bb] text-sm max-w-sm leading-relaxed">
+                <h3 className="font-[family-name:var(--font-playfair)] text-2xl text-[#06080f]">Request Received</h3>
+                <p className="text-[#3a3a3a] text-sm max-w-sm leading-relaxed">
                   Thank you. Our team will review your project details and respond with curated talent matches within 1–2 business days.
                 </p>
               </div>
             ) : (
               <>
-                <h3 className="font-[family-name:var(--font-playfair)] text-xl text-[#f0ead8] mb-6">Talent Request Form</h3>
-                <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
+                <h3 className="font-[family-name:var(--font-playfair)] text-xl text-[#06080f] mb-6">Talent Request Form</h3>
+                <form onSubmit={handleSubmit} method="post" className="flex flex-col gap-5" noValidate>
 
                   {/* Contact Name */}
                   <div>
@@ -291,10 +294,11 @@ export default function ForClientsPage() {
                             key={cat}
                             type="button"
                             onClick={() => handleCategoryToggle(cat)}
+                                    aria-pressed={selected}
                             className={`px-4 py-2 rounded text-xs font-medium tracking-wide border transition-all ${
                               selected
                                 ? 'bg-[#c9a84c] text-[#06080f] border-[#c9a84c]'
-                                : 'bg-transparent text-[#9ba9bb] border-[rgba(201,168,76,0.2)] hover:border-[#c9a84c]/50'
+                                : 'bg-white text-[#3a3a3a] border-[rgba(0,0,0,0.15)] hover:border-[#c9a84c]/60'
                             }`}
                           >
                             {cat}
@@ -335,34 +339,43 @@ export default function ForClientsPage() {
                         <option value="SAG-Eligible">SAG-Eligible</option>
                         <option value="Equity">Equity</option>
                         <option value="Non-Union">Non-Union</option>
+                        <option value="Other">Other</option>
                       </select>
                     </div>
                   </div>
 
                   {/* Age Range */}
-                  <div>
-                    <p className={labelClass}>Age Range</p>
-                    <div className="grid grid-cols-2 gap-4">
-                      <input
-                        type="number"
-                        name="age_min"
-                        value={form.age_min}
-                        onChange={handleChange}
-                        min={0}
-                        className={inputClass}
-                        placeholder="Min Age"
-                      />
-                      <input
-                        type="number"
-                        name="age_max"
-                        value={form.age_max}
-                        onChange={handleChange}
-                        min={0}
-                        className={inputClass}
-                        placeholder="Max Age"
-                      />
+                  <fieldset>
+                    <legend className={labelClass}>Age Range</legend>
+                    <div className="grid grid-cols-2 gap-4 mt-2">
+                      <div>
+                        <label htmlFor="age_min" className="sr-only">Minimum age</label>
+                        <input
+                          id="age_min"
+                          type="number"
+                          name="age_min"
+                          value={form.age_min}
+                          onChange={handleChange}
+                          min={0}
+                          className={inputClass}
+                          placeholder="Min Age"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="age_max" className="sr-only">Maximum age</label>
+                        <input
+                          id="age_max"
+                          type="number"
+                          name="age_max"
+                          value={form.age_max}
+                          onChange={handleChange}
+                          min={0}
+                          className={inputClass}
+                          placeholder="Max Age"
+                        />
+                      </div>
                     </div>
-                  </div>
+                  </fieldset>
 
                   {/* Dates Needed + Location */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -375,7 +388,7 @@ export default function ForClientsPage() {
                         value={form.dates_needed}
                         onChange={handleChange}
                         className={inputClass}
-                        placeholder="e.g. June 15–20, 2025"
+                        placeholder="e.g. June 15–20, 2026"
                       />
                     </div>
                     <div>
@@ -435,7 +448,10 @@ export default function ForClientsPage() {
           </div>
         </div>
       </section>
+      </main>
 
+      <ProducerHelpBubble />
+      <FAQSection />
       <Footer />
     </>
   )
