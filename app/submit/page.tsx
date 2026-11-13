@@ -422,12 +422,13 @@ export default function SubmitPage() {
       }
     }
 
-    if (Object.keys(newValidErrors).length > 0) {
-      setFileValidErrors(newValidErrors)
+    setFileValidErrors(newValidErrors)
+
+    // If the headshot itself is invalid, stop entirely — it's required.
+    if (newValidErrors.headshot && !uploadedFiles.headshot) {
       return
     }
 
-    setFileValidErrors({})
     setErrors([])
     setLoading(true)
 
@@ -455,6 +456,7 @@ export default function SubmitPage() {
 
       for (const [slot, file] of fileSlotPairs) {
         if (!file) continue // no new file for this slot
+        if (newValidErrors[slot]) continue // skip slots that failed client validation
 
         setUploadStatuses(prev => ({ ...prev, [slot]: 'uploading' }))
 
@@ -509,9 +511,9 @@ export default function SubmitPage() {
 
       setUploadedFiles(nextUploadedFiles)
 
-      if (Object.keys(newUploadErrors).length > 0) {
+      if (Object.keys(newUploadErrors).length > 0 || Object.keys(newValidErrors).length > 0) {
         setUploadErrors(newUploadErrors)
-        // Stay on step 4 so the applicant can see which files failed and retry
+        // Stay on step 4 so the applicant can see which files failed/were invalid and retry
         return
       }
 
