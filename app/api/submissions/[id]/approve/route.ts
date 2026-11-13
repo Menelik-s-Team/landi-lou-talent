@@ -28,9 +28,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: `This submission is already ${submission.status}.` }, { status: 409 })
   }
 
-  // Create auth user for the talent
+  // Create auth user — if the email already has an account, look it up instead
   const tempPassword = `Landi${Math.random().toString(36).slice(2, 10).toUpperCase()}!`
 
+  let userId: string
   const { data: authData, error: authError } = await supabase.auth.admin.createUser({
     email: submission.email,
     password: tempPassword,
@@ -39,22 +40,36 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   })
 
   if (authError) {
-    return NextResponse.json({ error: authError.message }, { status: 500 })
+    // If the user already exists, look them up rather than failing
+    const { data: existingUsers } = await supabase.auth.admin.listUsers()
+    const existing = existingUsers?.users?.find(u => u.email === submission.email)
+    if (!existing) {
+      console.error('[approve] createUser failed:', authError.message, 'email:', submission.email)
+      return NextResponse.json({ error: `Could not create account: ${authError.message}` }, { status: 500 })
+    }
+    userId = existing.id
+  } else {
+    userId = authData.user.id
   }
 
   // Upsert profile — handles both trigger-created and manual user creation
   await supabase
     .from('profiles')
     .upsert({
-      id: authData.user.id,
+      id: userId,
       email: submission.email,
       role: 'talent',
       full_name: `${submission.first_name} ${submission.last_name}`,
     }, { onConflict: 'id' })
 
+  const VALID_REPRESENTATION = new Set(['Exclusive', 'Non-Exclusive'])
+  const VALID_UNION = new Set(['SAG-AFTRA', 'SAG-Eligible', 'Equity', 'EMC', 'Non-Union', 'Other'])
+  const VALID_EXPERIENCE = new Set(['Beginner', 'Intermediate', 'Professional', 'Extensive Credits'])
+
   // Create talent profile — copy all fields from submission
-  const { data: talentProfile } = await supabase.from('talent_profiles').insert({
-    user_id: authData.user.id,
+  // Note: guardian_phone and guardian_relationship only exist on talent_submissions, not talent_profiles
+  const { data: talentProfile, error: profileError } = await supabase.from('talent_profiles').insert({
+    user_id: userId,
     submission_id: id,
     first_name: submission.first_name,
     last_name: submission.last_name,
@@ -66,9 +81,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     state: submission.state,
     bio: submission.bio,
     categories: submission.categories,
-    representation_type: submission.representation_type,
-    union_status: submission.union_status,
-    experience_level: submission.experience_level,
+    representation_type: VALID_REPRESENTATION.has(submission.representation_type) ? submission.representation_type : null,
+    union_status: VALID_UNION.has(submission.union_status) ? submission.union_status : null,
+    experience_level: VALID_EXPERIENCE.has(submission.experience_level) ? submission.experience_level : null,
     experience_categories: submission.experience_categories,
     gender: submission.gender,
     height: submission.height,
@@ -100,12 +115,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     is_minor: submission.is_minor,
     guardian_name: submission.guardian_name,
     guardian_email: submission.guardian_email,
-    guardian_phone: submission.guardian_phone,
-    guardian_relationship: submission.guardian_relationship,
     // Approval starts onboarding. Talent must not appear bookable until the
     // portfolio is completed and countersigned by the agency.
     is_available: false,
   }).select('id').single()
+
+  if (profileError) {
+    console.error('[approve] talent_profiles insert failed:', profileError.message, 'submission:', id)
+  }
 
   // Mark submission as approved
   await supabase

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { CheckCircle, XCircle } from 'lucide-react'
+import { CheckCircle, XCircle, AlertCircle } from 'lucide-react'
 
 interface Props {
   submissionId: string
@@ -12,10 +12,12 @@ interface Props {
 export default function ApproveRejectButtons({ submissionId, submissionData }: Props) {
   const [loading, setLoading] = useState<'approve' | 'reject' | null>(null)
   const [notes, setNotes] = useState('')
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const router = useRouter()
 
   async function handleAction(action: 'approve' | 'reject') {
     setLoading(action)
+    setErrorMsg(null)
     try {
       const res = await fetch(`/api/submissions/${submissionId}/${action}`, {
         method: 'POST',
@@ -27,7 +29,7 @@ export default function ApproveRejectButtons({ submissionId, submissionData }: P
         router.refresh()
       } else {
         const data = await res.json()
-        alert(data.error || 'Action failed.')
+        setErrorMsg(data.error || 'Action failed. Please try again.')
       }
     } finally {
       setLoading(null)
@@ -47,6 +49,12 @@ export default function ApproveRejectButtons({ submissionId, submissionData }: P
           className="w-full bg-[#141929] border border-[rgba(201,168,76,0.2)] rounded px-4 py-3 text-[#f0ead8] text-sm placeholder-[#9ba9bb] focus:outline-none focus:border-[#c9a84c]/60 transition-colors resize-none"
         />
       </div>
+      {errorMsg && (
+        <div className="flex items-start gap-2 px-4 py-3 rounded bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+          <AlertCircle size={15} className="mt-0.5 shrink-0" />
+          <span>{errorMsg}</span>
+        </div>
+      )}
       <div className="flex gap-3">
         <button
           onClick={() => handleAction('approve')}

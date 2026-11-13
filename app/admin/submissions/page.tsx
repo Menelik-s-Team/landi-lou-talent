@@ -10,8 +10,9 @@ export default async function SubmissionsPage() {
     .select('*')
     .order('created_at', { ascending: false })
 
+  const incomplete = submissions?.filter(s => s.status === 'incomplete') ?? []
   const pending = submissions?.filter(s => s.status === 'pending') ?? []
-  const reviewed = submissions?.filter(s => s.status !== 'pending') ?? []
+  const reviewed = submissions?.filter(s => s.status !== 'pending' && s.status !== 'incomplete') ?? []
 
   return (
     <div className="p-8">
@@ -19,6 +20,21 @@ export default async function SubmissionsPage() {
         <p className="text-[#c9a84c] text-xs tracking-[0.3em] uppercase mb-2">Review Queue</p>
         <h1 className="font-[family-name:var(--font-playfair)] text-4xl text-[#f0ead8]">Submissions</h1>
       </div>
+
+      {/* Incomplete — in progress, not yet submitted */}
+      {incomplete.length > 0 && (
+        <div className="mb-10">
+          <h2 className="text-[#f0ead8] text-sm tracking-widest uppercase mb-1">
+            In Progress <span className="text-[#9ba9bb]">({incomplete.length})</span>
+          </h2>
+          <p className="text-[#9ba9bb] text-xs mb-4">Started but not yet submitted — applicant may still be filling out the form.</p>
+          <div className="glass-card rounded-xl overflow-hidden border border-[rgba(201,168,76,0.08)]">
+            <div className="divide-y divide-[rgba(201,168,76,0.08)]">
+              {incomplete.map(s => <SubmissionRow key={s.id} s={s} />)}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Pending */}
       <div className="mb-10">
@@ -68,11 +84,12 @@ function SubmissionRow({ s }: { s: Record<string, unknown> }) {
       </div>
       <div className="flex items-center gap-3 flex-shrink-0">
         <span className={`text-xs px-3 py-1 rounded-full ${
+          s.status === 'incomplete' ? 'bg-[#9ba9bb]/10 text-[#9ba9bb]' :
           s.status === 'pending' ? 'bg-[#c9a84c]/10 text-[#c9a84c]' :
           s.status === 'approved' ? 'bg-green-500/10 text-green-400' :
           'bg-red-500/10 text-red-400'
         }`}>
-          {s.status as string}
+          {s.status === 'incomplete' ? 'in progress' : s.status as string}
         </span>
         <Link
           href={`/admin/submissions/${s.id}`}

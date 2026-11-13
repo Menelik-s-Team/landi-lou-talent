@@ -45,7 +45,7 @@ export default function AboutPage() {
             A Boutique Talent Agency Built on Relationships
           </h2>
           <p className="text-[#3a3a3a] leading-relaxed mb-5 text-lg max-w-2xl mx-auto">
-            It&apos;s a boutique talent agency committed to professional representation, intentional development, and lasting relationships.
+            Landi-Lou is a boutique talent agency committed to professional representation, intentional development, and lasting relationships.
           </p>
           <p className="text-[#3a3a3a] leading-relaxed max-w-2xl mx-auto">
             We provide personalized representation for actors, models, comedians, hosts, voice talent, and commercial performers — while connecting clients with carefully selected, production-ready talent.

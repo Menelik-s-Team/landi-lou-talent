@@ -56,7 +56,7 @@ export default function Footer() {
 
       <div className="border-t border-[rgba(201,168,76,0.1)] px-6 py-5 max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
         <p className="text-[#9ba9bb] text-xs">
-          © {new Date().getFullYear()} Landi-Lou Talent Agency. All rights reserved. &nbsp;·&nbsp; Licensed Talent Agency &middot; State of Florida
+          {'© '}{new Date().getFullYear()}{' Landi-Lou Talent Agency. All rights reserved.'} &nbsp;·&nbsp; Licensed Talent Agency &middot; State of Florida
         </p>
         <div className="flex items-center gap-4 text-xs">
           <Link href="/privacy" className="text-[#9ba9bb] hover:text-[#f0ead8] transition-colors">Privacy Policy</Link>

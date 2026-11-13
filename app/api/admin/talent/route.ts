@@ -56,6 +56,20 @@ export async function POST(req: NextRequest) {
     'day_rate', 'agent_notes',
   ]
 
+  const VALID_REPRESENTATION = new Set(['Exclusive', 'Non-Exclusive'])
+  const VALID_UNION = new Set(['SAG-AFTRA', 'SAG-Eligible', 'Equity', 'EMC', 'Non-Union', 'Other'])
+  const VALID_EXPERIENCE = new Set(['Beginner', 'Intermediate', 'Professional', 'Extensive Credits'])
+
+  if (fields.representation_type && !VALID_REPRESENTATION.has(fields.representation_type)) {
+    return NextResponse.json({ error: `Invalid representation type "${fields.representation_type}". Must be Exclusive or Non-Exclusive.` }, { status: 400 })
+  }
+  if (fields.union_status && !VALID_UNION.has(fields.union_status)) {
+    return NextResponse.json({ error: `Invalid union status "${fields.union_status}".` }, { status: 400 })
+  }
+  if (fields.experience_level && !VALID_EXPERIENCE.has(fields.experience_level)) {
+    return NextResponse.json({ error: `Invalid experience level "${fields.experience_level}".` }, { status: 400 })
+  }
+
   // Direct additions begin as internal drafts. Availability is granted only
   // after onboarding and agency countersignature.
   const insertData: Record<string, unknown> = { user_id, is_available: false }

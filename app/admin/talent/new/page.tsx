@@ -242,19 +242,19 @@ export default function NewTalentPage() {
             <Field label="Union Status">
               <select className={selectCls} value={form.union_status} onChange={e => set('union_status', e.target.value)}>
                 <option value="">Select...</option>
-                {['SAG-AFTRA', 'AEA', 'Non-Union', 'Fi-Core'].map(u => <option key={u} value={u}>{u}</option>)}
+                {['SAG-AFTRA', 'SAG-Eligible', 'Equity', 'EMC', 'Non-Union', 'Other'].map(u => <option key={u} value={u}>{u}</option>)}
               </select>
             </Field>
             <Field label="Experience Level">
               <select className={selectCls} value={form.experience_level} onChange={e => set('experience_level', e.target.value)}>
                 <option value="">Select...</option>
-                {['Beginner', 'Intermediate', 'Advanced', 'Professional'].map(l => <option key={l} value={l}>{l}</option>)}
+                {['Beginner', 'Intermediate', 'Professional', 'Extensive Credits'].map(l => <option key={l} value={l}>{l}</option>)}
               </select>
             </Field>
             <Field label="Representation Type">
               <select className={selectCls} value={form.representation_type} onChange={e => set('representation_type', e.target.value)}>
                 <option value="">Select...</option>
-                {['Talent Only', 'Modeling Only', 'Full Service', 'Consulting'].map(r => <option key={r} value={r}>{r}</option>)}
+                {['Exclusive', 'Non-Exclusive'].map(r => <option key={r} value={r}>{r}</option>)}
               </select>
             </Field>
             <Field label="Work Authorization">
