@@ -38,6 +38,7 @@ export default function LoginPage() {
               alt="Landi-Lou Talent Agency"
               width={80}
               height={80}
+              priority
               className="mx-auto mb-4 rounded-full ring-1 ring-[#c9a84c]/30"
             />
           </Link>

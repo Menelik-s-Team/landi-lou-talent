@@ -1,10 +1,39 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Navbar from '@/components/nav/Navbar'
 import Footer from '@/components/nav/Footer'
 import TalentFAQSection from '@/components/home/TalentFAQSection'
-import { Upload, CheckCircle, Check } from 'lucide-react'
+import { Upload, CheckCircle, Check, AlertCircle, Loader2 } from 'lucide-react'
+
+// ─── File upload types ────────────────────────────────────────────────────────
+
+type FileSlot = 'headshot' | 'commercial_headshot' | 'theatrical_headshot' | 'full_body' | 'resume'
+
+type UploadedFile = {
+  path: string
+  name: string
+  publicUrl: string
+}
+
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024
+const MAX_RESUME_BYTES = 5 * 1024 * 1024
+
+function validateFileClient(file: File, slot: FileSlot): string | null {
+  const isResume = slot === 'resume'
+  const maxBytes = isResume ? MAX_RESUME_BYTES : MAX_IMAGE_BYTES
+  const maxLabel = isResume ? '5MB' : '10MB'
+  if (file.size > maxBytes) {
+    return `${file.name} is ${(file.size / 1024 / 1024).toFixed(1)}MB — ${isResume ? 'resume' : 'photo'} files must be ${maxLabel} or smaller.`
+  }
+  if (isResume && file.type !== 'application/pdf') {
+    return `${file.name}: Resume must be a PDF file.`
+  }
+  if (!isResume && !['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(file.type)) {
+    return `${file.name}: Photos must be JPG or PNG files.`
+  }
+  return null
+}
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -136,18 +165,32 @@ type FormData = {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
+const DRAFT_KEY = 'landi_lou_submission_draft'
+
 export default function SubmitPage() {
   const [step, setStep] = useState(1)
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
+  const [hasDraft, setHasDraft] = useState(false)
 
-  // File states
+  // Submission record (created on first file upload)
+  const [submissionId, setSubmissionId] = useState<string | null>(null)
+
+  // File states — new File selections (not yet uploaded)
   const [headshot, setHeadshot] = useState<File | null>(null)
   const [commercialHeadshot, setCommercialHeadshot] = useState<File | null>(null)
   const [theatricalHeadshot, setTheatricalHeadshot] = useState<File | null>(null)
   const [fullBody, setFullBody] = useState<File | null>(null)
   const [resumeFile, setResumeFile] = useState<File | null>(null)
+
+  // Already-uploaded files (from previous session or successful upload)
+  const [uploadedFiles, setUploadedFiles] = useState<Partial<Record<FileSlot, UploadedFile>>>({})
+  // Per-slot client validation errors (shown immediately on file selection)
+  const [fileValidErrors, setFileValidErrors] = useState<Partial<Record<FileSlot, string>>>({})
+  // Per-slot upload status/errors (shown during and after upload attempt)
+  const [uploadStatuses, setUploadStatuses] = useState<Partial<Record<FileSlot, 'uploading' | 'done' | 'error'>>>({})
+  const [uploadErrors, setUploadErrors] = useState<Partial<Record<FileSlot, string>>>({})
 
   const [formData, setFormData] = useState<FormData>({
     first_name: '', last_name: '', stage_name: '', email: '', phone: '',
@@ -167,6 +210,33 @@ export default function SubmitPage() {
     guardian_name: '', guardian_email: '', guardian_phone: '',
     guardian_relationship: '', guardian_consent: false,
   })
+
+  // ── Draft persistence ──────────────────────────────────────────────────────
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(DRAFT_KEY)
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        const { _submissionId, _uploadedFiles, ...rest } = parsed
+        setFormData(prev => ({ ...prev, ...rest }))
+        if (_submissionId) setSubmissionId(_submissionId)
+        if (_uploadedFiles) setUploadedFiles(_uploadedFiles)
+        setHasDraft(true)
+      }
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    if (submitted) return
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({
+        ...formData,
+        _submissionId: submissionId,
+        _uploadedFiles: uploadedFiles,
+      }))
+    } catch {}
+  }, [formData, submitted, submissionId, uploadedFiles])
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -254,48 +324,30 @@ export default function SubmitPage() {
     setStep(s => s - 1)
   }
 
-  // ── Submission ─────────────────────────────────────────────────────────────
+  // ── Build payloads ─────────────────────────────────────────────────────────
 
-  async function handleSubmit() {
-    const errs = validateStep(7)
-    if (errs.length > 0) { setErrors(errs); return }
-    setErrors([])
-    setLoading(true)
-
-    try {
-      const body = new FormData()
-
-      // Text fields
-      const textFields: (keyof typeof formData)[] = [
-        'first_name', 'last_name', 'stage_name', 'email', 'phone', 'dob', 'city', 'state', 'bio',
-        'representation_type', 'union_status', 'gender', 'height', 'weight', 'hair_color', 'eye_color',
-        'skin_tone', 'languages', 'dialects', 'instruments',
-        'demo_reel_url', 'voice_reel_url', 'instagram', 'tiktok', 'youtube',
-        'experience_level', 'notable_credits', 'local_hire_markets',
-      ]
-      textFields.forEach(f => body.append(f, (formData[f] as string) || ''))
-
-      // Boolean fields
-      body.append('has_passport', String(formData.has_passport))
-      body.append('has_drivers_license', String(formData.has_drivers_license))
-      body.append('has_transportation', String(formData.has_transportation))
-      body.append('will_travel', String(formData.will_travel))
-
-      // Guardian fields (sent for all submissions; API stores null when empty)
-      body.append('guardian_name', formData.guardian_name)
-      body.append('guardian_email', formData.guardian_email)
-      body.append('guardian_phone', formData.guardian_phone)
-      body.append('guardian_relationship', formData.guardian_relationship)
-
-      // JSON arrays
-      body.append('talent_categories', JSON.stringify(formData.talent_categories))
-      body.append('ethnicity', JSON.stringify(formData.ethnicity))
-      body.append('skills', JSON.stringify(formData.skills))
-      body.append('experience_categories', JSON.stringify(formData.experience_categories))
-      body.append('availability_type', JSON.stringify(formData.availability_type))
-
-      // Wardrobe sizes as JSON (gender-specific)
-      body.append('wardrobe_sizes', JSON.stringify({
+  function buildStartPayload() {
+    return {
+      first_name: formData.first_name,
+      last_name: formData.last_name,
+      email: formData.email,
+      phone: formData.phone,
+      dob: formData.dob,
+      city: formData.city,
+      state: formData.state,
+      bio: formData.bio,
+      stage_name: formData.stage_name,
+      representation_type: formData.representation_type,
+      union_status: formData.union_status,
+      categories: formData.talent_categories,
+      gender: formData.gender,
+      height: formData.height,
+      weight: formData.weight,
+      hair_color: formData.hair_color,
+      eye_color: formData.eye_color,
+      skin_tone: formData.skin_tone,
+      ethnicity: formData.ethnicity,
+      wardrobe_sizes: {
         neck: formData.neck_size,
         sleeve: formData.sleeve_size,
         jacket: formData.jacket_size,
@@ -309,17 +361,194 @@ export default function SubmitPage() {
         hip: formData.hip,
         dress: formData.dress_size,
         shoe: formData.shoe_size,
-      }))
+      },
+      shoe_size: formData.shoe_size,
+      skills: formData.skills,
+      languages: formData.languages,
+      dialects: formData.dialects,
+      instruments: formData.instruments,
+      demo_reel_url: formData.demo_reel_url,
+      voice_reel_url: formData.voice_reel_url,
+      instagram: formData.instagram,
+      tiktok: formData.tiktok,
+      youtube: formData.youtube,
+      guardian_name: formData.guardian_name,
+      guardian_email: formData.guardian_email,
+      guardian_phone: formData.guardian_phone,
+      guardian_relationship: formData.guardian_relationship,
+    }
+  }
 
-      // Files
-      if (headshot) body.append('headshot', headshot)
-      if (commercialHeadshot) body.append('commercial_headshot', commercialHeadshot)
-      if (theatricalHeadshot) body.append('theatrical_headshot', theatricalHeadshot)
-      if (fullBody) body.append('full_body', fullBody)
-      if (resumeFile) body.append('resume_file', resumeFile)
+  function buildFinalizePayload() {
+    return {
+      ...buildStartPayload(),
+      categories: formData.talent_categories,
+      experience_categories: formData.experience_categories,
+      experience_level: formData.experience_level,
+      notable_credits: formData.notable_credits,
+      availability_type: formData.availability_type,
+      has_passport: formData.has_passport,
+      has_drivers_license: formData.has_drivers_license,
+      has_transportation: formData.has_transportation,
+      will_travel: formData.will_travel,
+      local_hire_markets: formData.local_hire_markets,
+    }
+  }
 
-      const res = await fetch('/api/submissions', { method: 'POST', body })
+  // ── Step 4: file upload flow ───────────────────────────────────────────────
+
+  async function handleMediaContinue() {
+    // Require at least a headshot (new file OR already uploaded)
+    const headshotSatisfied = headshot !== null || uploadedFiles.headshot != null
+    if (!headshotSatisfied) {
+      setErrors(['Primary Headshot is required.'])
+      return
+    }
+
+    // Client-side validation for all selected files
+    const fileSlotPairs: Array<[FileSlot, File | null]> = [
+      ['headshot', headshot],
+      ['commercial_headshot', commercialHeadshot],
+      ['theatrical_headshot', theatricalHeadshot],
+      ['full_body', fullBody],
+      ['resume', resumeFile],
+    ]
+
+    const newValidErrors: Partial<Record<FileSlot, string>> = {}
+    for (const [slot, file] of fileSlotPairs) {
+      if (file) {
+        const err = validateFileClient(file, slot)
+        if (err) newValidErrors[slot] = err
+      }
+    }
+
+    setFileValidErrors(newValidErrors)
+
+    // If the headshot itself is invalid, stop entirely — it's required.
+    if (newValidErrors.headshot && !uploadedFiles.headshot) {
+      return
+    }
+
+    setErrors([])
+    setLoading(true)
+
+    try {
+      // Create submission record if we don't already have one
+      let sid = submissionId
+      if (!sid) {
+        const startRes = await fetch('/api/submissions/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(buildStartPayload()),
+        })
+        const startData = await startRes.json()
+        if (!startRes.ok) {
+          setErrors([startData.error || 'Could not start your application. Please try again.'])
+          return
+        }
+        sid = startData.id as string
+        setSubmissionId(sid)
+      }
+
+      // Upload each new file
+      const nextUploadedFiles = { ...uploadedFiles }
+      const newUploadErrors: Partial<Record<FileSlot, string>> = {}
+
+      for (const [slot, file] of fileSlotPairs) {
+        if (!file) continue // no new file for this slot
+        if (newValidErrors[slot]) continue // skip slots that failed client validation
+
+        setUploadStatuses(prev => ({ ...prev, [slot]: 'uploading' }))
+
+        try {
+          // Get signed upload URL from server
+          const urlRes = await fetch(`/api/submissions/${sid}/upload-url`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slot, fileName: file.name, fileType: file.type, fileSize: file.size }),
+          })
+          const urlData = await urlRes.json()
+          if (!urlRes.ok) {
+            newUploadErrors[slot] = urlData.error || `Could not prepare ${file.name} for upload.`
+            setUploadStatuses(prev => ({ ...prev, [slot]: 'error' }))
+            continue
+          }
+
+          // Upload directly to Supabase Storage (no Vercel proxy, no size limit)
+          const { createClient } = await import('@/lib/supabase/client')
+          const supabase = createClient()
+          const { error: uploadErr } = await supabase.storage
+            .from('talent-media')
+            .uploadToSignedUrl(urlData.path, urlData.token, file, { contentType: file.type, upsert: true })
+
+          if (uploadErr) {
+            newUploadErrors[slot] = `${file.name} failed to upload. Please try again.`
+            setUploadStatuses(prev => ({ ...prev, [slot]: 'error' }))
+            continue
+          }
+
+          // Record confirmed path on the submission
+          const fileRes = await fetch(`/api/submissions/${sid}/file`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slot, publicUrl: urlData.publicUrl }),
+          })
+          if (!fileRes.ok) {
+            newUploadErrors[slot] = `${file.name} uploaded but could not be saved. Please retry.`
+            setUploadStatuses(prev => ({ ...prev, [slot]: 'error' }))
+            continue
+          }
+
+          // Success
+          nextUploadedFiles[slot] = { path: urlData.path, name: file.name, publicUrl: urlData.publicUrl }
+          setUploadStatuses(prev => ({ ...prev, [slot]: 'done' }))
+
+        } catch {
+          newUploadErrors[slot] = `${file.name} upload was interrupted. Your other files were saved. Please retry.`
+          setUploadStatuses(prev => ({ ...prev, [slot]: 'error' }))
+        }
+      }
+
+      setUploadedFiles(nextUploadedFiles)
+
+      if (Object.keys(newUploadErrors).length > 0 || Object.keys(newValidErrors).length > 0) {
+        setUploadErrors(newUploadErrors)
+        // Stay on step 4 so the applicant can see which files failed/were invalid and retry
+        return
+      }
+
+      // All uploads succeeded — advance
+      setUploadErrors({})
+      setErrors([])
+      setStep(5)
+
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // ── Final submit ───────────────────────────────────────────────────────────
+
+  async function handleSubmit() {
+    const errs = validateStep(7)
+    if (errs.length > 0) { setErrors(errs); return }
+
+    if (!submissionId) {
+      setErrors(['Your file uploads are missing. Please go back to Step 4 and re-upload your photos.'])
+      return
+    }
+
+    setErrors([])
+    setLoading(true)
+
+    try {
+      const res = await fetch(`/api/submissions/${submissionId}/finalize`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildFinalizePayload()),
+      })
       if (res.ok) {
+        try { localStorage.removeItem(DRAFT_KEY) } catch {}
         setSubmitted(true)
       } else {
         const data = await res.json()
@@ -338,14 +567,26 @@ export default function SubmitPage() {
     label,
     required,
     accept,
+    slot,
     file,
+    uploadedFile,
+    uploadStatus,
+    uploadError,
+    validationError,
     onFile,
+    onClearUploaded,
   }: {
     label: string
     required?: boolean
     accept: string
+    slot: FileSlot
     file: File | null
+    uploadedFile?: UploadedFile | null
+    uploadStatus?: 'uploading' | 'done' | 'error'
+    uploadError?: string | null
+    validationError?: string | null
     onFile: (f: File | null) => void
+    onClearUploaded?: () => void
   }) {
     const [previewUrl, setPreviewUrl] = React.useState<string | null>(null)
     const [previewError, setPreviewError] = React.useState(false)
@@ -358,43 +599,90 @@ export default function SubmitPage() {
       } else {
         setPreviewUrl(null)
       }
+      // Clear any prior validation error for this slot
+      setFileValidErrors(prev => { const n = { ...prev }; delete n[slot]; return n })
+      setUploadErrors(prev => { const n = { ...prev }; delete n[slot]; return n })
       onFile(f)
     }
+
+    const hasError = !!(validationError || uploadError)
+    const isUploading = uploadStatus === 'uploading'
+    const isDone = uploadStatus === 'done'
+    // Show "previously uploaded" only when there's a confirmed path AND no new file selected
+    const showPrevious = !file && uploadedFile && !hasError
 
     return (
       <div>
         <label className={labelClass}>
           {label} {required && <span className="text-[#c9a84c]">*</span>}
         </label>
-        <label className="flex flex-col items-center justify-center gap-2 border border-dashed border-[rgba(201,168,76,0.35)] rounded-lg p-5 cursor-pointer hover:border-[#c9a84c]/70 transition-colors">
-          {previewUrl && !previewError ? (
-            <img
-              src={previewUrl}
-              alt="Preview"
-              className="w-28 h-36 object-cover rounded"
-              onError={() => setPreviewError(true)}
-            />
-          ) : (
-            <Upload size={22} className={previewError ? 'text-red-400' : 'text-[#c9a84c]'} />
-          )}
-          <span className="text-[#9ba9bb] text-sm text-center">
-            {file ? file.name : 'Click to upload'}
-          </span>
-          {previewError && (
-            <span className="text-red-400 text-xs text-center">
-              This file format can&apos;t be previewed and may not display correctly. Use JPG or PNG.
+
+        {/* Validation / upload error */}
+        {hasError && (
+          <div className="flex items-start gap-2 mb-2 px-3 py-2 rounded bg-red-500/10 border border-red-500/30">
+            <AlertCircle size={14} className="text-red-400 mt-0.5 shrink-0" />
+            <p className="text-red-400 text-xs leading-snug">{validationError || uploadError}</p>
+          </div>
+        )}
+
+        {/* Previously uploaded file from draft */}
+        {showPrevious && (
+          <div className="flex items-center gap-3 mb-2 px-3 py-2 rounded bg-green-500/10 border border-green-500/20">
+            <CheckCircle size={14} className="text-green-400 shrink-0" />
+            <span className="text-green-400 text-xs flex-1 truncate">{uploadedFile.name}</span>
+            <button
+              type="button"
+              onClick={onClearUploaded}
+              className="text-[#9ba9bb] text-xs hover:text-[#f0ead8] transition-colors whitespace-nowrap"
+            >
+              Change
+            </button>
+          </div>
+        )}
+
+        {/* Upload dropzone — hidden when previously uploaded and no error */}
+        {!showPrevious && (
+          <label className={`flex flex-col items-center justify-center gap-2 border border-dashed rounded-lg p-5 cursor-pointer transition-colors ${
+            hasError ? 'border-red-500/40 hover:border-red-500/60' :
+            isDone ? 'border-green-500/40' :
+            'border-[rgba(201,168,76,0.35)] hover:border-[#c9a84c]/70'
+          }`}>
+            {isUploading ? (
+              <Loader2 size={22} className="text-[#c9a84c] animate-spin" />
+            ) : isDone ? (
+              <CheckCircle size={22} className="text-green-400" />
+            ) : previewUrl && !previewError ? (
+              <img
+                src={previewUrl}
+                alt="Preview"
+                className="w-28 h-36 object-cover rounded"
+                onError={() => setPreviewError(true)}
+              />
+            ) : (
+              <Upload size={22} className={hasError ? 'text-red-400' : 'text-[#c9a84c]'} />
+            )}
+            <span className="text-[#9ba9bb] text-sm text-center">
+              {isUploading ? 'Uploading…' :
+               isDone ? (file?.name ?? 'Uploaded') :
+               file ? file.name : 'Click to upload'}
             </span>
-          )}
-          {file && !previewError && (
-            <span className="text-[#c9a84c] text-xs">{(file.size / 1024).toFixed(0)} KB</span>
-          )}
-          <input
-            type="file"
-            accept={accept}
-            className="hidden"
-            onChange={e => handleFile(e.target.files?.[0] || null)}
-          />
-        </label>
+            {previewError && !isUploading && (
+              <span className="text-red-400 text-xs text-center">
+                This file format can&apos;t be previewed and may not display correctly. Use JPG or PNG.
+              </span>
+            )}
+            {file && !previewError && !isUploading && (
+              <span className="text-[#c9a84c] text-xs">{(file.size / 1024).toFixed(0)} KB</span>
+            )}
+            <input
+              type="file"
+              accept={accept}
+              className="hidden"
+              disabled={isUploading}
+              onChange={e => handleFile(e.target.files?.[0] || null)}
+            />
+          </label>
+        )}
       </div>
     )
   }
@@ -959,39 +1247,79 @@ export default function SubmitPage() {
             <div className="glass-card rounded-xl p-8 flex flex-col gap-6">
               <div>
                 <h2 className={sectionTitle}>Media</h2>
-                <p className={sectionSub}>Upload your photos and share your links. JPG/PNG for photos, PDF for resume.</p>
+                <p className={sectionSub}>Upload your photos and share your links. JPG/PNG/WEBP for photos up to 10MB, PDF resume up to 5MB.</p>
+                {hasDraft && Object.keys(uploadedFiles).length > 0 && (
+                  <p className="mt-2 text-xs text-green-400 bg-green-500/10 border border-green-500/20 rounded px-3 py-2">
+                    Previously uploaded files have been restored — you do not need to re-upload them.
+                  </p>
+                )}
+                {hasDraft && Object.keys(uploadedFiles).length === 0 && (
+                  <p className="mt-2 text-xs text-[#c9a84c] bg-[rgba(201,168,76,0.08)] border border-[rgba(201,168,76,0.2)] rounded px-3 py-2">
+                    Your form info was restored from a previous session. Please re-select your photos to upload them.
+                  </p>
+                )}
               </div>
 
               <FileUploadBox
                 label="Primary Headshot"
                 required
-                accept="image/jpeg,image/png"
+                accept="image/jpeg,image/png,image/webp"
+                slot="headshot"
                 file={headshot}
+                uploadedFile={uploadedFiles.headshot}
+                uploadStatus={uploadStatuses.headshot}
+                uploadError={uploadErrors.headshot}
+                validationError={fileValidErrors.headshot}
                 onFile={setHeadshot}
+                onClearUploaded={() => setUploadedFiles(prev => { const n = { ...prev }; delete n.headshot; return n })}
               />
               <FileUploadBox
                 label="Commercial Headshot"
-                accept="image/jpeg,image/png"
+                accept="image/jpeg,image/png,image/webp"
+                slot="commercial_headshot"
                 file={commercialHeadshot}
+                uploadedFile={uploadedFiles.commercial_headshot}
+                uploadStatus={uploadStatuses.commercial_headshot}
+                uploadError={uploadErrors.commercial_headshot}
+                validationError={fileValidErrors.commercial_headshot}
                 onFile={setCommercialHeadshot}
+                onClearUploaded={() => setUploadedFiles(prev => { const n = { ...prev }; delete n.commercial_headshot; return n })}
               />
               <FileUploadBox
                 label="Theatrical Headshot"
-                accept="image/jpeg,image/png"
+                accept="image/jpeg,image/png,image/webp"
+                slot="theatrical_headshot"
                 file={theatricalHeadshot}
+                uploadedFile={uploadedFiles.theatrical_headshot}
+                uploadStatus={uploadStatuses.theatrical_headshot}
+                uploadError={uploadErrors.theatrical_headshot}
+                validationError={fileValidErrors.theatrical_headshot}
                 onFile={setTheatricalHeadshot}
+                onClearUploaded={() => setUploadedFiles(prev => { const n = { ...prev }; delete n.theatrical_headshot; return n })}
               />
               <FileUploadBox
                 label="Full Body Photo"
-                accept="image/jpeg,image/png"
+                accept="image/jpeg,image/png,image/webp"
+                slot="full_body"
                 file={fullBody}
+                uploadedFile={uploadedFiles.full_body}
+                uploadStatus={uploadStatuses.full_body}
+                uploadError={uploadErrors.full_body}
+                validationError={fileValidErrors.full_body}
                 onFile={setFullBody}
+                onClearUploaded={() => setUploadedFiles(prev => { const n = { ...prev }; delete n.full_body; return n })}
               />
               <FileUploadBox
                 label="Resume (PDF)"
-                accept=".pdf"
+                accept=".pdf,application/pdf"
+                slot="resume"
                 file={resumeFile}
+                uploadedFile={uploadedFiles.resume}
+                uploadStatus={uploadStatuses.resume}
+                uploadError={uploadErrors.resume}
+                validationError={fileValidErrors.resume}
                 onFile={setResumeFile}
+                onClearUploaded={() => setUploadedFiles(prev => { const n = { ...prev }; delete n.resume; return n })}
               />
 
               <div>
@@ -1013,7 +1341,17 @@ export default function SubmitPage() {
               </div>
 
               <ErrorBanner />
-              <NavButtons />
+              {/* Upload errors with per-file retry guidance */}
+              {Object.keys(uploadErrors).length > 0 && (
+                <div className="bg-red-900/20 border border-red-500/30 rounded-lg px-4 py-3 flex flex-col gap-1">
+                  <p className="text-red-400 text-sm font-medium">Some files failed to upload:</p>
+                  {Object.entries(uploadErrors).map(([slot, err]) => (
+                    <p key={slot} className="text-red-400 text-xs">{err}</p>
+                  ))}
+                  <p className="text-[#9ba9bb] text-xs mt-1">Your already-uploaded files are saved. Fix the errors above and click Continue to retry only the failed files.</p>
+                </div>
+              )}
+              <NavButtons onContinue={handleMediaContinue} continueLabel={loading ? 'Uploading…' : 'Continue'} />
             </div>
           )}
 
@@ -1251,12 +1589,14 @@ export default function SubmitPage() {
                 <GoldCheckbox
                   checked={formData.confirmed_accurate}
                   onChange={v => set('confirmed_accurate', v)}
+                  name="confirmed_accurate"
                   label="I confirm all information provided is accurate and complete."
                 />
 
                 <GoldCheckbox
                   checked={formData.accepted_privacy}
                   onChange={v => set('accepted_privacy', v)}
+                  name="accepted_privacy"
                   label={
                     <span>
                       I have read and agree to the{' '}
@@ -1271,6 +1611,7 @@ export default function SubmitPage() {
                 <GoldCheckbox
                   checked={formData.accepted_terms}
                   onChange={v => set('accepted_terms', v)}
+                  name="accepted_terms"
                   label={
                     <span>
                       I have read and agree to the{' '}
@@ -1301,23 +1642,37 @@ export default function SubmitPage() {
 
               <ErrorBanner />
 
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={back}
-                  className="flex-1 py-3 border border-[rgba(201,168,76,0.2)] text-[#9ba9bb] rounded text-sm hover:text-[#f0ead8] hover:border-[#c9a84c]/40 transition-colors"
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={loading}
-                  className="flex-1 py-3 bg-[#c9a84c] text-[#06080f] font-semibold rounded text-sm tracking-wide hover:bg-[#e8c97a] transition-all disabled:opacity-40"
-                >
-                  {loading ? 'Submitting...' : 'Submit Application'}
-                </button>
-              </div>
+              {(() => {
+                const allAcknowledged =
+                  formData.confirmed_accurate &&
+                  formData.accepted_privacy &&
+                  formData.accepted_terms &&
+                  (!formData.dob || !isMinor(formData.dob) || formData.guardian_consent)
+                return (
+                  <div className="flex flex-col gap-3">
+                    {!allAcknowledged && (
+                      <p className="text-[#9ba9bb] text-xs text-center">Please check all boxes above to submit.</p>
+                    )}
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={back}
+                        className="flex-1 py-3 border border-[rgba(201,168,76,0.2)] text-[#9ba9bb] rounded text-sm hover:text-[#f0ead8] hover:border-[#c9a84c]/40 transition-colors"
+                      >
+                        Back
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleSubmit}
+                        disabled={loading || !allAcknowledged}
+                        className="flex-1 py-3 bg-[#c9a84c] text-[#06080f] font-semibold rounded text-sm tracking-wide hover:bg-[#e8c97a] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        {loading ? 'Submitting...' : 'Submit Application'}
+                      </button>
+                    </div>
+                  </div>
+                )
+              })()}
             </div>
           )}
 

@@ -46,25 +46,24 @@ const HAIR_COLORS = ['Black', 'Brown', 'Blonde', 'Red', 'Auburn', 'Gray / Silver
 const EYE_COLORS  = ['Brown', 'Black', 'Blue', 'Green', 'Hazel', 'Gray', 'Amber', 'Other']
 
 const UNION_OPTIONS = [
-  { value: 'non-union',     label: 'Non-Union' },
-  { value: 'sag-aftra',     label: 'SAG-AFTRA' },
-  { value: 'equity',        label: 'AEA / Equity' },
-  { value: 'afm',           label: 'AFM' },
-  { value: 'multiple',      label: 'Multiple Unions' },
+  { value: 'SAG-AFTRA',    label: 'SAG-AFTRA' },
+  { value: 'SAG-Eligible', label: 'SAG-Eligible' },
+  { value: 'Equity',       label: 'Equity' },
+  { value: 'EMC',          label: 'EMC' },
+  { value: 'Non-Union',    label: 'Non-Union' },
+  { value: 'Other',        label: 'Other' },
 ]
 
 const REPRESENTATION_OPTIONS = [
-  { value: 'agency-only',   label: 'Agency Only' },
-  { value: 'management',    label: 'Management' },
-  { value: 'both',          label: 'Agency + Management' },
-  { value: 'freelance',     label: 'Freelance' },
+  { value: 'Exclusive',     label: 'Exclusive' },
+  { value: 'Non-Exclusive', label: 'Non-Exclusive' },
 ]
 
 const EXPERIENCE_LEVELS = [
-  { value: 'beginner',      label: 'Beginner (0–1 years)' },
-  { value: 'intermediate',  label: 'Intermediate (2–4 years)' },
-  { value: 'experienced',   label: 'Experienced (5–9 years)' },
-  { value: 'veteran',       label: 'Veteran (10+ years)' },
+  { value: 'Beginner',          label: 'Beginner' },
+  { value: 'Intermediate',      label: 'Intermediate' },
+  { value: 'Professional',      label: 'Professional' },
+  { value: 'Extensive Credits', label: 'Extensive Credits' },
 ]
 
 const GENDER_OPTIONS = [

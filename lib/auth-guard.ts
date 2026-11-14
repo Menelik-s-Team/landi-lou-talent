@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function requireAdmin(): Promise<
   { user: { id: string }; role: string; error?: never } |
@@ -14,7 +15,10 @@ export async function requireAdmin(): Promise<
     }
   }
 
-  const { data: profile } = await supabase
+  // Use admin client to bypass RLS when reading the profile role,
+  // same approach as the admin layout — prevents anon-key RLS from silently returning null.
+  const adminClient = createAdminClient()
+  const { data: profile } = await adminClient
     .from('profiles')
     .select('role')
     .eq('id', user.id)

@@ -29,6 +29,7 @@ export default function Navbar() {
             alt="Landi-Lou Talent Agency"
             width={64}
             height={64}
+            priority
             className="rounded-full object-cover ring-1 ring-[#c9a84c]/30 group-hover:ring-[#c9a84c]/70 transition-all"
           />
           <div className="hidden sm:block">
@@ -62,7 +63,7 @@ export default function Navbar() {
             href="/login"
             className="text-sm px-5 py-2 rounded border border-[#c9a84c]/40 text-[#c9a84c] hover:bg-[#c9a84c]/10 transition-all tracking-wide"
           >
-            Talent Login
+            Portal Login
           </Link>
         </div>
 

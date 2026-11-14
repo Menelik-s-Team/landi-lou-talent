@@ -59,6 +59,20 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: 'No valid fields to update.' }, { status: 400 })
   }
 
+  const VALID_REPRESENTATION = new Set(['Exclusive', 'Non-Exclusive'])
+  const VALID_UNION = new Set(['SAG-AFTRA', 'SAG-Eligible', 'Equity', 'EMC', 'Non-Union', 'Other'])
+  const VALID_EXPERIENCE = new Set(['Beginner', 'Intermediate', 'Professional', 'Extensive Credits'])
+
+  if (updates.representation_type != null && updates.representation_type !== '' && !VALID_REPRESENTATION.has(updates.representation_type as string)) {
+    return NextResponse.json({ error: `Invalid representation type "${updates.representation_type}". Must be Exclusive or Non-Exclusive.` }, { status: 400 })
+  }
+  if (updates.union_status != null && updates.union_status !== '' && !VALID_UNION.has(updates.union_status as string)) {
+    return NextResponse.json({ error: `Invalid union status "${updates.union_status}".` }, { status: 400 })
+  }
+  if (updates.experience_level != null && updates.experience_level !== '' && !VALID_EXPERIENCE.has(updates.experience_level as string)) {
+    return NextResponse.json({ error: `Invalid experience level "${updates.experience_level}".` }, { status: 400 })
+  }
+
   const { error } = await supabase
     .from('talent_profiles')
     .update(updates)

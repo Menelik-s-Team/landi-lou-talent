@@ -17,7 +17,7 @@ export default function PrivacyPage() {
         <div className="max-w-3xl mx-auto">
           <p className="text-[#c9a84c] text-xs tracking-[0.3em] uppercase mb-4">Legal</p>
           <h1 className="font-[family-name:var(--font-playfair)] text-4xl text-[#f0ead8] mb-4">Privacy Policy</h1>
-          <p className="text-[#9ba9bb] text-sm mb-10">Last updated: {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+          <p className="text-[#9ba9bb] text-sm mb-10">Last updated:{' '}{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
 
           <div className="prose prose-invert max-w-none text-[#9ba9bb] leading-relaxed space-y-8">
 

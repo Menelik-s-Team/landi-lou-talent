@@ -38,6 +38,37 @@ export default async function TalentRosterPage({
 
   const { data: talent } = await query.order('created_at', { ascending: false })
 
+  // Fetch onboarding status for all talent so we can distinguish "in pipeline"
+  // from "explicitly unavailable" — both have is_available=false but mean different things.
+  const talentIds = talent?.map((t: Record<string, unknown>) => t.id as string) ?? []
+  const { data: portfolios } = talentIds.length > 0
+    ? await supabase
+        .from('talent_onboarding_portfolios')
+        .select('talent_profile_id, agency_accepted')
+        .in('talent_profile_id', talentIds)
+    : { data: [] }
+
+  // talent_profile_id → has been countersigned
+  const countersigned = new Set(
+    (portfolios ?? [])
+      .filter((p: { talent_profile_id: string; agency_accepted: boolean }) => p.agency_accepted)
+      .map((p: { talent_profile_id: string; agency_accepted: boolean }) => p.talent_profile_id)
+  )
+  // talent_profile_id → has any portfolio record (in onboarding pipeline)
+  const inPipeline = new Set(
+    (portfolios ?? []).map((p: { talent_profile_id: string; agency_accepted: boolean }) => p.talent_profile_id)
+  )
+
+  function talentStatus(t: Record<string, unknown>): { label: string; cls: string } {
+    if (t.is_available) return { label: 'Available', cls: 'bg-green-500/10 text-green-400' }
+    const id = t.id as string
+    // Not countersigned + has a portfolio = still going through onboarding
+    if (inPipeline.has(id) && !countersigned.has(id)) {
+      return { label: 'Onboarding', cls: 'bg-[#c9a84c]/10 text-[#c9a84c]' }
+    }
+    return { label: 'Unavailable', cls: 'bg-[#9ba9bb]/10 text-[#9ba9bb]' }
+  }
+
   const isFiltered = ['search', 'category', 'gender', 'union', 'available'].some(k => k in params)
 
   return (
@@ -91,14 +122,8 @@ export default async function TalentRosterPage({
                 </div>
               </div>
               <div className="px-4 py-3 flex items-center justify-between">
-                <span
-                  className={`text-xs px-2 py-1 rounded-full ${
-                    t.is_available
-                      ? 'bg-green-500/10 text-green-400'
-                      : 'bg-[#9ba9bb]/10 text-[#9ba9bb]'
-                  }`}
-                >
-                  {t.is_available ? 'Available' : 'Unavailable'}
+                <span className={`text-xs px-2 py-1 rounded-full ${talentStatus(t).cls}`}>
+                  {talentStatus(t).label}
                 </span>
                 <div className="flex items-center gap-3">
                   <DeleteTalentButton
