@@ -25,7 +25,7 @@ export async function POST(
     return NextResponse.json({ error: 'Talent profile not found.' }, { status: 404 })
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://landiloutalentagency.com'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://landiloutalentagency.com')
   const portalLinkExpiry = process.env.PORTAL_LINK_EXPIRY_LABEL ?? '1 hour'
 
   const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({

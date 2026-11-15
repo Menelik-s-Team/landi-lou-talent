@@ -60,7 +60,7 @@ export async function POST(
     }, { status: 500 })
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://landiloutalentagency.com'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://landiloutalentagency.com')
   const onboardingLink = `${siteUrl}/onboarding/${newToken}`
 
   const { error: emailError } = await getResend().emails.send({

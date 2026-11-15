@@ -150,7 +150,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ success: true, warning: 'Approved but onboarding portfolio creation failed.' })
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://landiloutalentagency.com'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://landiloutalentagency.com')
   const onboardingLink = `${siteUrl}/onboarding/${portfolio.token}`
 
   // Generate a one-click portal access link so talent can set their password and log in
