@@ -885,3 +885,144 @@ Profiles row after the call: `{"role":"admin","full_name":"TEST ConflictAdmin"}`
 
 An earlier attempt called the approve route against **production** (which still runs the pre-fix code from `main`). That call approved the conflict submission with the old code, overwriting the conflict user's profiles row to `role='talent'`. Those records were cleaned up before the localhost tests ran. The three results above are from the localhost runs only, against the branch code.
 
+
+---
+
+# Phase B — Recovery Operation (November 24 Commitment)
+**Run date:** 2026-11-15
+**Operator:** Claude Code
+**Scope:** Reach every approved talent who has not yet activated their account, refresh expired onboarding links, create missing profiles, and produce a countersign handoff for completed portfolios.
+
+---
+
+## Step 0 — Role Guard Deployed
+
+Branch `fix/approve-role-guard` merged to main. Vercel deployment `dpl_Cj4a7Fw5DQCbvW5M2JEDkHS5TdAv` confirmed READY. Three test outcomes:
+
+| Test | Result |
+|---|---|
+| Normal approval (no conflict) | PASS — talent profile created, submission marked approved |
+| Conflict — email belongs to non-talent account | PASS — 409 returned, submission stays pending, profiles row unchanged |
+| Regression — already-approved submission | PASS — 409 returned, no double-profile |
+
+---
+
+## Step 1 — List Refresh
+
+Full lists written to `phase-b-lists-2026-11-15.md` (UNTRACKED).
+
+| Category | Count | Delta vs Recount |
+|---|---|---|
+| Total submissions | 35 (33 approved / 1 pending / 1 rejected) | 0 |
+| talent_profiles | 31 (12 available) | 0 |
+| Never-logged-in talent auth users | 27 | -1 (1 activated since recount) |
+| Expired onboarding tokens (all statuses) | 17 | +10 (10 completed portfolios also had expired tokens; recount counted only incomplete) |
+| Approved without talent_profile | 4 | 0 |
+| Completed-but-uncountersigned portfolios | 19 | +19 (recount used wrong filter `agency_accepted=is.null`; correct: `agency_accepted=eq.false`) |
+
+**Safety screen**: 0 exclusions. No never-logged-in email belongs to a non-talent profiles row.
+
+**Test record check** (by content search — PostgREST does not support LIKE on UUID columns):
+- Submission with `first_name='TEST'`: not found ✓
+- Submission with `email='admin@test.com'`: not found ✓
+- IDs `ee778d63*`, `d4e137c6*`, `cc6323bf*` confirmed absent in talent_submissions, talent_profiles, and talent_onboarding_portfolios by content search ✓
+
+---
+
+## Step 2 — Portal Access Recovery Sends
+
+**Script:** `/tmp/step2-portal-sends.mjs` (service role + Resend, no web session)
+**Result:** 25/25 SENT — 0 failed — 0 skipped
+
+25 never-logged-in talent with linked profiles each received a "Set Up Portal Access" email with a fresh 7-day recovery link redirecting through `/auth/confirm?next=/set-new-password`.
+
+25 `admin_recovery_log` rows written (`action_type: 'resend_portal'`).
+
+**Excluded (Step 4 handles):**
+- Karen Aul (auntiekaren75@gmail.com) — no talent_profile at time of Step 2 run
+- Sharon McKay Anguin (sharonmckayanguin@gmail.com) — BLOCKED (see below)
+
+---
+
+## Step 3 — Onboarding Link Extensions
+
+**Script:** `/tmp/step3-extend-onboarding.mjs`
+**Result:** 7/7 SENT — 0 failed — 0 skipped
+
+Only portfolios with `status='pending'` (incomplete) were extended. The 10 completed portfolios with expired tokens were intentionally excluded — they don't need extension, they need countersign (Step 5).
+
+| Talent | New expiry |
+|---|---|
+| Richard Frank Robert Thole | 2026-12-15 |
+| James Duncan | 2026-12-15 |
+| Alira Wilson | 2026-12-15 |
+| Travell Dickerson | 2026-12-15 |
+| Sophia Brown | 2026-12-15 |
+| Taina Gilliland | 2026-12-15 |
+| Sofia Lopez | 2026-12-15 |
+
+7 `admin_recovery_log` rows written (`action_type: 'extend_onboarding'`).
+
+---
+
+## Step 4 — Missing Talent Profiles
+
+**Karen Aul** — RECOVERED
+- Auth user `c7458078-0bad-4743-86d0-0b1499f21c2c` (auntiekaren75@gmail.com) confirmed with `profiles.role='talent'`
+- `talent_profiles` row created: `0ae09d6f-46f7-4003-b2ef-ba1f21e1ee86`
+- Portfolio `4d33a516` updated: `talent_profile_id` set to new profile
+- Portal access email sent (catch-up per amendment, same 7-day window as Step 2 batch)
+
+**Erica Turner** — BLOCKED
+- Email `turnertalentvip@gmail.com` is shared with Asher Patton (approved, separate submission, existing profile `4c6b0173`)
+- Two unrelated adults on one email — no second auth account possible
+- Action required: collect a unique email from Erica Turner
+
+**Zoe Allen** — BLOCKED
+- Shares `indigodee@hotmail.com` with Elias Allen and Andrea Allen
+- Action required: collect a unique email from Zoe Allen
+
+**Andrea Allen** — BLOCKED
+- Same as Zoe Allen
+- Action required: collect a unique email from Andrea Allen
+
+**Sharon McKay Anguin** — BLOCKED
+- Talent profile exists (`78f4697f`) but `user_id = null` — profile was admin-created and never linked to an auth account
+- Auth user `91bf7003` exists but was created after the profile and was never linked to it
+- No submission exists for this email — cannot recover via the standard approval flow
+- Action required: admin must manually link `user_id` to `91bf7003` in the talent_profiles row, OR delete and re-approve a new submission if one exists
+
+---
+
+## Step 5 — Countersign Handoff
+
+**File:** `countersign-handoff.md` (UNTRACKED)
+
+19 completed portfolios awaiting agency countersign. 17 have actionable links. 2 blocked (Zoe Allen, Andrea Allen — no linked profiles, unrecoverable without unique emails).
+
+Oldest: Nico Cales, completed 2026-08-13.
+Most recent: Trent Brown and Chase Brown, completed 2026-11-11.
+
+---
+
+## Blocked Talent Summary
+
+| Name | Email | Reason |
+|---|---|---|
+| Sharon McKay Anguin | sharonmckayanguin@gmail.com | Admin-created profile with no linked auth account; no submission exists. Manual user_id link or new submission required. |
+| Erica Turner | turnertalentvip@gmail.com | Email collision with Asher Patton's active account. Needs unique email. |
+| Zoe Allen | indigodee@hotmail.com | Shared email with Elias and Andrea Allen. Needs unique email. |
+| Andrea Allen | indigodee@hotmail.com | Shared email with Elias and Zoe Allen. Needs unique email. |
+
+---
+
+## Before / After
+
+| Metric | Before Phase B | After Phase B |
+|---|---|---|
+| Never-logged-in talent | 27 | 25 sent portal access (2 blocked) |
+| Expired incomplete portfolios | 7 | 0 (all 7 extended to 2026-12-15) |
+| Approved talent without profile | 4 | 1 (Karen Aul recovered; 3 blocked by email collisions) |
+| Countersign queue | 19 | 19 pending Dr. Smith (17 actionable, 2 blocked) |
+| admin_recovery_log entries added | 0 | 32 (25 portal sends + 7 onboarding extensions) |
+
