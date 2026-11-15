@@ -48,6 +48,21 @@ export default async function TalentRosterPage({
         .in('talent_profile_id', talentIds)
     : { data: [] }
 
+  // Determine which talent have never logged in (last_sign_in_at IS NULL).
+  // Fetch up to 500 users — enough for the current roster size.
+  const neverLoggedInEmails = new Set<string>()
+  const talentEmails = new Set(
+    (talent ?? []).map((t: Record<string, unknown>) => (t.email as string)?.toLowerCase()).filter(Boolean)
+  )
+  if (talentEmails.size > 0) {
+    const { data: authUsers } = await supabase.auth.admin.listUsers({ perPage: 500 })
+    for (const u of authUsers?.users ?? []) {
+      if (u.last_sign_in_at == null && talentEmails.has(u.email?.toLowerCase() ?? '')) {
+        neverLoggedInEmails.add(u.email?.toLowerCase() ?? '')
+      }
+    }
+  }
+
   // talent_profile_id → has been countersigned
   const countersigned = new Set(
     (portfolios ?? [])
@@ -122,9 +137,16 @@ export default async function TalentRosterPage({
                 </div>
               </div>
               <div className="px-4 py-3 flex items-center justify-between">
-                <span className={`text-xs px-2 py-1 rounded-full ${talentStatus(t).cls}`}>
-                  {talentStatus(t).label}
-                </span>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className={`text-xs px-2 py-1 rounded-full ${talentStatus(t).cls}`}>
+                    {talentStatus(t).label}
+                  </span>
+                  {neverLoggedInEmails.has((t.email as string)?.toLowerCase() ?? '') && (
+                    <span className="text-xs px-2 py-1 rounded-full bg-orange-500/10 text-orange-400">
+                      Never logged in
+                    </span>
+                  )}
+                </div>
                 <div className="flex items-center gap-3">
                   <DeleteTalentButton
                     id={t.id as string}

@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { MapPin, Mail, Phone } from 'lucide-react'
 import TalentEditForm from './TalentEditForm'
+import AdminRecoveryActions from './AdminRecoveryActions'
 
 export const metadata = { title: 'Talent Profile | Admin' }
 
@@ -47,9 +48,16 @@ export default async function TalentProfilePage({ params }: { params: Promise<{ 
 
   const { data: portfolio } = await supabase
     .from('talent_onboarding_portfolios')
-    .select('id, status, current_step, completed_at')
+    .select('id, status, current_step, completed_at, token_expires_at, agency_accepted')
     .eq('submission_id', t.submission_id)
     .maybeSingle()
+
+  // Check if the talent has ever logged in
+  let neverLoggedIn = false
+  if (t.user_id) {
+    const { data: authUser } = await supabase.auth.admin.getUserById(t.user_id)
+    neverLoggedIn = authUser?.user != null && authUser.user.last_sign_in_at == null
+  }
 
   const name = `${t.first_name} ${t.last_name}`
   const location = [t.city, t.state].filter(Boolean).join(', ')
@@ -66,11 +74,16 @@ export default async function TalentProfilePage({ params }: { params: Promise<{ 
           <h1 className="font-[family-name:var(--font-playfair)] text-4xl text-[#f0ead8]">{name}</h1>
           {t.stage_name && <p className="text-[#9ba9bb] text-sm mt-1">Stage name: {t.stage_name}</p>}
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <TalentEditForm talent={t} />
           <span className={`text-xs px-3 py-1.5 rounded-full border ${t.is_available ? 'bg-green-500/10 text-green-400 border-green-500/30' : 'bg-[#9ba9bb]/10 text-[#9ba9bb] border-[#9ba9bb]/30'}`}>
             {t.is_available ? 'Available' : 'Unavailable'}
           </span>
+          {neverLoggedIn && (
+            <span className="text-xs px-3 py-1.5 rounded-full border bg-orange-500/10 text-orange-400 border-orange-500/30">
+              Never logged in
+            </span>
+          )}
           {t.union_status && (
             <span className="text-xs px-3 py-1.5 rounded-full border bg-[#c9a84c]/10 text-[#c9a84c] border-[#c9a84c]/30">
               {t.union_status}
@@ -146,6 +159,22 @@ export default async function TalentProfilePage({ params }: { params: Promise<{ 
                   : portfolio.status === 'in_progress' ? `In Progress (Step ${portfolio.current_step}/13)`
                   : 'Pending'}
               </span>
+              {portfolio.status !== 'completed' && portfolio.token_expires_at && (() => {
+                const expiry = new Date(portfolio.token_expires_at as string)
+                const expired = expiry < new Date()
+                return (
+                  <p className={`text-xs mt-2 ${expired ? 'text-red-400' : 'text-[#9ba9bb]'}`}>
+                    {expired ? 'Link expired' : 'Link expires'}{' '}
+                    {expiry.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </p>
+                )
+              })()}
+              {portfolio.status === 'completed' && portfolio.agency_accepted && (
+                <p className="text-xs text-green-400 mt-2">Agency countersigned</p>
+              )}
+              {portfolio.status === 'completed' && !portfolio.agency_accepted && (
+                <p className="text-xs text-[#c9a84c] mt-2">Awaiting agency countersignature</p>
+              )}
               {portfolio.status === 'completed' && (
                 <Link href={`/admin/portfolio/${portfolio.id}`}
                   className="mt-3 block text-center text-xs py-2 px-4 bg-[#c9a84c] text-[#06080f] rounded-lg font-bold hover:bg-[#e8c97a] transition-all">
@@ -261,6 +290,13 @@ export default async function TalentProfilePage({ params }: { params: Promise<{ 
               </div>
             </div>
           )}
+
+          {/* Admin recovery tools */}
+          <AdminRecoveryActions
+            talentId={t.id as string}
+            hasOnboarding={!!portfolio}
+            onboardingCompleted={portfolio?.status === 'completed'}
+          />
 
           {/* Original submission link */}
           {t.submission_id && (

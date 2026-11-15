@@ -122,6 +122,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   if (profileError) {
     console.error('[approve] talent_profiles insert failed:', profileError.message, 'submission:', id)
+    return NextResponse.json({
+      error: `Approval blocked: failed to create talent profile (${profileError.message}). The submission remains pending. Try again or check for a duplicate profile on this email.`,
+    }, { status: 500 })
   }
 
   // Mark submission as approved
@@ -147,16 +150,23 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ success: true, warning: 'Approved but onboarding portfolio creation failed.' })
   }
 
-  const siteUrl = 'https://landiloutalentagency.com'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://landiloutalentagency.com')
   const onboardingLink = `${siteUrl}/onboarding/${portfolio.token}`
 
   // Generate a one-click portal access link so talent can set their password and log in
+  // The recovery link redirects to /auth/confirm which handles both PKCE and
+  // implicit-flow tokens, then forwards to /talent-portal.
   const { data: linkData } = await supabase.auth.admin.generateLink({
     type: 'recovery',
     email: submission.email,
-    options: { redirectTo: `${siteUrl}/talent-portal` },
+    options: { redirectTo: `${siteUrl}/auth/confirm?next=/talent-portal` },
   })
   const portalAccessLink = linkData?.properties?.action_link ?? `${siteUrl}/login`
+
+  // PORTAL_LINK_EXPIRY_LABEL must match the OTP expiry setting in the Supabase
+  // Authentication dashboard (Auth > Settings > "OTP / magic link expiry").
+  // Default Supabase value is 3600 s (1 hour). Change this env var if you change the setting.
+  const portalLinkExpiry = process.env.PORTAL_LINK_EXPIRY_LABEL ?? '1 hour'
 
   const resend = getResend()
 
@@ -221,6 +231,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
           <p style="color:#9ba9bb;font-size:11px;text-align:center;margin-top:12px;">
             Your login email: <strong style="color:#f0ead8;">${submission.email}</strong>
           </p>
+          <div style="background:#06080f;border:1px solid rgba(201,168,76,0.1);border-radius:6px;padding:14px;margin-top:16px;">
+            <p style="color:#9ba9bb;font-size:12px;line-height:1.7;margin:0;">
+              <strong style="color:#f0ead8;">This link expires in ${portalLinkExpiry}.</strong>
+              If it has expired by the time you open it, go to your Forgot Password page to get a new one:<br/>
+              <a href="${siteUrl}/forgot-password" style="color:#c9a84c;">${siteUrl}/forgot-password</a><br/>
+              Your sign-in page: <a href="${siteUrl}/login" style="color:#c9a84c;">${siteUrl}/login</a>
+            </p>
+          </div>
         </div>
 
         <hr style="border-color:rgba(201,168,76,0.2);margin-bottom:24px;" />
