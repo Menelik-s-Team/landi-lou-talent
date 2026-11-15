@@ -52,15 +52,32 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     userId = authData.user.id
   }
 
-  // Upsert profile — handles both trigger-created and manual user creation
-  await supabase
+  // Role guard: read the existing profiles row before writing.
+  // Never silently demote or overwrite a non-talent account.
+  const { data: existingProfileRow } = await supabase
     .from('profiles')
-    .upsert({
-      id: userId,
-      email: submission.email,
-      role: 'talent',
-      full_name: `${submission.first_name} ${submission.last_name}`,
-    }, { onConflict: 'id' })
+    .select('role')
+    .eq('id', userId)
+    .single()
+
+  if (existingProfileRow) {
+    if (existingProfileRow.role !== 'talent') {
+      // A staff/admin/casting account exists under this email — halt immediately.
+      return NextResponse.json({
+        error: `Approval blocked: ${submission.email} belongs to an existing account with role "${existingProfileRow.role}". Resolve this conflict before approving.`,
+      }, { status: 409 })
+    }
+    // Existing talent row: skip — do not rewrite role or full_name.
+  } else {
+    await supabase
+      .from('profiles')
+      .insert({
+        id: userId,
+        email: submission.email,
+        role: 'talent',
+        full_name: `${submission.first_name} ${submission.last_name}`,
+      })
+  }
 
   const VALID_REPRESENTATION = new Set(['Exclusive', 'Non-Exclusive'])
   const VALID_UNION = new Set(['SAG-AFTRA', 'SAG-Eligible', 'Equity', 'EMC', 'Non-Union', 'Other'])

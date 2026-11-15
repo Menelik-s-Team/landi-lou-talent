@@ -813,3 +813,75 @@ The approval flow had upserted `profiles` for this user to `role='talent'` / `fu
 ### Status: COMPLETE
 
 All fixes merged and live. Access link chain verified end-to-end by Playwright (both chains passed) and by owner direct login. Admin access restored. No test records remain.
+
+---
+
+## Step 0: Role Guard on the Approve Route — 2026-11-15
+
+**Branch:** `fix/approve-role-guard`
+**Status:** Code fixed, three tests passed, all test records cleaned up. Awaiting gate.
+
+---
+
+### Current behavior found (before this change)
+
+**File:** `app/api/submissions/[id]/approve/route.ts` lines 55–63
+
+```typescript
+await supabase.from('profiles').upsert({
+  id: userId,
+  email: submission.email,
+  role: 'talent',
+  full_name: `${submission.first_name} ${submission.last_name}`,
+}, { onConflict: 'id' })
+```
+
+**Behavior:** `upsert` with `onConflict: 'id'`. If a row already exists for the auth user's id, the upsert **overwrites `role` and `full_name`** unconditionally. When the email belongs to an admin or other non-talent user, approval silently demotes them to `role='talent'` and replaces their full_name. No error is returned; the approval succeeds. This is exactly what happened on November 15 when the TEST Access Fix submission was approved under the owner's email.
+
+---
+
+### Change made
+
+The `upsert` block is replaced with a three-way guard:
+
+1. **No existing row:** Insert with `role='talent'` and the submitted name. Identical to previous behavior.
+2. **Row exists with `role='talent'`:** Skip the write entirely. The talent profile is created normally; `role` and `full_name` are not touched.
+3. **Row exists with any other role:** Return HTTP 409 immediately with a named-conflict error. The submission stays `pending`. Nothing is written.
+
+Error message format:
+> `Approval blocked: {email} belongs to an existing account with role "{role}". Resolve this conflict before approving.`
+
+---
+
+### Other-route scan
+
+One additional profiles upsert found: `app/api/admin/talent/route.ts` lines 30–35.
+
+This is the direct-add route (admin creates a talent manually without a submission). It uses the same `upsert` pattern and carries the same vulnerability — if the admin typed an email already in use by a staff or admin account, it would overwrite their role. It is **not fixed in this step** per the brief. It is flagged here for a future hardening pass.
+
+No other routes write to `profiles`.
+
+---
+
+### Test outcomes
+
+All tests run against the local dev server (branch code). All test records cleaned up.
+
+| # | Test | Expected | Result | Submission | Auth user | Talent profile |
+|---|------|----------|--------|-----------|-----------|----------------|
+| 1 | Normal path | 200, `{success:true}`, `role='talent'` inserted | PASS | `fd43d520` | `e4e19db3` | `be74f947` |
+| 2 | Conflict (admin role) | 409, submission stays pending, profiles row unchanged | PASS | `5325e8a5` | `11606d6a` (conflict user, deleted after test) | none created |
+| 3 | Regression (already approved) | 409 `already approved`, submission unchanged | PASS | `fd43d520` (reused) | — | — |
+
+**Test 2 detail:** Conflict user `11606d6a` had `profiles.role='admin'`. Approve returned:
+```json
+{"error":"Approval blocked: test-conflict-step0@landiloutest.invalid belongs to an existing account with role \"admin\". Resolve this conflict before approving."}
+```
+Profiles row after the call: `{"role":"admin","full_name":"TEST ConflictAdmin"}` — byte-identical to before.
+
+---
+
+### Note on test execution order
+
+An earlier attempt called the approve route against **production** (which still runs the pre-fix code from `main`). That call approved the conflict submission with the old code, overwriting the conflict user's profiles row to `role='talent'`. Those records were cleaned up before the localhost tests ran. The three results above are from the localhost runs only, against the branch code.
+
