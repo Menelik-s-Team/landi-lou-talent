@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
     type: 'recovery',
     email: normalizedEmail,
-    options: { redirectTo: `${siteUrl}/auth/callback?next=/set-new-password` },
+    options: { redirectTo: `${siteUrl}/auth/confirm?next=/set-new-password` },
   })
 
   if (linkError || !linkData?.properties?.action_link) {
