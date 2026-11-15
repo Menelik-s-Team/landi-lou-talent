@@ -177,9 +177,32 @@ Review screen: Notable Credits row now shows "Resume uploaded — see Media" whe
 
 ---
 
-## Verification
+## Verification — Step 9 Playwright Results
 
-(Playwright results to be appended after Step 9 runs)
+**32/32 passed — desktop Chrome + mobile Chrome (Pixel 5)**
+
+| TC | Test | Desktop | Mobile |
+|---|---|---|---|
+| TC-01 | Page loads, 7-step stepper visible | PASS | PASS |
+| TC-02 | Step 3 has no skin tone field | PASS | PASS |
+| TC-03 | ethnicity_other input appears on "Other" check | PASS | PASS |
+| TC-04 | Step 3 advances with no ethnicity selected | PASS | PASS |
+| TC-05 | Step 2 categories show Disciplines/Work Types/Age Markets | PASS | PASS |
+| TC-06 | Step 5 experience categories filtered to Step 2 selections | PASS | PASS |
+| TC-07 | Step 6 availability only 2 options, removed options absent | PASS | PASS |
+| TC-08 | Height/weight unit toggles change placeholder text | PASS | PASS |
+| TC-09 | Required and Optional labels visible on Step 1 | PASS | PASS |
+| TC-10 | Format hints in upload labels at Step 4 | PASS | PASS |
+| TC-11 | Upload boxes show format and size hints | PASS | PASS |
+| TC-12 | skin_tone absent from DOM; page source clean | PASS | PASS |
+| TC-13 | skin_tone absent from initial HTML and page source | PASS | PASS |
+| TC-14 | Mobile: form loads, step 1 usable on Pixel 5 | PASS | PASS |
+| TC-15 | Mobile: height/weight toggles tappable | PASS | PASS |
+| TC-16 | "Local Hire Only" and "Available to Travel" absent from DOM | PASS | PASS |
+
+Playwright config: `playwright.config.ts` — headless Chromium, `Desktop Chrome` + `Pixel 5` projects, `baseURL: http://localhost:3000`.
+Test file: `tests/form-cleanup.spec.ts`
+Commits: `69cbf90` (feature changes), `10a0636` (Playwright tests)
 
 ---
 
