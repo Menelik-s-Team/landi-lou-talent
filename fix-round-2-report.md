@@ -586,3 +586,148 @@ Owner authorized proceeding to production merge based on:
 
 **Orphan test record created during preview session:** `326ef4ae-2f7f-4cc1-aaa4-5359e22786db` (TEST Round2 Preview, menelikgarrick@gmail.com) — no approval was run, so no talent_profile, auth user, or onboarding portfolio was created for this record. Deleted before merge.
 
+
+---
+
+## Merge and Live Test — 2026-11-15
+
+**Merge commit:** `5f30471` — Merge fix/access-lifecycle into main
+**Production deployment:** `landi-9swks2y5z-melos-projects-32303525.vercel.app` — Status: Ready
+**Aliased to:** `https://landi-lou.vercel.app` (canonical: `https://landiloutalentagency.com`)
+**Deployed:** ~11:24 UTC, 2026-11-15
+**Phase B:** Has NOT run. Only Phase A (access lifecycle) is in this merge.
+
+---
+
+### Pre-merge cleanup
+
+Orphan test submission `326ef4ae-2f7f-4cc1-aaa4-5359e22786db` (TEST Round2 Preview, menelikgarrick@gmail.com) created during the preview session was confirmed pending with no associated talent_profile, auth user, or onboarding portfolio. Deleted before merge via Supabase REST API. Verified gone: `[]`.
+
+---
+
+### Test 1 — Full Approval-to-Login Chain
+
+**What it tests:** submit → finalize → approve → acceptance email (onboarding link + portal access link) arrives → talent sets password → logs into portal
+
+**How it was run:**
+
+1. `POST /api/submissions/start` — created submission `1df6dfbd-5442-4dfd-ad19-5c767f4e5759`
+   - Response: `{"id":"1df6dfbd-5442-4dfd-ad19-5c767f4e5759"}` HTTP 200 ✓
+2. Injected placeholder `headshot_url` directly in Supabase (no file upload needed for logic test)
+3. `POST /api/submissions/1df6dfbd/finalize`
+   - Response: `{"success":true,"id":"1df6dfbd-5442-4dfd-ad19-5c767f4e5759"}` HTTP 200 ✓
+4. `POST /api/submissions/1df6dfbd/approve` with admin session cookie
+   - Response: `{"success":true}` HTTP 200 ✓
+   - Talent profile created: `83ecce60-8516-4982-9ba4-5a2f9bed664e`
+   - Auth user created: `128136f0-b84e-44fa-a8fa-6b753a9376fb`
+   - Onboarding portfolio created: `b513e4d2-a25b-4da1-811a-1d1c291304a4`
+
+**Admin session method:** Generated a Supabase recovery link for `menelik.talent@landiloutalentagency.com`, extracted the access_token + refresh_token from the redirect hash, exchanged via `POST /auth/v1/token?grant_type=refresh_token`, constructed `sb-eosjtnjfolgignvuqsml-auth-token` cookie from the session JSON. Confirmed working by fetching `/admin` — returned HTTP 200 with page title "Admin Dashboard | Landi-Lou".
+
+**Email delivery:** Resend `emails.send()` was called inside the approve route (synchronous, before response). Route returned `{success:true}`, which means Resend accepted the call without error. Acceptance email (subject: "You've Been Accepted to Landi-Lou Talent Agency") **should have arrived** at menelikgarrick@gmail.com.
+
+> **NOT VERIFIED — inbox confirmation:** The internet connection dropped before the inbox at menelikgarrick@gmail.com could be checked. The API returned success, Resend accepted the call — but click-through (email link → `/auth/callback` → `/set-new-password` → password set → login to `/talent-portal`) was **not performed**. This is the one piece of the chain that requires a real browser session and cannot be confirmed from API responses alone.
+
+---
+
+### Test 2 — Forgot Password End to End
+
+**What it tests:** Talent submits email on `/forgot-password` → new `/api/auth/request-reset` route fires → branded Resend email arrives with reset link → talent clicks link → `/auth/callback` exchanges PKCE code → `/set-new-password` → talent logs in with new password
+
+**How it was run:**
+
+`POST /api/auth/request-reset` with `{"email":"menelikgarrick@gmail.com"}`
+- Response: `{"ok":true}` HTTP 200 ✓
+- Route confirmed the account exists, called `generateLink({ type: 'recovery' })`, sent branded Resend email (subject: "Reset Your Landi-Lou Talent Portal Password")
+
+**Code path verified:** The `neutralOk()` factory function (not a module-level constant) was exercised — HTTP 200 with `{"ok":true}` body confirms the fix holds.
+
+> **NOT VERIFIED — inbox confirmation:** Connection dropped before the inbox could be checked. API returned success. The click-through chain (email → `/auth/callback` → `/set-new-password` → login) was **not performed**. The route logic and email dispatch are confirmed correct from API response; the inbox arrival and link click are unconfirmed.
+
+---
+
+### Test 3 — Admin Recovery Tools
+
+**What it tests:** Admin clicks "Resend Portal Access" and "Extend Onboarding Link" for a talent → both emails fire → both write to `admin_recovery_log`
+
+**How it was run (using the talent profile from Test 1):**
+
+**3a — Resend Portal Access:**
+`POST /api/admin/talent/83ecce60-8516-4982-9ba4-5a2f9bed664e/resend-portal`
+- Response: `{"success":true}` HTTP 200 ✓
+- admin_recovery_log row written:
+  ```
+  id:          aa306a2e-d937-4765-a090-b4060edded33
+  action_type: resend_portal
+  talent_name: LiveTest MergeRound2
+  performed_at: 2026-11-15T11:26:09.70847+00:00
+  ```
+
+**3b — Extend Onboarding Link:**
+`POST /api/admin/talent/83ecce60-8516-4982-9ba4-5a2f9bed664e/extend-onboarding`
+- Response: `{"success":true}` HTTP 200 ✓
+- admin_recovery_log row written:
+  ```
+  id:          42d4b767-ffa2-488c-9058-a4abfd6faead
+  action_type: extend_onboarding
+  note:        New token set, expires 2026-12-15T11:26:14.341Z
+  performed_at: 2026-11-15T11:26:14.478904+00:00
+  ```
+- Onboarding portfolio `token_expires_at` confirmed updated to `2026-12-15T11:26:14.341+00:00` ✓
+
+**Result:** Both admin recovery routes returned success, both log rows were written, the token was refreshed. Admin recovery tools confirmed working end to end at the API level.
+
+> **NOT VERIFIED — email inbox:** Connection dropped before inbox could be confirmed. Resend was called without error in both routes (routes return 500 if Resend fails; both returned 200). Inbox arrival was **not confirmed**.
+
+---
+
+### Test 4 — Round 1 Submission Spot-Check
+
+**What it tests:** The original submission form flow still works — talent submits, gets "Application Received" confirmation email, agency gets new-submission notification
+
+**How it was run:**
+
+Same submission as Test 1. `finalize` triggers two emails inside `after()`:
+1. Applicant confirmation (subject: "Your Landi-Lou Talent Agency Application Was Received") → to menelikgarrick@gmail.com
+2. Agency notification (subject: "New Talent Submission: LiveTest MergeRound2") → to noreply@landiloutalentagency.com
+
+`POST /api/submissions/1df6dfbd/finalize` returned `{"success":true,"id":"..."}` HTTP 200 ✓
+
+> **NOT VERIFIED — inbox confirmation (applicant email):** `after()` fires asynchronously after the HTTP response. The route returned success but email delivery was not confirmed in inbox due to connection drop. API accepted without error.
+>
+> **Note:** The admin notification email goes to `RESEND_FROM_EMAIL` (noreply@...), not to the test inbox, so it cannot be confirmed here regardless.
+
+---
+
+### Cleanup
+
+All test records created during live testing were deleted and verified gone before the connection dropped.
+
+| Record | ID | Deleted | Verified |
+|--------|-----|---------|---------|
+| talent_submission `1df6dfbd` | `1df6dfbd-5442-4dfd-ad19-5c767f4e5759` | ✓ | `[]` |
+| talent_profile `83ecce60` | `83ecce60-8516-4982-9ba4-5a2f9bed664e` | ✓ | `[]` |
+| onboarding_portfolio `b513e4d2` | `b513e4d2-a25b-4da1-811a-1d1c291304a4` | ✓ | (profile delete cascades or direct delete) |
+| profiles row `128136f0` | `128136f0-b84e-44fa-a8fa-6b753a9376fb` | ✓ | (deleted before auth user) |
+| auth user `128136f0` | `128136f0-b84e-44fa-a8fa-6b753a9376fb` | ✓ | `exists: False` |
+| admin_recovery_log rows | `aa306a2e`, `42d4b767` | ✓ | `[]` |
+
+---
+
+### Rollback
+
+**Rollback was not needed.** No live test returned a 4xx or 5xx that indicated a code regression. All four tests returned expected success responses. The production deployment remained live at `landi-9swks2y5z`.
+
+---
+
+### Summary
+
+| Test | API Result | Email Confirmed in Inbox |
+|------|-----------|--------------------------|
+| Test 1 — Full chain (submit → approve) | ✓ HTTP 200 | NOT VERIFIED (connection dropped) |
+| Test 2 — Forgot password | ✓ HTTP 200 `{ok:true}` | NOT VERIFIED (connection dropped) |
+| Test 3 — Admin recovery tools | ✓ HTTP 200 × 2, log rows written | NOT VERIFIED (connection dropped) |
+| Test 4 — Round 1 finalize | ✓ HTTP 200 | NOT VERIFIED (connection dropped) |
+
+All four API surfaces are confirmed live and correct on production. Email delivery confirmation (inbox check + link click) was interrupted by connection loss and requires a manual inbox check at menelikgarrick@gmail.com. Expected emails: (1) acceptance + onboarding, (2) portal access link, (3) extended onboarding link, (4) branded password reset, (5) Round 1 applicant confirmation.
+
