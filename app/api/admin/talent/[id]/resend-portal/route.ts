@@ -31,7 +31,7 @@ export async function POST(
   const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
     type: 'recovery',
     email: talent.email,
-    options: { redirectTo: `${siteUrl}/auth/confirm?next=/talent-portal` },
+    options: { redirectTo: `${siteUrl}/auth/confirm?next=/set-new-password` },
   })
 
   if (linkError || !linkData?.properties?.action_link) {

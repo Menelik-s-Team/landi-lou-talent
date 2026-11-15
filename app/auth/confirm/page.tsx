@@ -22,7 +22,7 @@ function AuthConfirmInner() {
       if (code) {
         const { error } = await supabase.auth.exchangeCodeForSession(code)
         if (error) {
-          router.replace('/login?error=link-expired')
+          router.replace('/set-new-password')
           return
         }
         router.replace(next)
@@ -30,13 +30,27 @@ function AuthConfirmInner() {
       }
 
       // Implicit flow: tokens arrive in the URL hash fragment.
-      // createBrowserClient's getSession() picks up hash tokens automatically.
-      const { data } = await supabase.auth.getSession()
-      if (data.session) {
+      // createBrowserClient uses flowType:'pkce' so it will NOT auto-process hash
+      // tokens — getSession() returns null before the hash is consumed.
+      // Parse the hash manually and call setSession() explicitly.
+      const hash = typeof window !== 'undefined' ? window.location.hash.slice(1) : ''
+      const hashParams = new URLSearchParams(hash)
+      const accessToken = hashParams.get('access_token')
+      const refreshToken = hashParams.get('refresh_token')
+
+      if (accessToken && refreshToken) {
+        const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
+        if (error) {
+          // Link is expired or already used — /set-new-password shows the honest expired UI
+          router.replace('/set-new-password')
+          return
+        }
         router.replace(next)
-      } else {
-        router.replace('/login?error=link-expired')
+        return
       }
+
+      // No code and no hash tokens — link is malformed or already consumed
+      router.replace('/set-new-password')
     }
 
     handle()

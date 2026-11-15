@@ -159,7 +159,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const { data: linkData } = await supabase.auth.admin.generateLink({
     type: 'recovery',
     email: submission.email,
-    options: { redirectTo: `${siteUrl}/auth/confirm?next=/talent-portal` },
+    options: { redirectTo: `${siteUrl}/auth/confirm?next=/set-new-password` },
   })
   const portalAccessLink = linkData?.properties?.action_link ?? `${siteUrl}/login`
 
