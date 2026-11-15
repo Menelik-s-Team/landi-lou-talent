@@ -43,6 +43,21 @@ const TALENT_CATEGORIES = [
   'Children & Youth', 'Fitness', 'Specialty Talent',
 ]
 
+const GROUPED_CATEGORIES = [
+  {
+    group: 'Disciplines',
+    categories: ['Actor', 'Singer', 'Dancer', 'Host', 'Voice Over', 'Influencer'],
+  },
+  {
+    group: 'Work Types',
+    categories: ['Commercial', 'Television', 'Theatre', 'Print', 'Fashion', 'Modeling', 'Lifestyle', 'Fitness', 'Specialty Talent'],
+  },
+  {
+    group: 'Age Markets',
+    categories: ['Children & Youth'],
+  },
+]
+
 const UNION_STATUSES = ['SAG-AFTRA', 'SAG-Eligible', 'Equity', 'EMC', 'Non-Union', 'Other']
 
 const ETHNICITIES = [
@@ -51,7 +66,7 @@ const ETHNICITIES = [
 ]
 
 const AVAILABILITY_OPTIONS = [
-  'Local Hire Only', 'Available to Travel', 'Available Nationally', 'Available Internationally',
+  'Available Nationally', 'Available Internationally',
 ]
 
 const EXPERIENCE_LEVELS = ['Beginner', 'Intermediate', 'Professional', 'Extensive Credits']
@@ -113,6 +128,7 @@ type FormData = {
   hair_color: string
   eye_color: string
   ethnicity: string[]
+  ethnicity_other: string
   // Male sizes
   neck_size: string
   sleeve_size: string
@@ -133,7 +149,6 @@ type FormData = {
   languages: string
   dialects: string
   instruments: string
-  skin_tone: string
   notable_credits: string
   // Step 4
   demo_reel_url: string
@@ -173,6 +188,8 @@ export default function SubmitPage() {
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
   const [hasDraft, setHasDraft] = useState(false)
+  const [heightUnit, setHeightUnit] = useState<'imperial' | 'metric'>('imperial')
+  const [weightUnit, setWeightUnit] = useState<'imperial' | 'metric'>('imperial')
 
   // Submission record (created on first file upload)
   const [submissionId, setSubmissionId] = useState<string | null>(null)
@@ -201,7 +218,7 @@ export default function SubmitPage() {
     neck_size: '', sleeve_size: '', jacket_size: '', pant_waist: '', inseam: '', hat_size: '',
     shirt_size: '', pant_size: '', bust: '', waist: '', hip: '', dress_size: '',
     shoe_size: '',
-    skills: [], languages: '', dialects: '', instruments: '', skin_tone: '', notable_credits: '',
+    skills: [], languages: '', dialects: '', instruments: '', ethnicity_other: '', notable_credits: '',
     demo_reel_url: '', voice_reel_url: '', instagram: '', tiktok: '', youtube: '',
     experience_categories: [], experience_level: '',
     availability_type: [], has_passport: false, has_drivers_license: false,
@@ -237,6 +254,13 @@ export default function SubmitPage() {
       }))
     } catch {}
   }, [formData, submitted, submissionId, uploadedFiles])
+
+  // Pre-populate experience_categories from talent_categories when entering Step 5
+  useEffect(() => {
+    if (step === 5 && formData.experience_categories.length === 0 && formData.talent_categories.length > 0) {
+      setFormData(prev => ({ ...prev, experience_categories: [...prev.talent_categories] }))
+    }
+  }, [step]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -345,8 +369,8 @@ export default function SubmitPage() {
       weight: formData.weight,
       hair_color: formData.hair_color,
       eye_color: formData.eye_color,
-      skin_tone: formData.skin_tone,
       ethnicity: formData.ethnicity,
+      ethnicity_other: formData.ethnicity_other || undefined,
       wardrobe_sizes: {
         neck: formData.neck_size,
         sleeve: formData.sleeve_size,
@@ -898,42 +922,42 @@ export default function SubmitPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="first_name" className={labelClass}>First Name <span className="text-[#c9a84c]">*</span></label>
+                  <label htmlFor="first_name" className={labelClass}>First Name <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#c9a84c]/80">Required</span></label>
                   <input id="first_name" name="first_name" required autoComplete="given-name" value={formData.first_name} onChange={handleText} className={inputClass} placeholder="First" />
                 </div>
                 <div>
-                  <label htmlFor="last_name" className={labelClass}>Last Name <span className="text-[#c9a84c]">*</span></label>
+                  <label htmlFor="last_name" className={labelClass}>Last Name <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#c9a84c]/80">Required</span></label>
                   <input id="last_name" name="last_name" required autoComplete="family-name" value={formData.last_name} onChange={handleText} className={inputClass} placeholder="Last" />
                 </div>
               </div>
               <div>
-                <label htmlFor="stage_name" className={labelClass}>Stage Name (if any)</label>
+                <label htmlFor="stage_name" className={labelClass}>Stage Name <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#9ba9bb]/60">Optional</span></label>
                 <input id="stage_name" name="stage_name" autoComplete="nickname" value={formData.stage_name} onChange={handleText} className={inputClass} placeholder="Professional or stage name" />
               </div>
               <div>
-                <label htmlFor="email" className={labelClass}>Email <span className="text-[#c9a84c]">*</span></label>
+                <label htmlFor="email" className={labelClass}>Email <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#c9a84c]/80">Required</span></label>
                 <input id="email" type="email" name="email" required autoComplete="email" value={formData.email} onChange={handleText} className={inputClass} placeholder="your@email.com" />
               </div>
               <div>
-                <label htmlFor="phone" className={labelClass}>Phone</label>
+                <label htmlFor="phone" className={labelClass}>Phone <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#9ba9bb]/60">Optional</span></label>
                 <input id="phone" type="tel" name="phone" autoComplete="tel" value={formData.phone} onChange={handleText} className={inputClass} placeholder="(555) 000-0000" />
               </div>
               <div>
-                <label htmlFor="dob" className={labelClass}>Date of Birth <span className="text-[#c9a84c]">*</span></label>
+                <label htmlFor="dob" className={labelClass}>Date of Birth <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#c9a84c]/80">Required</span></label>
                 <input id="dob" type="date" name="dob" required autoComplete="bday" value={formData.dob} onChange={handleText} className={inputClass} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="city" className={labelClass}>City <span className="text-[#c9a84c]">*</span></label>
+                  <label htmlFor="city" className={labelClass}>City <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#c9a84c]/80">Required</span></label>
                   <input id="city" name="city" required autoComplete="address-level2" value={formData.city} onChange={handleText} className={inputClass} placeholder="City" />
                 </div>
                 <div>
-                  <label htmlFor="state" className={labelClass}>State <span className="text-[#c9a84c]">*</span></label>
+                  <label htmlFor="state" className={labelClass}>State <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#c9a84c]/80">Required</span></label>
                   <input id="state" name="state" required autoComplete="address-level1" value={formData.state} onChange={handleText} className={inputClass} placeholder="FL" />
                 </div>
               </div>
               <div>
-                <label htmlFor="bio" className={labelClass}>Bio / Tell Us About Yourself</label>
+                <label htmlFor="bio" className={labelClass}>Bio / Tell Us About Yourself <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#9ba9bb]/60">Optional</span></label>
                 <textarea id="bio" name="bio" value={formData.bio} onChange={handleText} rows={4} className={inputClass} placeholder="Brief background, experience, goals..." />
               </div>
 
@@ -986,7 +1010,7 @@ export default function SubmitPage() {
               </div>
 
               <div>
-                <label className={labelClass}>Representation Type <span className="text-[#c9a84c]">*</span></label>
+                <label className={labelClass}>Representation Type <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#c9a84c]/80">Required</span></label>
                 <div className="flex gap-5 mt-1">
                   {['Exclusive', 'Non-Exclusive'].map(opt => (
                     <GoldRadio
@@ -1001,7 +1025,7 @@ export default function SubmitPage() {
               </div>
 
               <div>
-                <label className={labelClass}>Union Status <span className="text-[#c9a84c]">*</span></label>
+                <label className={labelClass}>Union Status <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#c9a84c]/80">Required</span></label>
                 <div className="flex flex-col gap-3 mt-1">
                   {UNION_STATUSES.map(opt => (
                     <GoldRadio
@@ -1016,18 +1040,23 @@ export default function SubmitPage() {
               </div>
 
               <div>
-                <label className={labelClass}>Talent Categories <span className="text-[#c9a84c]">*</span></label>
-                <p className="text-[#9ba9bb] text-xs mb-3">Select all that apply (at least one required).</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {TALENT_CATEGORIES.map(cat => (
-                    <GoldCheckbox
-                      key={cat}
-                      checked={formData.talent_categories.includes(cat)}
-                      onChange={() => toggleArrayItem('talent_categories', cat)}
-                      label={cat}
-                    />
-                  ))}
-                </div>
+                <label className={labelClass}>Talent Categories <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#c9a84c]/80">Required</span></label>
+                <p className="text-[#9ba9bb] text-xs mb-3">Select all that apply — at least one required.</p>
+                {GROUPED_CATEGORIES.map(({ group, categories }) => (
+                  <div key={group} className="mb-4">
+                    <p className="text-[#c9a84c] text-xs tracking-widest uppercase mb-2">{group}</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {categories.map(cat => (
+                        <GoldCheckbox
+                          key={cat}
+                          checked={formData.talent_categories.includes(cat)}
+                          onChange={() => toggleArrayItem('talent_categories', cat)}
+                          label={cat}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
 
               <ErrorBanner />
@@ -1044,7 +1073,7 @@ export default function SubmitPage() {
               </div>
 
               <div>
-                <label className={labelClass}>Gender <span className="text-[#c9a84c]">*</span></label>
+                <label className={labelClass}>Gender <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#c9a84c]/80">Required</span></label>
                 <select name="gender" value={formData.gender} onChange={handleText} className={inputClass}>
                   <option value="">Select gender</option>
                   {['Male', 'Female', 'Non-Binary', 'Prefer not to say'].map(o => (
@@ -1055,18 +1084,52 @@ export default function SubmitPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className={labelClass}>Height</label>
-                  <input name="height" value={formData.height} onChange={handleText} className={inputClass} placeholder="5'10&quot;" />
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-[#9ba9bb] text-xs tracking-widest uppercase">
+                      Height <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#9ba9bb]/60">Optional</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setHeightUnit(u => u === 'imperial' ? 'metric' : 'imperial')}
+                      className="text-[10px] text-[#c9a84c] border border-[#c9a84c]/30 rounded px-2 py-0.5 hover:border-[#c9a84c]/60 transition-colors"
+                    >
+                      {heightUnit === 'imperial' ? 'ft/in' : 'cm'}
+                    </button>
+                  </div>
+                  <input
+                    name="height"
+                    value={formData.height}
+                    onChange={handleText}
+                    className={inputClass}
+                    placeholder={heightUnit === 'imperial' ? "e.g. 5'10\"" : 'e.g. 178 cm'}
+                  />
                 </div>
                 <div>
-                  <label className={labelClass}>Weight</label>
-                  <input name="weight" value={formData.weight} onChange={handleText} className={inputClass} placeholder="155 lbs" />
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-[#9ba9bb] text-xs tracking-widest uppercase">
+                      Weight <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#9ba9bb]/60">Optional</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setWeightUnit(u => u === 'imperial' ? 'metric' : 'imperial')}
+                      className="text-[10px] text-[#c9a84c] border border-[#c9a84c]/30 rounded px-2 py-0.5 hover:border-[#c9a84c]/60 transition-colors"
+                    >
+                      {weightUnit === 'imperial' ? 'lbs' : 'kg'}
+                    </button>
+                  </div>
+                  <input
+                    name="weight"
+                    value={formData.weight}
+                    onChange={handleText}
+                    className={inputClass}
+                    placeholder={weightUnit === 'imperial' ? 'e.g. 155 lbs' : 'e.g. 70 kg'}
+                  />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className={labelClass}>Hair Color</label>
+                  <label className={labelClass}>Hair Color <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#9ba9bb]/60">Optional</span></label>
                   <select name="hair_color" value={formData.hair_color} onChange={handleText} className={inputClass}>
                     <option value="">Select</option>
                     {['Black', 'Brown', 'Blonde', 'Red', 'Auburn', 'Gray', 'White', 'Other'].map(o => (
@@ -1075,7 +1138,7 @@ export default function SubmitPage() {
                   </select>
                 </div>
                 <div>
-                  <label className={labelClass}>Eye Color</label>
+                  <label className={labelClass}>Eye Color <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#9ba9bb]/60">Optional</span></label>
                   <select name="eye_color" value={formData.eye_color} onChange={handleText} className={inputClass}>
                     <option value="">Select</option>
                     {['Brown', 'Blue', 'Green', 'Hazel', 'Gray', 'Other'].map(o => (
@@ -1086,7 +1149,7 @@ export default function SubmitPage() {
               </div>
 
               <div>
-                <label className={labelClass}>Ethnicity</label>
+                <label className={labelClass}>Ethnicity <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#9ba9bb]/60">Optional</span></label>
                 <p className="text-[#9ba9bb] text-xs mb-3">Select all that apply.</p>
                 <div className="grid grid-cols-1 gap-2">
                   {ETHNICITIES.map(e => (
@@ -1098,20 +1161,22 @@ export default function SubmitPage() {
                     />
                   ))}
                 </div>
+                {formData.ethnicity.includes('Other') && (
+                  <div className="mt-3">
+                    <label className={labelClass}>Self-describe <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#9ba9bb]/60">Optional</span></label>
+                    <input
+                      name="ethnicity_other"
+                      value={formData.ethnicity_other}
+                      onChange={handleText}
+                      className={inputClass}
+                      placeholder="Please describe"
+                    />
+                  </div>
+                )}
               </div>
 
               <div>
-                <label className={labelClass}>Skin Tone</label>
-                <select name="skin_tone" value={formData.skin_tone} onChange={handleText} className={inputClass}>
-                  <option value="">Select</option>
-                  {['Very Fair', 'Fair', 'Light', 'Light Medium', 'Medium', 'Medium Tan', 'Tan', 'Deep Tan', 'Brown', 'Dark Brown', 'Deep'].map(s => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className={labelClass}>Wardrobe Sizes</label>
+                <label className={labelClass}>Wardrobe Sizes <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#9ba9bb]/60">Optional</span></label>
                 {!formData.gender && (
                   <p className="text-[#9ba9bb] text-xs mb-3">Select your gender above to see the appropriate size fields.</p>
                 )}
@@ -1120,11 +1185,11 @@ export default function SubmitPage() {
                 {formData.gender === 'Male' && (
                   <div className="grid grid-cols-2 gap-3">
                     {[
-                      { name: 'neck_size', label: 'Neck', placeholder: 'e.g. 16"' },
-                      { name: 'sleeve_size', label: 'Sleeve', placeholder: 'e.g. 34"' },
+                      { name: 'neck_size', label: 'Neck', placeholder: 'e.g. 16 in' },
+                      { name: 'sleeve_size', label: 'Sleeve', placeholder: 'e.g. 34 in' },
                       { name: 'jacket_size', label: 'Jacket Size', placeholder: 'e.g. 42R' },
-                      { name: 'pant_waist', label: 'Pant Waist', placeholder: 'e.g. 32' },
-                      { name: 'inseam', label: 'Inseam', placeholder: 'e.g. 30"' },
+                      { name: 'pant_waist', label: 'Pant Waist', placeholder: 'e.g. 32 in' },
+                      { name: 'inseam', label: 'Inseam', placeholder: 'e.g. 30 in' },
                       { name: 'hat_size', label: 'Hat Size', placeholder: 'e.g. 7 1/4' },
                       { name: 'shoe_size', label: 'Shoe Size', placeholder: 'e.g. 10.5' },
                     ].map(({ name, label, placeholder }) => (
@@ -1143,9 +1208,9 @@ export default function SubmitPage() {
                       { name: 'dress_size', label: 'Dress Size', placeholder: 'e.g. 6, 8, 10' },
                       { name: 'shirt_size', label: 'Shirt/Blouse Size', placeholder: 'e.g. S, M, L' },
                       { name: 'pant_size', label: 'Pant Size', placeholder: 'e.g. 4, 6, 28' },
-                      { name: 'bust', label: 'Bust', placeholder: 'e.g. 36"' },
-                      { name: 'waist', label: 'Waist', placeholder: 'e.g. 28"' },
-                      { name: 'hip', label: 'Hip', placeholder: 'e.g. 38"' },
+                      { name: 'bust', label: 'Bust', placeholder: 'e.g. 36 in' },
+                      { name: 'waist', label: 'Waist', placeholder: 'e.g. 28 in' },
+                      { name: 'hip', label: 'Hip', placeholder: 'e.g. 38 in' },
                       { name: 'shoe_size', label: 'Shoe Size', placeholder: 'e.g. 8' },
                     ].map(({ name, label, placeholder }) => (
                       <div key={name}>
@@ -1163,11 +1228,11 @@ export default function SubmitPage() {
                       <p className="text-[#c9a84c] text-xs tracking-widest uppercase mb-2">Men&apos;s Sizes (if applicable)</p>
                       <div className="grid grid-cols-2 gap-3">
                         {[
-                          { name: 'neck_size', label: 'Neck', placeholder: 'e.g. 16"' },
-                          { name: 'sleeve_size', label: 'Sleeve', placeholder: 'e.g. 34"' },
+                          { name: 'neck_size', label: 'Neck', placeholder: 'e.g. 16 in' },
+                          { name: 'sleeve_size', label: 'Sleeve', placeholder: 'e.g. 34 in' },
                           { name: 'jacket_size', label: 'Jacket Size', placeholder: 'e.g. 42R' },
-                          { name: 'pant_waist', label: 'Pant Waist', placeholder: 'e.g. 32' },
-                          { name: 'inseam', label: 'Inseam', placeholder: 'e.g. 30"' },
+                          { name: 'pant_waist', label: 'Pant Waist', placeholder: 'e.g. 32 in' },
+                          { name: 'inseam', label: 'Inseam', placeholder: 'e.g. 30 in' },
                           { name: 'hat_size', label: 'Hat Size', placeholder: 'e.g. 7 1/4' },
                           { name: 'shoe_size', label: 'Shoe Size', placeholder: 'e.g. 10' },
                         ].map(({ name, label, placeholder }) => (
@@ -1185,9 +1250,9 @@ export default function SubmitPage() {
                           { name: 'dress_size', label: 'Dress Size', placeholder: 'e.g. 6, 8, 10' },
                           { name: 'shirt_size', label: 'Shirt/Blouse Size', placeholder: 'e.g. S, M, L' },
                           { name: 'pant_size', label: 'Pant Size', placeholder: 'e.g. 4, 6, 28' },
-                          { name: 'bust', label: 'Bust', placeholder: 'e.g. 36"' },
-                          { name: 'waist', label: 'Waist', placeholder: 'e.g. 28"' },
-                          { name: 'hip', label: 'Hip', placeholder: 'e.g. 38"' },
+                          { name: 'bust', label: 'Bust', placeholder: 'e.g. 36 in' },
+                          { name: 'waist', label: 'Waist', placeholder: 'e.g. 28 in' },
+                          { name: 'hip', label: 'Hip', placeholder: 'e.g. 38 in' },
                         ].map(({ name, label, placeholder }) => (
                           <div key={name}>
                             <label className={labelClass}>{label}</label>
@@ -1201,7 +1266,7 @@ export default function SubmitPage() {
               </div>
 
               <div>
-                <label className={labelClass}>Skills</label>
+                <label className={labelClass}>Skills <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#9ba9bb]/60">Optional</span></label>
                 {SKILLS_GROUPS.map(({ group, skills }) => (
                   <div key={group} className="mb-5">
                     <p className="text-[#c9a84c] text-xs tracking-widest uppercase mb-2">{group}</p>
@@ -1222,15 +1287,15 @@ export default function SubmitPage() {
                   <p className="text-[#c9a84c] text-xs tracking-widest uppercase mb-3">Languages & More</p>
                   <div className="flex flex-col gap-3">
                     <div>
-                      <label className={labelClass}>Languages Spoken</label>
+                      <label className={labelClass}>Languages Spoken <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#9ba9bb]/60">Optional</span></label>
                       <input name="languages" value={formData.languages} onChange={handleText} className={inputClass} placeholder="e.g. Spanish, French, Mandarin" />
                     </div>
                     <div>
-                      <label className={labelClass}>Accents / Dialects</label>
+                      <label className={labelClass}>Accents / Dialects <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#9ba9bb]/60">Optional</span></label>
                       <input name="dialects" value={formData.dialects} onChange={handleText} className={inputClass} placeholder="e.g. British RP, Southern American, German accent" />
                     </div>
                     <div>
-                      <label className={labelClass}>Musical Instruments</label>
+                      <label className={labelClass}>Musical Instruments <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#9ba9bb]/60">Optional</span></label>
                       <input name="instruments" value={formData.instruments} onChange={handleText} className={inputClass} placeholder="e.g. Piano, Guitar, Drums" />
                     </div>
                   </div>
@@ -1261,7 +1326,7 @@ export default function SubmitPage() {
               </div>
 
               <FileUploadBox
-                label="Primary Headshot"
+                label="Primary Headshot — JPG, PNG, or WEBP · Max 10 MB"
                 required
                 accept="image/jpeg,image/png,image/webp"
                 slot="headshot"
@@ -1274,7 +1339,7 @@ export default function SubmitPage() {
                 onClearUploaded={() => setUploadedFiles(prev => { const n = { ...prev }; delete n.headshot; return n })}
               />
               <FileUploadBox
-                label="Commercial Headshot"
+                label="Commercial Headshot — JPG, PNG, or WEBP · Max 10 MB · Optional"
                 accept="image/jpeg,image/png,image/webp"
                 slot="commercial_headshot"
                 file={commercialHeadshot}
@@ -1286,7 +1351,7 @@ export default function SubmitPage() {
                 onClearUploaded={() => setUploadedFiles(prev => { const n = { ...prev }; delete n.commercial_headshot; return n })}
               />
               <FileUploadBox
-                label="Theatrical Headshot"
+                label="Theatrical Headshot — JPG, PNG, or WEBP · Max 10 MB · Optional"
                 accept="image/jpeg,image/png,image/webp"
                 slot="theatrical_headshot"
                 file={theatricalHeadshot}
@@ -1298,7 +1363,7 @@ export default function SubmitPage() {
                 onClearUploaded={() => setUploadedFiles(prev => { const n = { ...prev }; delete n.theatrical_headshot; return n })}
               />
               <FileUploadBox
-                label="Full Body Photo"
+                label="Full Body Photo — JPG, PNG, or WEBP · Max 10 MB · Optional"
                 accept="image/jpeg,image/png,image/webp"
                 slot="full_body"
                 file={fullBody}
@@ -1310,7 +1375,7 @@ export default function SubmitPage() {
                 onClearUploaded={() => setUploadedFiles(prev => { const n = { ...prev }; delete n.full_body; return n })}
               />
               <FileUploadBox
-                label="Resume (PDF)"
+                label="Resume — PDF only · Max 5 MB · Optional"
                 accept=".pdf,application/pdf"
                 slot="resume"
                 file={resumeFile}
@@ -1323,16 +1388,16 @@ export default function SubmitPage() {
               />
 
               <div>
-                <label className={labelClass}>Demo Reel URL</label>
+                <label className={labelClass}>Demo Reel URL <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#9ba9bb]/60">Optional</span></label>
                 <input name="demo_reel_url" value={formData.demo_reel_url} onChange={handleText} className={inputClass} placeholder="YouTube or Vimeo link" />
               </div>
               <div>
-                <label className={labelClass}>Voice Reel URL</label>
+                <label className={labelClass}>Voice Reel URL <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#9ba9bb]/60">Optional</span></label>
                 <input name="voice_reel_url" value={formData.voice_reel_url} onChange={handleText} className={inputClass} placeholder="YouTube or SoundCloud link" />
               </div>
 
               <div>
-                <label className={labelClass}>Social Handles</label>
+                <label className={labelClass}>Social Handles <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#9ba9bb]/60">Optional</span></label>
                 <div className="flex flex-col gap-3">
                   <input name="instagram" value={formData.instagram} onChange={handleText} className={inputClass} placeholder="@instagram" />
                   <input name="tiktok" value={formData.tiktok} onChange={handleText} className={inputClass} placeholder="@tiktok" />
@@ -1364,22 +1429,26 @@ export default function SubmitPage() {
               </div>
 
               <div>
-                <label className={labelClass}>Where Do You Have Experience?</label>
-                <p className="text-[#9ba9bb] text-xs mb-3">Select all categories you have active experience in.</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {TALENT_CATEGORIES.map(cat => (
-                    <GoldCheckbox
-                      key={cat}
-                      checked={formData.experience_categories.includes(cat)}
-                      onChange={() => toggleArrayItem('experience_categories', cat)}
-                      label={cat}
-                    />
-                  ))}
-                </div>
+                <label className={labelClass}>Where Do You Have Experience? <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#9ba9bb]/60">Optional</span></label>
+                <p className="text-[#9ba9bb] text-xs mb-3">Your talent categories carry over to your experience record. Select the specific categories below where you have active experience.</p>
+                {formData.talent_categories.length === 0 ? (
+                  <p className="text-[#9ba9bb] text-xs italic">No categories selected in Step 2 — go back to add them.</p>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    {formData.talent_categories.map(cat => (
+                      <GoldCheckbox
+                        key={cat}
+                        checked={formData.experience_categories.includes(cat)}
+                        onChange={() => toggleArrayItem('experience_categories', cat)}
+                        label={cat}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div>
-                <label className={labelClass}>Experience Level <span className="text-[#c9a84c]">*</span></label>
+                <label className={labelClass}>Experience Level <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#c9a84c]/80">Required</span></label>
                 <div className="flex flex-col gap-3 mt-1">
                   {EXPERIENCE_LEVELS.map(lvl => (
                     <GoldRadio
@@ -1394,8 +1463,8 @@ export default function SubmitPage() {
               </div>
 
               <div>
-                <label className={labelClass}>Notable Credits</label>
-                <p className="text-[#9ba9bb] text-xs mb-2">List any TV shows, films, commercials, or stage productions you&apos;ve appeared in.</p>
+                <label className={labelClass}>Notable Credits <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#9ba9bb]/60">Optional</span></label>
+                <p className="text-[#9ba9bb] text-xs mb-2">List any TV shows, films, commercials, or stage productions you&apos;ve appeared in. If you uploaded a resume, you can skip this.</p>
                 <textarea
                   name="notable_credits"
                   value={formData.notable_credits}
@@ -1420,7 +1489,7 @@ export default function SubmitPage() {
               </div>
 
               <div>
-                <label className={labelClass}>Availability Type</label>
+                <label className={labelClass}>Availability Type <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#9ba9bb]/60">Optional</span></label>
                 <div className="flex flex-col gap-3 mt-1">
                   {AVAILABILITY_OPTIONS.map(opt => (
                     <GoldCheckbox
@@ -1461,7 +1530,7 @@ export default function SubmitPage() {
               </div>
 
               <div>
-                <label className={labelClass}>Local Hire Markets</label>
+                <label className={labelClass}>Local Hire Markets <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-[#9ba9bb]/60">Optional</span></label>
                 <input
                   name="local_hire_markets"
                   value={formData.local_hire_markets}
@@ -1488,30 +1557,36 @@ export default function SubmitPage() {
               {[
                 {
                   title: 'Personal Info',
+                  step: 1,
                   rows: [
                     ['Name', `${formData.first_name} ${formData.last_name}${formData.stage_name ? ` (${formData.stage_name})` : ''}`],
                     ['Email', formData.email],
-                    ['Phone', formData.phone || '—'],
-                    ['Date of Birth', formData.dob || '—'],
+                    ['Phone', formData.phone || 'Not provided'],
+                    ['Date of Birth', formData.dob || 'Not provided'],
                     ['Location', `${formData.city}, ${formData.state}`],
-                    ['Bio', formData.bio || '—'],
+                    ['Bio', formData.bio || 'Not provided'],
                   ],
                 },
                 {
                   title: 'Talent Details',
+                  step: 2,
                   rows: [
-                    ['Representation', formData.representation_type || '—'],
-                    ['Union Status', formData.union_status || '—'],
-                    ['Categories', formData.talent_categories.join(', ') || '—'],
+                    ['Representation', formData.representation_type || 'Not provided'],
+                    ['Union Status', formData.union_status || 'Not provided'],
+                    ['Categories', formData.talent_categories.join(', ') || 'Not provided'],
                   ],
                 },
                 {
                   title: 'Attributes & Skills',
+                  step: 3,
                   rows: [
-                    ['Gender', formData.gender || '—'],
-                    ['Height / Weight', `${formData.height || '—'} / ${formData.weight || '—'}`],
-                    ['Hair / Eyes', `${formData.hair_color || '—'} / ${formData.eye_color || '—'}`],
-                    ['Ethnicity', formData.ethnicity.join(', ') || '—'],
+                    ['Gender', formData.gender || 'Not provided'],
+                    ['Height / Weight', `${formData.height || 'Not provided'} / ${formData.weight || 'Not provided'}`],
+                    ['Hair / Eyes', `${formData.hair_color || 'Not provided'} / ${formData.eye_color || 'Not provided'}`],
+                    ['Ethnicity', [
+                      ...formData.ethnicity,
+                      formData.ethnicity.includes('Other') && formData.ethnicity_other ? `(${formData.ethnicity_other})` : '',
+                    ].filter(Boolean).join(', ') || 'Not provided'],
                     ['Wardrobe', [
                       formData.neck_size && `Neck: ${formData.neck_size}`,
                       formData.sleeve_size && `Sleeve: ${formData.sleeve_size}`,
@@ -1526,51 +1601,65 @@ export default function SubmitPage() {
                       formData.waist && `Waist: ${formData.waist}`,
                       formData.hip && `Hip: ${formData.hip}`,
                       formData.shoe_size && `Shoe: ${formData.shoe_size}`,
-                    ].filter(Boolean).join(', ') || '—'],
-                    ['Skin Tone', formData.skin_tone || '—'],
-                    ['Skills', formData.skills.join(', ') || '—'],
-                    ['Languages', formData.languages || '—'],
-                    ['Accents / Dialects', formData.dialects || '—'],
-                    ['Instruments', formData.instruments || '—'],
+                    ].filter(Boolean).join(', ') || 'Not provided'],
+                    ['Skills', formData.skills.join(', ') || 'Not provided'],
+                    ['Languages', formData.languages || 'Not provided'],
+                    ['Accents / Dialects', formData.dialects || 'Not provided'],
+                    ['Instruments', formData.instruments || 'Not provided'],
                   ],
                 },
                 {
                   title: 'Media',
+                  step: 4,
                   rows: [
-                    ['Primary Headshot', headshot?.name || '—'],
-                    ['Commercial Headshot', commercialHeadshot?.name || '—'],
-                    ['Theatrical Headshot', theatricalHeadshot?.name || '—'],
-                    ['Full Body', fullBody?.name || '—'],
-                    ['Resume', resumeFile?.name || '—'],
-                    ['Demo Reel', formData.demo_reel_url || '—'],
-                    ['Voice Reel', formData.voice_reel_url || '—'],
-                    ['Instagram', formData.instagram || '—'],
-                    ['TikTok', formData.tiktok || '—'],
-                    ['YouTube', formData.youtube || '—'],
+                    ['Primary Headshot', headshot?.name || uploadedFiles.headshot?.name || 'Not provided'],
+                    ['Commercial Headshot', commercialHeadshot?.name || uploadedFiles.commercial_headshot?.name || 'Not provided'],
+                    ['Theatrical Headshot', theatricalHeadshot?.name || uploadedFiles.theatrical_headshot?.name || 'Not provided'],
+                    ['Full Body', fullBody?.name || uploadedFiles.full_body?.name || 'Not provided'],
+                    ['Resume', resumeFile?.name || uploadedFiles.resume?.name || 'Not provided'],
+                    ['Demo Reel', formData.demo_reel_url || 'Not provided'],
+                    ['Voice Reel', formData.voice_reel_url || 'Not provided'],
+                    ['Instagram', formData.instagram || 'Not provided'],
+                    ['TikTok', formData.tiktok || 'Not provided'],
+                    ['YouTube', formData.youtube || 'Not provided'],
                   ],
                 },
                 {
                   title: 'Experience',
+                  step: 5,
                   rows: [
-                    ['Experience Categories', formData.experience_categories.join(', ') || '—'],
-                    ['Experience Level', formData.experience_level || '—'],
-                    ['Notable Credits', formData.notable_credits || '—'],
+                    ['Experience Categories', formData.experience_categories.join(', ') || 'Not provided'],
+                    ['Experience Level', formData.experience_level || 'Not provided'],
+                    ['Notable Credits', formData.notable_credits
+                      ? formData.notable_credits
+                      : (uploadedFiles.resume || resumeFile)
+                        ? 'Resume uploaded — see Media'
+                        : 'Not provided'],
                   ],
                 },
                 {
                   title: 'Availability',
+                  step: 6,
                   rows: [
-                    ['Availability', formData.availability_type.join(', ') || '—'],
+                    ['Availability', formData.availability_type.join(', ') || 'Not provided'],
+                    ['Will Travel', formData.will_travel ? 'Yes' : 'No'],
                     ['Passport', formData.has_passport ? 'Yes' : 'No'],
                     ["Driver's License", formData.has_drivers_license ? 'Yes' : 'No'],
                     ['Transportation', formData.has_transportation ? 'Yes' : 'No'],
-                    ['Local Markets', formData.local_hire_markets || '—'],
+                    ['Local Markets', formData.local_hire_markets || 'Not provided'],
                   ],
                 },
               ].map(section => (
                 <div key={section.title} className="border border-[rgba(201,168,76,0.15)] rounded-lg overflow-hidden">
-                  <div className="bg-[rgba(201,168,76,0.06)] px-5 py-3 border-b border-[rgba(201,168,76,0.15)]">
+                  <div className="bg-[rgba(201,168,76,0.06)] px-5 py-3 border-b border-[rgba(201,168,76,0.15)] flex items-center justify-between">
                     <p className="text-[#c9a84c] text-xs tracking-widest uppercase">{section.title}</p>
+                    <button
+                      type="button"
+                      onClick={() => { setErrors([]); setStep(section.step) }}
+                      className="text-[#9ba9bb] text-xs hover:text-[#c9a84c] transition-colors"
+                    >
+                      Edit
+                    </button>
                   </div>
                   <div className="divide-y divide-[rgba(201,168,76,0.08)]">
                     {section.rows.map(([key, val]) => (

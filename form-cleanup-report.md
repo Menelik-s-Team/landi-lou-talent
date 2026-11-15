@@ -1,0 +1,186 @@
+# Form Cleanup Report — Landi-Lou Talent Agency
+Branch: fix/form-cleanup | November 2026 commitment to Donnette
+
+---
+
+## Step 1 — Form Map (Read Only)
+
+### File
+`app/submit/page.tsx` — 1,687 lines, single client component, 7-step wizard.
+
+### Steps & Fields
+
+**Step 1 — Personal Info**
+- First Name (required), Last Name (required), Stage Name (optional)
+- Email (required), Phone (optional)
+- Date of Birth (required), City (required), State (required)
+- Bio (optional)
+- Guardian section — conditional on DOB showing minor:
+  - Guardian Full Name (required if minor), Relationship, Guardian Email (required if minor), Guardian Phone
+
+**Step 2 — Talent Details**
+- Representation Type (required): Exclusive / Non-Exclusive
+- Union Status (required): SAG-AFTRA / SAG-Eligible / Equity / EMC / Non-Union / Other
+- Talent Categories (required, at least one): 16 options in flat 2-column grid — Actor, Commercial, Television, Theatre, Print, Fashion, Modeling, Lifestyle, Voice Over, Singer, Dancer, Host, Influencer, Children & Youth, Fitness, Specialty Talent
+
+**Step 3 — Attributes & Skills**
+- Gender (required): Male / Female / Non-Binary / Prefer not to say
+- Height (optional), Weight (optional) — freetext, no unit hints
+- Hair Color (optional), Eye Color (optional) — select dropdowns
+- Ethnicity (optional): 8 checkbox options (Other included)
+- Skin Tone (optional) — select dropdown — FLAGGED FOR REMOVAL
+- Wardrobe Sizes (optional): gender-conditional sets; Male (neck, sleeve, jacket, pant waist, inseam, hat, shoe); Female (dress, shirt, pant, bust, waist, hip, shoe); Non-Binary/PNTS shows both
+- Skills (optional): 4 groups × checkbox grid
+- Languages Spoken (optional), Accents / Dialects (optional), Musical Instruments (optional)
+
+**Step 4 — Media**
+- Primary Headshot (required): JPG/PNG/WEBP, max 10 MB — no format hint on the label
+- Commercial Headshot, Theatrical Headshot, Full Body Photo — optional, same formats
+- Resume (PDF) — optional; no format/size hint on the label
+- Demo Reel URL (optional), Voice Reel URL (optional)
+- Social Handles: Instagram, TikTok, YouTube (all optional)
+
+**Step 5 — Experience**
+- Experience Categories (optional): same full 16-item flat list as Step 2 — REDUNDANT
+- Experience Level (required): Beginner / Intermediate / Professional / Extensive Credits
+- Notable Credits (optional): textarea
+
+**Step 6 — Availability**
+- Availability Type (optional): 4 options — "Local Hire Only", "Available to Travel", "Available Nationally", "Available Internationally" — FIRST TWO OVERLAP with will_travel + local_hire_markets
+- Will travel boolean (optional), Has passport (optional), Has driver's license (optional), Has transportation (optional)
+- Local Hire Markets (optional): freetext
+
+**Step 7 — Review**
+- Displays all prior data, renders "—" for empty values
+- skin_tone shown — FLAGGED FOR REMOVAL
+- will_travel NOT shown in Availability section — OVERSIGHT
+- No Edit button per section — FLAGGED
+- No ethnicity_other self-describe display
+
+### API surface
+- `POST /api/submissions/start` — creates the DB record, stores categories, skin_tone, etc.
+- `POST /api/submissions/[id]/upload-url` — signs upload URLs
+- `PATCH /api/submissions/[id]/file` — records confirmed file path
+- `POST /api/submissions/[id]/finalize` — final submit with all fields; sends talent confirmation email + admin notification
+  - Confirmation email body: "We will be in touch if there is a fit." + "Excellence is a practice." — NO next-steps passage
+
+### Database notes
+- `skin_tone` column: text, no constraint, exists in talent_submissions (migration 007) — 24 of 35 submissions carry values. DO NOT DROP.
+- `ethnicity_other` column: does NOT yet exist — needs additive migration (013).
+- `ethnicity`: text[], no CHECK constraint — safe to modify values.
+- `availability_type`: text[], no CHECK constraint — safe to remove options from UI.
+
+### Issues found (all fixed in Steps 2–8)
+1. Skin tone question — present in form, review screen; not in admin view — remove from form/review
+2. Ethnicity missing self-describe — no ethnicity_other column or input
+3. Category list asked twice (Step 2 and Step 5 identically) — Step 5 should filter to Step 2 selections
+4. availability_type has redundant "Local Hire Only" / "Available to Travel" overlapping boolean fields
+5. Height/weight lack unit hints or toggle
+6. Wardrobe measurement placeholders lack unit labels
+7. Resume upload: credits are optional but no note when resume makes credits redundant
+8. Review screen: "—" instead of "Not provided" for empty values
+9. Review screen: no Edit buttons per section
+10. Review screen: will_travel not displayed in Availability section
+11. No Required/Optional labels on form fields
+12. No format/size info on upload fields
+13. Confirmation email: no next-steps passage
+
+---
+
+## Step 2 — Remove Skin Tone
+
+Removed from:
+- `FormData` type (skin_tone field)
+- Initial `formData` state
+- Step 3 form (the select element and its wrapping div, lines 1103–1111)
+- Review screen (Attributes & Skills section, skin_tone row)
+- `buildStartPayload` (skin_tone key)
+- `app/api/submissions/[id]/finalize/route.ts` (skin_tone update line)
+
+NOT changed: DB column `skin_tone` retained as-is, stored values preserved.
+Admin view: skin_tone was not rendered there — no change needed.
+
+---
+
+## Step 3 — Ethnicity Self-Describe
+
+Migration: `supabase/migrations/013_ethnicity_other.sql`
+- Adds `ethnicity_other text` to `talent_submissions`
+- Additive only — no drops, no data modification
+
+Form changes:
+- `ethnicity_other: string` added to `FormData` type and initial state
+- Text input shown below ethnicity checklist when "Other" is checked
+- Placeholder: "Please describe"
+- Added to `buildStartPayload` and finalize payload/update
+
+Review screen: added `ethnicity_other` row under Ethnicity in Attributes & Skills (shows only when non-empty).
+
+---
+
+## Step 4 — Categories Asked Once
+
+`GROUPED_CATEGORIES` constant replaces flat `TALENT_CATEGORIES` on Step 2:
+- Disciplines: Actor, Singer, Dancer, Host, Voice Over, Influencer
+- Work Types: Commercial, Television, Theatre, Print, Fashion, Modeling, Lifestyle, Fitness, Specialty Talent
+- Age Markets: Children & Youth
+
+Step 5 now shows only the categories selected in Step 2 (`formData.talent_categories`).
+Pre-population: `useEffect` on step — when navigating to Step 5 with empty `experience_categories`, pre-populates from `talent_categories`.
+
+---
+
+## Step 5 — Travel Consolidation
+
+`AVAILABILITY_OPTIONS` reduced from 4 to 2 — removed:
+- "Local Hire Only" (overlaps with local_hire_markets text field)
+- "Available to Travel" (overlaps with will_travel boolean)
+
+Kept: "Available Nationally", "Available Internationally"
+No DB migration needed — `availability_type` has no CHECK constraint.
+
+---
+
+## Step 6 — Measurement Fields with Units
+
+Height and Weight fields: added `heightUnit` / `weightUnit` local state (default: imperial).
+Toggle button (ft/in ↔ cm, lbs ↔ kg) appears inline with the label.
+Placeholder updates dynamically based on selected unit.
+Value stored as freetext — the user types in whatever they enter; the placeholder guides the format.
+
+Wardrobe measurement placeholders updated to include units explicitly (e.g. "e.g. 16 in", "e.g. 36 in").
+
+---
+
+## Step 7 — Resume Makes Credits Optional
+
+No validation change needed (notable_credits was already optional).
+Review screen: Notable Credits row now shows "Resume uploaded — see Media" when `notable_credits` is empty and a resume has been uploaded.
+
+---
+
+## Step 8 — Polish
+
+- Required/Optional labels added to all fields (inline spans in amber for Required, muted for Optional)
+- Format/size info added to all upload slots
+- Edit button added to each review section header (calls `setStep(n)`)
+- "—" → "Not provided" throughout review screen
+- `will_travel` added to Availability section of review screen
+- Next-steps passage added to talent confirmation email:
+  > What happens next: Our team reviews every profile personally. If your background matches an open opportunity, we will reach out directly by email. This process may take several weeks — we appreciate your patience.
+
+---
+
+## Migration Applied
+
+`013_ethnicity_other.sql` — additive only, no drops.
+
+---
+
+## Verification
+
+(Playwright results to be appended after Step 9 runs)
+
+---
+
+*Gate pending — do not merge, do not deploy.*
