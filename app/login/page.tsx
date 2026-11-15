@@ -99,7 +99,13 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="text-[#9ba9bb] text-xs text-center mt-6">
+          <p className="text-center mt-5">
+            <Link href="/forgot-password" className="text-[#9ba9bb] text-xs hover:text-[#c9a84c] transition-colors">
+              Forgot password?
+            </Link>
+          </p>
+
+          <p className="text-[#9ba9bb] text-xs text-center mt-4">
             Don&apos;t have an account?{' '}
             <Link href="/submit" className="text-[#c9a84c] hover:text-[#e8c97a] transition-colors">
               Submit your talent profile
