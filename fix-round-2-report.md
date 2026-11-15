@@ -533,3 +533,56 @@ Vercel read-back: `PORTAL_LINK_EXPIRY_LABEL  Encrypted  Production  (4s ago)` �
 
 No redeployment triggered. The variable will take effect when Round 2 merges and the next production build deploys.
 
+
+---
+
+## Preview Verification — 2026-11-15
+
+**Deployment:** `https://landi-bgr0dp9z2-melos-projects-32303525.vercel.app`
+**Env vars confirmed in Preview environment:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `NEXT_PUBLIC_SITE_URL` (pointing to production), `PORTAL_LINK_EXPIRY_LABEL`
+
+---
+
+### What was verified
+
+| Item | Result |
+|------|--------|
+| Preview deployment builds and serves the app | ✓ |
+| Vercel SSO protection disabled (preview was accessible without Vercel login) | ✓ |
+| All 6 required env vars present in Vercel Preview environment | ✓ |
+| `/submit` page loads | ✓ |
+| `/admin` login page loads | ✓ |
+| `/forgot-password` page loads and shows branded form | ✓ |
+| Test submission `326ef4ae` created on production Supabase via preview form | ✓ |
+
+---
+
+### What could NOT be verified (and why)
+
+The full email link-click chain (approve → email → click → set password → portal) could not be verified on the preview because of a Supabase platform constraint:
+
+**Root cause:** `supabase.auth.admin.generateLink()` validates `redirect_to` against the project's configured `site_url`. For any `redirect_to` value that does not match `site_url`, Supabase silently strips it and falls back to `site_url` (`https://landiloutalentagency.com`). This applies even when the alternative URL is in the Supabase dashboard "Redirect URLs" allowlist — the allowlist controls the client-side auth flow, but the admin `generateLink` API uses a stricter server-side validation.
+
+**Confirmed twice:** Owner confirmed the preview URL `https://landi-bgr0dp9z2-melos-projects-32303525.vercel.app` was already in the dashboard allowlist. `generateLink` still stripped it. This is a Supabase platform limitation, not a code bug.
+
+**Impact:** None. The code change that introduced this was a siteUrl fallback for the `VERCEL_URL` env var — this fallback correctly produces the right URL when `NEXT_PUBLIC_SITE_URL` is not set. On production, `NEXT_PUBLIC_SITE_URL` is always set to `https://landiloutalentagency.com`, so the fallback chain never fires in production.
+
+**Items that could only be verified on production:**
+- Approval email arrives with correct onboarding + portal access links
+- Forgot Password email arrives with branded Resend template
+- Resend Portal Access email arrives (admin tool)
+- Extend Onboarding Link email arrives (admin tool)
+- Password set via email link, login to portal succeeds
+
+---
+
+### Decision
+
+Owner authorized proceeding to production merge based on:
+1. Code logic verified in Phase A (dry-run tests 1–4)
+2. All infrastructure confirmed (Supabase config, Vercel env vars, Resend sender identity)
+3. Preview deployment confirmed functional for all non-email surfaces
+4. Email delivery will be verified in the production live test section below
+
+**Orphan test record created during preview session:** `326ef4ae-2f7f-4cc1-aaa4-5359e22786db` (TEST Round2 Preview, menelikgarrick@gmail.com) — no approval was run, so no talent_profile, auth user, or onboarding portfolio was created for this record. Deleted before merge.
+
