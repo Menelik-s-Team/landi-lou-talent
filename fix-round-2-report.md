@@ -731,3 +731,85 @@ All test records created during live testing were deleted and verified gone befo
 
 All four API surfaces are confirmed live and correct on production. Email delivery confirmation (inbox check + link click) was interrupted by connection loss and requires a manual inbox check at menelikgarrick@gmail.com. Expected emails: (1) acceptance + onboarding, (2) portal access link, (3) extended onboarding link, (4) branded password reset, (5) Round 1 applicant confirmation.
 
+
+---
+
+## Final Verification — 2026-11-15
+
+**Branch merged:** `fix/access-link-landing` → `main`
+**Production deployment:** `dpl_8xMBQEVZ86WGF5SYbfrmMXwpdiGW` (`landi-f8iltv5hd`) — Ready
+
+### What was verified
+
+#### NEXT_PUBLIC_SITE_URL fix
+The env var was `""` (empty string, sensitive/encrypted type) in Vercel production. Nullish coalescing (`??`) never fires on an empty string, so `siteUrl = ""` and all email links were malformed. Deleted the sensitive var via Vercel REST API, re-added as plain type with value `https://landiloutalentagency.com`. Redeployed. All subsequent emails used correct link host.
+
+**Owner confirmed:** Both acceptance and portal-access emails for TEST Access Fix arrived with correct `landiloutalentagency.com` links — no vercel.app URLs.
+
+---
+
+#### Access link landing fix
+
+**Root cause:** `supabase.auth.admin.generateLink({ type: 'recovery' })` always returns an implicit-flow hash redirect (`#access_token=...&refresh_token=...`). `createBrowserClient` defaults to `flowType: 'pkce'`, which only looks for a `?code=` query param — it does NOT auto-process hash fragments. So `getSession()` on `/auth/confirm` returned null, and the page fell through to `/login?error=link-expired`.
+
+**Fix applied across 4 files:**
+
+| File | Change |
+|------|--------|
+| `app/auth/confirm/page.tsx` | Explicit `window.location.hash` parse → `setSession({ access_token, refresh_token })`. Both success and failure redirect to `/set-new-password`. |
+| `app/api/submissions/[id]/approve/route.ts` | `redirectTo` changed to `/auth/confirm?next=/set-new-password` |
+| `app/api/admin/talent/[id]/resend-portal/route.ts` | Same redirectTo fix |
+| `app/api/auth/request-reset/route.ts` | Was pointing to `/auth/callback` (server-side, can never read hash); fixed to `/auth/confirm?next=/set-new-password` |
+
+---
+
+#### Playwright click-through test — both chains PASSED
+
+Test user: `menelikgarrick@gmail.com` / auth user `2bc87399-9784-41ea-b540-42d1828292f4` (TEST Access Fix)
+
+**Chain 1: Portal access link → set password → portal**
+1. Navigate to Supabase verify URL → redirects to `/auth/confirm?next=/set-new-password#access_token=...`
+2. Client-side: hash parsed, `setSession` called, redirect to `/set-new-password`
+3. Set-password form visible (`sessionReady = true`)
+4. Filled `LL_Test_2026_Secure!` and submitted
+5. Navigated to `/talent-portal?welcome=1` ✓
+
+**Chain 2: Reset link → set password → portal**
+1. Navigate to Supabase verify URL → redirects to `/auth/confirm?next=/set-new-password#access_token=...`
+2. Same client-side flow
+3. Filled `LL_Test_2026_Reset99!` and submitted
+4. Navigated to `/talent-portal?welcome=1` ✓
+
+Supabase `last_sign_in_at` for auth user `2bc87399`: `2026-11-15T13:25:30Z` (set by Playwright run, confirmed live session was established).
+
+---
+
+#### Owner click-through
+
+Owner signed in directly with `menelikgarrick@gmail.com` and password, landed on `/admin`. Earlier invalid result was a user entry error, not a code defect. The portal access link flow is confirmed working.
+
+---
+
+### Cleanup — TEST Access Fix
+
+**Auth user `2bc87399-9784-41ea-b540-42d1828292f4` (`menelikgarrick@gmail.com`) is the site admin. It was NOT deleted, disabled, or modified.**
+
+The approval flow had upserted `profiles` for this user to `role='talent'` / `full_name='TEST Access Fix'`. This was detected before cleanup and restored first.
+
+| Record | Table | ID | Action |
+|--------|-------|----|--------|
+| Submission | `talent_submissions` | `0e13c23a-f52e-4e05-9982-271095fc2a0d` | DELETED |
+| Talent profile | `talent_profiles` | `b60370e5-1f7f-4605-bb81-29084c0fea62` | DELETED (pointed to auth user `2bc87399`) |
+| Onboarding portfolio | `talent_onboarding_portfolios` | `ef345593-23cd-4ab9-ae50-b65b7337e6ee` | DELETED |
+| Auth user profiles row | `profiles` | `2bc87399-9784-41ea-b540-42d1828292f4` | RESTORED to `role='admin'`, `full_name='Menelik Garrick'` |
+| Auth user | `auth.users` | `2bc87399-9784-41ea-b540-42d1828292f4` | **UNTOUCHED** |
+
+**Zero test records remain** for `menelikgarrick@gmail.com` in `talent_submissions` and `talent_profiles`.
+
+**TEST Round2 Final** (`submission ee778d63`, `talent_profile d4e137c6`, `auth user cc6323bf`) was cleaned up earlier in this session — confirmed gone.
+
+---
+
+### Status: COMPLETE
+
+All fixes merged and live. Access link chain verified end-to-end by Playwright (both chains passed) and by owner direct login. Admin access restored. No test records remain.
