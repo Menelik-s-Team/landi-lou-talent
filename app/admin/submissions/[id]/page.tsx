@@ -90,6 +90,8 @@ export default async function SubmissionDetailPage({ params }: { params: Promise
                 ['Location', `${s.city}, ${s.state}`],
                 ['Minor', s.is_minor ? 'Yes' : 'No'],
                 ['Submitted', new Date(s.created_at).toLocaleDateString()],
+                ...(s.height ? [['Height', s.height_unit ? `${s.height} (${s.height_unit})` : s.height]] : []),
+                ...(s.weight ? [['Weight', s.weight_unit ? `${s.weight} (${s.weight_unit})` : s.weight]] : []),
               ].map(([label, value]) => (
                 <div key={label as string}>
                   <p className="text-[#9ba9bb] text-xs mb-1">{label}</p>

@@ -124,7 +124,9 @@ type FormData = {
   // Step 3
   gender: string
   height: string
+  height_unit: string
   weight: string
+  weight_unit: string
   hair_color: string
   eye_color: string
   ethnicity: string[]
@@ -188,8 +190,6 @@ export default function SubmitPage() {
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
   const [hasDraft, setHasDraft] = useState(false)
-  const [heightUnit, setHeightUnit] = useState<'imperial' | 'metric'>('imperial')
-  const [weightUnit, setWeightUnit] = useState<'imperial' | 'metric'>('imperial')
 
   // Submission record (created on first file upload)
   const [submissionId, setSubmissionId] = useState<string | null>(null)
@@ -213,7 +213,7 @@ export default function SubmitPage() {
     first_name: '', last_name: '', stage_name: '', email: '', phone: '',
     dob: '', city: '', state: 'FL', bio: '',
     representation_type: '', union_status: '', talent_categories: [],
-    gender: '', height: '', weight: '', hair_color: '', eye_color: '',
+    gender: '', height: '', height_unit: 'ft/in', weight: '', weight_unit: 'lbs', hair_color: '', eye_color: '',
     ethnicity: [],
     neck_size: '', sleeve_size: '', jacket_size: '', pant_waist: '', inseam: '', hat_size: '',
     shirt_size: '', pant_size: '', bust: '', waist: '', hip: '', dress_size: '',
@@ -366,7 +366,9 @@ export default function SubmitPage() {
       categories: formData.talent_categories,
       gender: formData.gender,
       height: formData.height,
+      height_unit: formData.height_unit || undefined,
       weight: formData.weight,
+      weight_unit: formData.weight_unit || undefined,
       hair_color: formData.hair_color,
       eye_color: formData.eye_color,
       ethnicity: formData.ethnicity,
@@ -1090,10 +1092,10 @@ export default function SubmitPage() {
                     </label>
                     <button
                       type="button"
-                      onClick={() => setHeightUnit(u => u === 'imperial' ? 'metric' : 'imperial')}
+                      onClick={() => set('height_unit', formData.height_unit === 'cm' ? 'ft/in' : 'cm')}
                       className="text-[10px] text-[#c9a84c] border border-[#c9a84c]/30 rounded px-2 py-0.5 hover:border-[#c9a84c]/60 transition-colors"
                     >
-                      {heightUnit === 'imperial' ? 'ft/in' : 'cm'}
+                      {formData.height_unit === 'cm' ? 'cm' : 'ft/in'}
                     </button>
                   </div>
                   <input
@@ -1101,7 +1103,7 @@ export default function SubmitPage() {
                     value={formData.height}
                     onChange={handleText}
                     className={inputClass}
-                    placeholder={heightUnit === 'imperial' ? "e.g. 5'10\"" : 'e.g. 178 cm'}
+                    placeholder={formData.height_unit === 'cm' ? 'e.g. 178 cm' : "e.g. 5'10\""}
                   />
                 </div>
                 <div>
@@ -1111,10 +1113,10 @@ export default function SubmitPage() {
                     </label>
                     <button
                       type="button"
-                      onClick={() => setWeightUnit(u => u === 'imperial' ? 'metric' : 'imperial')}
+                      onClick={() => set('weight_unit', formData.weight_unit === 'kg' ? 'lbs' : 'kg')}
                       className="text-[10px] text-[#c9a84c] border border-[#c9a84c]/30 rounded px-2 py-0.5 hover:border-[#c9a84c]/60 transition-colors"
                     >
-                      {weightUnit === 'imperial' ? 'lbs' : 'kg'}
+                      {formData.weight_unit === 'kg' ? 'kg' : 'lbs'}
                     </button>
                   </div>
                   <input
@@ -1122,7 +1124,7 @@ export default function SubmitPage() {
                     value={formData.weight}
                     onChange={handleText}
                     className={inputClass}
-                    placeholder={weightUnit === 'imperial' ? 'e.g. 155 lbs' : 'e.g. 70 kg'}
+                    placeholder={formData.weight_unit === 'kg' ? 'e.g. 70 kg' : 'e.g. 155 lbs'}
                   />
                 </div>
               </div>
@@ -1581,7 +1583,7 @@ export default function SubmitPage() {
                   step: 3,
                   rows: [
                     ['Gender', formData.gender || 'Not provided'],
-                    ['Height / Weight', `${formData.height || 'Not provided'} / ${formData.weight || 'Not provided'}`],
+                    ['Height / Weight', `${formData.height ? `${formData.height}${formData.height_unit ? ` (${formData.height_unit})` : ''}` : 'Not provided'} / ${formData.weight ? `${formData.weight}${formData.weight_unit ? ` (${formData.weight_unit})` : ''}` : 'Not provided'}`],
                     ['Hair / Eyes', `${formData.hair_color || 'Not provided'} / ${formData.eye_color || 'Not provided'}`],
                     ['Ethnicity', [
                       ...formData.ethnicity,

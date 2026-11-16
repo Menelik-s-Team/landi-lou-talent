@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     const {
       first_name, last_name, email, phone, dob, city, state, bio,
       stage_name, representation_type, union_status, categories,
-      gender, height, weight, hair_color, eye_color,
+      gender, height, height_unit, weight, weight_unit, hair_color, eye_color,
       ethnicity, ethnicity_other, wardrobe_sizes, shoe_size, skills,
       languages, dialects, instruments,
       demo_reel_url, voice_reel_url, instagram, tiktok, youtube,
@@ -62,7 +62,9 @@ export async function POST(req: NextRequest) {
         categories: toArr(categories),
         gender: gender ? String(gender) : null,
         height: height ? String(height) : null,
+        height_unit: height_unit ? String(height_unit) : null,
         weight: weight ? String(weight) : null,
+        weight_unit: weight_unit ? String(weight_unit) : null,
         hair_color: hair_color ? String(hair_color) : null,
         eye_color: eye_color ? String(eye_color) : null,
         ethnicity: toArr(ethnicity),

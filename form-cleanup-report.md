@@ -206,4 +206,58 @@ Commits: `69cbf90` (feature changes), `10a0636` (Playwright tests)
 
 ---
 
-*Gate pending — do not merge, do not deploy.*
+---
+
+## Send-Back — Fix 1 + Fix 2
+
+### Fix 1: Height/Weight Unit Storage
+
+**Migration**: `supabase/migrations/014_height_weight_unit.sql`
+- Adds `height_unit text` and `weight_unit text` to `talent_submissions` and `talent_profiles` (additive, no drops)
+- Applied to remote via `supabase db query --linked`
+
+**Storage shape**: Two separate `text` columns (`height_unit`, `weight_unit`). Values: `'ft/in'` or `'cm'` for height; `'lbs'` or `'kg'` for weight. Stored verbatim with the submission so the value is unambiguous without unit inference. Existing submissions carry NULL — displayed as value-only in review and admin.
+
+**FormData changes**:
+- Removed `const [heightUnit, setHeightUnit] = useState<...>` and `weightUnit` from component state
+- Added `height_unit: string` and `weight_unit: string` to `FormData` type
+- Initial state: `height_unit: 'ft/in'`, `weight_unit: 'lbs'` (defaults shown on toggle button)
+- Toggle buttons now call `set('height_unit', ...)` and `set('weight_unit', ...)` — values persist to localStorage draft
+
+**API changes**:
+- `buildStartPayload`: added `height_unit` and `weight_unit`
+- `start/route.ts`: destructures + inserts both columns
+- `finalize/route.ts`: updates both columns in final PATCH
+
+**Review screen**: Height/Weight row shows `"5'10\" (ft/in) / 155 lbs (lbs)"` when units are present; falls back to value-only for NULL units (existing submissions).
+
+**Admin detail page** (`app/admin/submissions/[id]/page.tsx`): Height and Weight rows added to Basic Information grid. Each row shows value with unit in parentheses if present; omitted entirely if `s.height` / `s.weight` is null.
+
+---
+
+### Fix 2: Real E2E Submissions — Results
+
+All 8 tests passed — 4 scenarios × 2 viewports (Desktop Chrome, Mobile 390×844).
+
+**Run**: `npx playwright test tests/e2e-submissions.spec.ts --project desktop-chrome --project mobile-390x844`
+**Duration**: 57.9 s — 8/8 passed
+
+| Test | Scenario | Desktop | Mobile 390×844 | Record IDs (deleted) |
+|------|----------|---------|----------------|----------------------|
+| A | Resume + empty credits → review shows "Resume uploaded — see Media", DB: resume_url set + notable_credits null | PASS | PASS | b4a26069, c304518e |
+| B | Credits typed, no resume → submit succeeds, DB: notable_credits = typed value | PASS | PASS | 1473118c, 65d1ac68 |
+| C | Zero ethnicity checkboxes → DB stores `ethnicity = []` | PASS | PASS | f14e2951, 8cf66ac4 |
+| D | Headshot 5 MB (> old 4.5 MB limit) → upload succeeds with 10 MB limit | PASS | PASS | 61262d36, 2f84f1a7 |
+
+All 16 records created, asserted, and deleted. No Storage files remain.
+
+**playwright.config.ts**: dotenv loading added; `mobile-390x844` project added (viewport 390×844, isMobile, hasTouch, iPhone 14 UA).
+
+---
+
+### Migration notes
+Migration 013 (`ethnicity_other`) was also missing from the remote DB and was applied alongside 014. Both confirmed present. PostgREST schema cache reloaded via `NOTIFY pgrst, 'reload schema'`.
+
+---
+
+*Gate cleared — ready for owner sign-off. Do not merge, do not deploy until owner confirms.*
