@@ -113,11 +113,13 @@ export async function POST(
       categories,
       gender: str('gender') || null,
       height: str('height') || null,
+      height_unit: str('height_unit') || null,
       weight: str('weight') || null,
+      weight_unit: str('weight_unit') || null,
       hair_color: str('hair_color') || null,
       eye_color: str('eye_color') || null,
-      skin_tone: str('skin_tone') || null,
       ethnicity: toArr('ethnicity'),
+      ethnicity_other: str('ethnicity_other') || null,
       wardrobe_sizes: jsonObj('wardrobe_sizes'),
       shoe_size: str('shoe_size') || null,
       skills: toArr('skills'),
@@ -171,8 +173,13 @@ export async function POST(
               We have received your submission to Landi-Lou Talent Agency. Our team reviews every profile
               personally and with intention. We will be in touch if there is a fit.
             </p>
-            <p style="line-height:1.7;color:#9ba9bb;margin-bottom:32px;">
+            <p style="line-height:1.7;color:#9ba9bb;margin-bottom:16px;">
               In the meantime, we invite you to continue developing your craft. Excellence is a practice.
+            </p>
+            <p style="line-height:1.7;color:#9ba9bb;margin-bottom:32px;">
+              <strong style="color:#f0ead8;">What happens next:</strong> Our team reviews every profile personally.
+              If your background matches an open opportunity, we will reach out directly by email.
+              This process may take several weeks — we appreciate your patience.
             </p>
             <hr style="border-color:rgba(201,168,76,0.2);margin-bottom:24px;" />
             <p style="color:#9ba9bb;font-size:12px;">
